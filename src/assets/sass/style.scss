@@ -1,0 +1,55 @@
+//
+// Theme style
+//
+
+// Mode
+$mode: default;
+
+// Initialize
+@import "init";
+
+// Components
+@import "./core/components/components";
+@import "components/components";
+
+// Layout
+@import "layout/layout";
+@import "./core/layout/docs/layout";
+
+.card .card-header {
+  min-height: 40px !important;
+  padding-top: 10px;
+}
+
+.image-viewer {
+  max-width: 600px;
+  max-height: 600px;
+}
+@media (max-width: 768px) {
+  .image-viewer {
+    max-width: 480px;
+    max-height: 480px;
+  }
+}
+@media (max-width: 480px) {
+  .image-viewer {
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+}
+
+.scroller {
+  scrollbar-color: rgb(161, 161, 161) transparent;
+  scrollbar-width: thin;
+}
+.scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background: rgb(161, 161, 161);
+  border-radius: 8px;
+}
