@@ -8,19 +8,19 @@ $mode: default;
 // Initialize
 @import "init";
 
-// Components
+// Components 
 @import "./core/components/components";
 @import "components/components";
 
 // Layout
 @import "layout/layout";
 @import "./core/layout/docs/layout";
-
+ 
 .card .card-header {
   min-height: 40px !important;
   padding-top: 10px;
 }
-
+@import "../../../node_modules/bootstrap/scss/maps";
 .image-viewer {
   max-width: 600px;
   max-height: 600px;

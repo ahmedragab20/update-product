@@ -41,16 +41,12 @@
   @import "~sweetalert2/dist/sweetalert2.css";
   @import "~nouislider/distribute/nouislider.css";
   @import "~@fortawesome/fontawesome-free/css/all.min.css";
-  @import "~socicon/css/socicon.css";
+  @import "~socicon/css/socicon.css"; 
   @import "~line-awesome/dist/line-awesome/css/line-awesome.css";
   @import "~dropzone/dist/dropzone.css";
   @import "~@vueform/multiselect/themes/default.css";
   @import "~prism-themes/themes/prism-shades-of-purple.css";
   @import "~element-plus/dist/index.css";
-
-  // Main demo style scss
-  @import "./assets/sass/plugins.scss";
-  @import "./assets/sass/style.scss";
 
   html,
   body {
