@@ -49,8 +49,8 @@
   @import "~element-plus/dist/index.css";
 
   // Main demo style scss
-  //@import "./assets/sass/plugins.scss";
-  //@import "./assets/sass/style.scss";
+  @import "./assets/sass/plugins.scss";
+  @import "./assets/sass/style.scss";
 
   html,
   body {
