@@ -86,7 +86,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useI18n } from "vue-i18n/index";
+import { useI18n } from "vue-i18n/index.js";
 import KTMenu from "@/layout/aside/Menu.vue";
 import AsideMenu from "@/layout/aside/AsideMenu.vue";
 import Dropdown1 from "@/components/dropdown/Dropdown1.vue";
