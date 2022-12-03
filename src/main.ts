@@ -44,6 +44,4 @@ app
   })
   .use(Tabs);
 
-if (state.LookupQueries.languages) {
   app.mount("#app");
-}
