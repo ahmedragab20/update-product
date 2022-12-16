@@ -89,12 +89,14 @@ const messages = {
     addSuccess: "Added Successfully",
     ok: "Ok, got it",
     cancel: "Cancel",
+    codeNotValidReq: "Code Must be Unique",
+    slugNotValidReq: "Slug Must be Unique",
     labelDetails: "Label Details",
     home: "Home",
     thumbnail: "Thumbnail",
     products: "Products",
     shops: "Shops",
-    codeNotValid: "Code must be 4 charcters at minimum and unique  ",
+    codeNotValid: "Code must be 4 charcters at minimum",
     invalidHex: "This Hex Color is invalid !",
     addBrand: "Add Brand",
     brands: "Brands",
@@ -104,7 +106,7 @@ const messages = {
     deleteBrandAlertText: "Are you sure you want to delete the Brand !",
     updateBrandAlertText: "Are you sure you want to Update Brand information ?",
     brandUpdateSucess: "Brand Updated Successfully !",
-    slugNotValid: "Code must be 4 charcters at minimum and unique  ",
+    slugNotValid: "Slug must be 4 charcters at minimum",
     addProduct: "Add Product",
 
     productModifiers: "Product Modifiers",
@@ -149,7 +151,7 @@ const messages = {
     // Category
     productCategories: "Product Categories",
     addProductCategory: "Add Product Category",
-    updateProductCategory:"update Product Category",
+    updateProductCategory:"Update Product Category",
     updateProductCategories: "Update Product Categories",
     productCategorName: "Product Category Name",
     categoryParent: "Category Parent",
@@ -158,6 +160,9 @@ const messages = {
     deleteCategoryChildAlertText: "Remove Sub Categories",
     updateCategory: "Update Category",
     deleteCategoryAlertText: "Are you sure you want to Delete Category  ?",
+    deleteCategorySuccess: "Category Deleted Successfully !",
+    updateCategorySuccess: "Category Updated Successfully !",
+    searchByName: "Search By Name",
 
     //tags
     productTags: "Product Tags",
@@ -177,6 +182,9 @@ const messages = {
     shopsIsRequire: "connected shops is require",
     editTag: "Edit Tag",
     resourcesValidation: "resources is required",
+    deleteTagSuccess: "Tag Deleted Successfully !",
+    updateTagSuccess: "Tag Updated Successfully !",
+    deleteProductTagSuccess: "Product Deleted from Tag Successfully !",
 
     //Abandoned Carts
     abandonedCartsOffers: "Abandoned Carts Offers",
@@ -395,6 +403,8 @@ const messages = {
     categories: "الفئات",
     youAreDone: "لقد انتهيت",
     search: "بحث",
+    codeNotValidReq: "ادخل رمز غير متكرر",
+    slugNotValidReq: "ادخل Slug غير متكرر ",
     productLabels: "ملصقات المنتجات",
     connectedProducts: "المنتجات المرتبطة",
     connectedShops: "المتاجر المرتبطة",
@@ -439,7 +449,7 @@ const messages = {
     //  Brands
     addBrand: "إضافة علامة تجارية",
     brands: "العلامات التجارية",
-    slug: "slug",
+    slug: "الشعار",
     shops: "المتاجر",
     products: "المنتجات",
     deleteProductBrandAlertText:
@@ -506,6 +516,9 @@ const messages = {
 
     updateCategory: "تحديث الفئة",
     deleteCategoryAlertText: "هل انت متأكد تريد حذف الفئة؟",
+    deleteCategorySuccess: "تم حذف الفئة بنجاح !",
+    updateCategorySuccess: "تم تعديل الفئة بنجاح !",
+    searchByName: "بحث عن طريق الاسم",
 
     //tags
     tags: "العلامات",
@@ -525,6 +538,9 @@ const messages = {
     orderIsRequire: "ترتيب مطلوب",
     shopsIsRequire: " المتاجر مطلوبة",
     editTag: "تعديل العلامة",
+    deleteTagSuccess: "تم حذف العلامة بنجاح !",
+    updateTagSuccess: "تم تحديث العلامة بنجاح !",
+    deleteProductTagSuccess: "تم حذف المنتج من العلامة بنجاح !",
 
     // Abandoned Carts
     abandonedCartsOffers: "العروض على السلات المهملة",

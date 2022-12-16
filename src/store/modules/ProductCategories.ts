@@ -129,7 +129,7 @@ CATEGORIES.forEach(el=>{
   //! Actions
   @Action
   [Actions.IS_VALID_CODE_PRODUCT_CATEGORY](payload) {
-    return new Promise((resolve) => {
+    return new Promise((resolve , reject) => {
       Api({
         method: "post",
         url: Actions.IS_VALID_CODE_PRODUCT_CATEGORY,
@@ -137,6 +137,8 @@ CATEGORIES.forEach(el=>{
       }).then((res) => {
         this.context.commit(Mutations.ISVALID_CODE, res?.data.data);
         resolve(res?.data.data);
+      }).catch((err) => {
+        reject(err);
       });
     });
   }
@@ -147,34 +149,47 @@ CATEGORIES.forEach(el=>{
     return new Promise((resolve) => {
     Api({ method: "post", url: Actions.ADD_CATEGORIES, payload }).then(
       (res) => {
-        resolve(res?.data.data);
-        Swal.fire({
-          icon: "success",
-          showCancelButton: false,
-          confirmButtonColor: "#04c8c8",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Ok",
-          text: `${payload.resources[0].name} has added Successfully ! `,
-          showConfirmButton: true,
-        });
-      
-        this.context.dispatch(Actions.GET_CATEGORIES);
-        let newItem: Object = {};
+        if(res?.data.statusCode == 200){
+          resolve(res?.data.data);
+          Swal.fire({
+            icon: "success",
+            showCancelButton: false,
+            confirmButtonColor: "#04c8c8",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ok",
+            text: `${payload.resources[0].name} has added Successfully ! `,
+            showConfirmButton: true,
+          });
+        
+          this.context.dispatch(Actions.GET_CATEGORIES);
+          let newItem: Object = {};
 
-  
-        newItem = {
-          id: res?.data.data.id,
-          name: payload.resources[0].name,
-        };
+    
+          newItem = {
+            id: res?.data.data.id,
+            name: payload.resources[0].name,
+          };
 
-        const returnedTarget: ProductCategoriesType = Object.assign(
-          payload,
-          newItem
-        );
+          const returnedTarget: ProductCategoriesType = Object.assign(
+            payload,
+            newItem
+          );
 
-        let newCategories = Object.assign({}, returnedTarget);
+          let newCategories = Object.assign({}, returnedTarget);
 
-        this.context.commit(Mutations.ADD_CATEGORIES, newCategories);
+          this.context.commit(Mutations.ADD_CATEGORIES, newCategories);
+        }else{
+          Swal.fire({
+            text: res?.data.message,
+            icon: "error",
+            buttonsStyling: false,
+            confirmButtonText: "Try again!",
+            customClass: {
+              confirmButton: "btn fw-bold btn-light-danger",
+            },
+          });
+        }
+        
       }
     );
     })
@@ -195,7 +210,7 @@ CATEGORIES.forEach(el=>{
   }
   @Action
   [Actions.IS_VALID_SLUG_PRODUCT_CATEGORIES](payload) {
-    return new Promise((resolve) => {
+    return new Promise((resolve , reject) => {
       Api({
         method: "post",
         url: Actions.IS_VALID_SLUG_PRODUCT_CATEGORIES,
@@ -205,18 +220,23 @@ CATEGORIES.forEach(el=>{
         this.context.commit(Mutations.ISVALID_SLUG, res?.data.data);
         this.context.commit(Mutations.SET_MESSAGE_ISVALID, res?.data.data);
         resolve(res?.data.data);
+      }).catch((err) => {
+        reject(err);
       });
     });
   }
   @Action
-  [Actions.UPDATE_CATEGORIS](payload: ProductCategoriesType) {
-    (payload?.parentId=='0') ? payload.parentId=null :payload.parentId=payload.parentId
+  [Actions.UPDATE_CATEGORIS](payload: any) {
+   
+    (payload?.parentId=='0' || payload?.parentId=='') ? payload.parentId=null :payload.parentId=payload.parentId
+    delete payload?.thumbnailPath
+    delete payload?.name
     return new Promise((resolve) => {
     Api({ method: "post", url: Actions.UPDATE_CATEGORIS, payload }).then(
       (res) => {
         this.context.dispatch(Actions.GET_CATEGORIES);
         Swal.fire({
-          text: i18n.global.t('updateSuccess'),
+          text: i18n.global.t('updateCategorySuccess'),
           icon: "success",
           buttonsStyling: false,
           confirmButtonText: i18n.global.t('ok'),
@@ -316,7 +336,7 @@ CATEGORIES.forEach(el=>{
       payload:payload,
     }).then((res) => {
       Swal.fire({
-        text: i18n.global.t('deleteSuccess'),
+        text: i18n.global.t('deleteCategorySuccess'),
         icon: "success",
         buttonsStyling: false,
         confirmButtonText: i18n.global.t('ok'),

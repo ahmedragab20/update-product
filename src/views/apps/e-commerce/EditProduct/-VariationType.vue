@@ -76,7 +76,7 @@
       v-if="!pushedNewForm || newOrSaveVariationTypeValidate"
       class="btn btn-success mt-4 mb-2 w-100"
       type="button"
-      @click="pushNewTypeForm"
+      @click="pushNewTypeForm('new')"
     >
       <i class="bi bi-plus-circle" style="font-size: x-large"></i>
       ADD NEW VARIATION TYPE
@@ -270,6 +270,7 @@
   onMounted(() => {
     if (variationsData.value) {
       variationTypes.value = variationsData.value;
+      activeVariationTypes.value = variationTypes.value?.map(el => el.id)
       addVariationType("defaults");
       pushNewTypeForm("defaults");
     }
@@ -277,6 +278,7 @@
   watch(variationsData, (newValue) => {
     if (newValue) {
       variationTypes.value = variationsData.value;
+      activeVariationTypes.value = variationTypes.value?.map(el => el.id)
       addVariationType("defaults");
       pushNewTypeForm("defaults");
     }

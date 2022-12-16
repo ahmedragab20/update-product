@@ -19,11 +19,12 @@
               data-bs-dismiss="modal"
             >
               <span class="svg-icon svg-icon-1">
-                <inline-svg src="media/icons/duotune/arrows/arr061.svg" />
+                <inline-svg src="/media/icons/duotune/arrows/arr061.svg" />
               </span>
             </div>
           </div>
           <!--begin::Modal body-->
+     
 
           <div class="modal-body scroll-y px-10 px-lg-15 pt-10 pb-10">
             <div class="inputs_fields my-3">
@@ -330,14 +331,15 @@
                 <div class="fv-row mb-10">
                   <div class="d-flex justify-content-start align-items-center">
                     <!--begin::Input isPublished On JetOrder-->
-                    <div class="form-check form-check-solid">
+                    <div class="form-check form-check-solid mx-5">
                       <input
+                        id="isPublishedOnJetOrder"
                         class="form-check-input"
                         v-model="form.isPublishedOnJetOrder"
                         type="checkbox"
                         checked=""
                         data-kt-check="false"
-                      /><label class="form-check-label ps-2">
+                      /><label for="isPublishedOnJetOrder" class="form-check-label ps-2">
                         {{ $t("isPublishedOnJetOrderApp") }}
                       </label>
                     </div>
@@ -346,12 +348,13 @@
                     <!--begin::Input isPublished On ShopLink-->
                     <div class="form-check form-check-solid mx-5">
                       <input
+                        id="isPublishedOnShop"
                         class="form-check-input"
                         v-model="form.isPublishedOnShopLink"
                         type="checkbox"
                         checked=""
                         data-kt-check="false"
-                      /><label class="form-check-label ps-2">
+                      /><label for="isPublishedOnShop" class="form-check-label ps-2">
                         {{ $t("isPublishedOnShopLink") }}
                       </label>
                     </div>
@@ -379,7 +382,14 @@
                       ref="submitButton"
                       class="btn btn-lg btn-primary addproduct"
                     >
-                      {{ $t("updateCategory") }}
+                      <span v-if="!isLoading">
+                        {{ $t("updateCategory")  }} <span class="fas fa-plus"></span>
+                      </span>
+                      <span v-if="isLoading" class="indicator-progress d-block">
+                        {{ $t("wait") }}
+                        <span class="spinner-border spinner-border-sm align-middle ms-2" />
+                      </span>
+                      
                     </button>
                     <!--end::group button-->
                   </div>
@@ -439,6 +449,9 @@ export default defineComponent({
     const store = useStore();
     const slugLoading = ref<boolean>(false);
     const codeLoading = ref<boolean>(false);
+    const isValidCode = ref(true);
+    const isValidSlug = ref(true);
+    const isLoading = ref(false);
     const marketShops = computed(() => store.getters.getMarketData.shops);
     const Currency = computed(() => store.getters.getSupportedCurrencies);
     const langs = computed(() => store.getters.getSupportedLanguages);
@@ -458,37 +471,36 @@ export default defineComponent({
     const validMessageCode = computed(() => {
       return store.state.ProductCategories.messageIsValidCode;
     });
-    const isValidSlug = computed(() => {
-      return store.state.ProductCategories.isValidSlug;
-    });
-    const isValidCode = computed(() => {
-      return store.state.ProductCategories.isValidCode;
-    });
+    // const isValidSlug = computed(() => {
+    //   return store.state.ProductCategories.isValidSlug;
+    // });
+    // const isValidCode = computed(() => {
+    //   return store.state.ProductCategories.isValidCode;
+    // });
 
     const ModalUpdateCategories = ref<null | HTMLElement>(null);
 
     function checkValueCode(e) {
-      codeLoading.value = true;
       if (e.target.value.length > 3) {
+        codeLoading.value = true;
         store
           .dispatch(Actions.IS_VALID_CODE_PRODUCT_CATEGORY, {
             id: 0,
             code: e.target.value,
           })
-          .then(() => {
+          .then((res) => {
             codeLoading.value = false;
+            isValidCode.value = res;
           });
       }
     }
     let form = reactive(ProductCategorie);
     const getData = (id) => {
-      console.log("imh");
-
       store.dispatch(Actions.GET_PRODUCT_Categorie_BY_ID, id);
     };
 
     const removeImage = () => {
-      form.value.thumbnailPath = "media/avatars/blank.png";
+      form.value.thumbnailPath = "/media/avatars/blank.png";
     };
     const handleSubmit = async (event: Event) => {
       console.log("handle submit");
@@ -518,10 +530,16 @@ export default defineComponent({
     };
     function checkValueSlug(e) {
       if (e.target.value.length > 3) {
-        store.dispatch(Actions.IS_VALID_SLUG_PRODUCT_CATEGORIES, {
-          id: 0,
-          slug: e.target.value,
-        });
+        slugLoading.value = true;
+        store
+          .dispatch(Actions.IS_VALID_SLUG_PRODUCT_CATEGORIES, {
+            id: 0,
+            slug: e.target.value,
+          })
+          .then((res) => {
+            slugLoading.value = false;
+            isValidSlug.value = res;
+          });
       }
     }
 
@@ -533,13 +551,13 @@ export default defineComponent({
     const schema = yup.object({
       code: yup
         .string()
-        .min(4, i18n.global.t("codeNotValid"))
+        .min(4, i18n.global.t("codeNotValid")),
 
-        .required(i18n.global.t("fieldRequired")),
+        //.required(i18n.global.t("fieldRequired")),
       slug: yup
         .string()
-
-        .required(i18n.global.t("fieldRequired")),
+        .min(4, i18n.global.t("slugNotValid")),
+        //.required(i18n.global.t("fieldRequired")),
       // connectedShops: yup.array().of(yup.string().required("required")).required("required"),
       resources: yup.array().of(
         yup.object().shape({
@@ -553,8 +571,10 @@ export default defineComponent({
       selectedItem.value = payload;
     };
     function submit(values, { resetForm }) {
+      isLoading.value = true;
       store.dispatch(Actions.UPDATE_CATEGORIS, form.value).then(() => {
         resetForm();
+        isLoading.value = false;
         hideModal(ModalUpdateCategories.value);
         form.value.connectedShops = [];
       });
@@ -566,7 +586,7 @@ export default defineComponent({
       ProductCategorie,
       form,
       getData,
-
+      isLoading,
       slugLoading,
       codeLoading,
       handleSubmit,
@@ -578,16 +598,16 @@ export default defineComponent({
       ModalUpdateCategories,
       submit,
       isValidSlug,
+      isValidCode,
       validMessageSlug,
+      validMessageCode,
       GategoriesList,
+      removeImage
     };
   },
 });
 </script>
 <style scoped>
-input.form-check-input {
-  margin-top: 12px;
-}
 .row.col-md-12 {
   margin-left: -60%;
 }

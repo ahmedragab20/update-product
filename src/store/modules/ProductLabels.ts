@@ -98,11 +98,21 @@ export default class ProductLabels extends VuexModule {
             })
         })
     }
-    @Action
-    [Actions.UPDATE_PRODUCT_LABEL](payload) {
 
-
-
+    @Action({ rawError: true })
+    [Actions.UPDATE_PRODUCT_LABEL](labeldata) {
+        delete labeldata?.numberOfConnectedShops
+        delete labeldata?.numberOfConnectedProducts
+        delete labeldata?.shops
+        
+     //console.log('shopsdata',labeldata)
+      const payload = {
+        method: "post",
+        url: Actions.UPDATE_PRODUCT_LABEL,
+        payload: labeldata,
+      };
+  
+      return new Promise((resolve, reject) => {
         Swal.fire({
             title: i18n.global.t('alertTitle'),
             text: i18n.global.t('updateLabelAlertText'),
@@ -115,26 +125,75 @@ export default class ProductLabels extends VuexModule {
             confirmButtonText: i18n.global.t('update'),
         }).then(status => {
             if (status.isConfirmed) {
-
-                Api({ url: Actions.UPDATE_PRODUCT_LABEL, payload, method: 'post' }).then(res => {
+                Api(payload)
+                .then((res) => {
+                  if (res?.data.statusCode == 200) {
                     Swal.fire({
-                        text: i18n.global.t('updateSuccess'),
-                        icon: "success",
-                        buttonsStyling: false,
-                        confirmButtonText: i18n.global.t('ok'),
-                        cancelButtonText: i18n.global.t('cancel'),
-                        customClass: {
-                            confirmButton: "btn fw-bold btn-light-primary",
-                        },
+                      text: i18n.global.t('updateSuccess'),
+                      icon: "success",
+                      buttonsStyling: false,
+                      confirmButtonText: "Ok, got it!",
+                      customClass: {
+                        confirmButton: "btn fw-bold btn-light-primary",
+                      },
+                    }).then(() => {
+                      resolve(res?.data);
                     })
+                  } else {
+                    resolve(res?.data);
+                    Swal.fire({
+                      text: res?.data.message,
+                      icon: "error",
+                      buttonsStyling: false,
+                      confirmButtonText: "Ok, got it!",
+                      customClass: {
+                        confirmButton: "btn fw-bold btn-light-primary",
+                      },
+                    });
+                  }
                 })
+                .catch((err) => {
+                  reject(err);
+                });
             }
-
-        })
-
-
-
+        }) 
+      });
     }
+
+    // @Action
+    // [Actions.UPDATE_PRODUCT_LABEL](payload) {
+    //     Swal.fire({
+    //         title: i18n.global.t('alertTitle'),
+    //         text: i18n.global.t('updateLabelAlertText'),
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#3085d6',
+    //         cancelButtonText: i18n.global.t('cancel'),
+
+    //         cancelButtonColor: '#d33',
+    //         confirmButtonText: i18n.global.t('update'),
+    //     }).then(status => {
+    //         if (status.isConfirmed) {
+
+    //             Api({ url: Actions.UPDATE_PRODUCT_LABEL, payload, method: 'post' }).then(res => {
+    //                 // Swal.fire({
+    //                 //     text: i18n.global.t('updateSuccess'),
+    //                 //     icon: "success",
+    //                 //     buttonsStyling: false,
+    //                 //     confirmButtonText: i18n.global.t('ok'),
+    //                 //     cancelButtonText: i18n.global.t('cancel'),
+    //                 //     customClass: {
+    //                 //         confirmButton: "btn fw-bold btn-light-primary",
+    //                 //     },
+    //                 // })
+    //             })
+    //         }
+
+    //     })
+
+
+
+    // }
     @Action
     [Actions.REMOVE_PRODUCT_FROM_LABEL](payload) {
         Swal.fire({
@@ -273,7 +332,7 @@ export default class ProductLabels extends VuexModule {
 
                         this.context.dispatch(Actions.GET_PRODUCT_LABELS, { query: '', pageSize: this.pagination.pageSize, pageNumber: this.pagination.pageNumber })
                         Swal.fire({
-                            text: `  ${i18n.global.t('deleteLabelAlertText')}`,
+                            text: i18n.global.t("deleteSuccess"),
                             icon: "success",
                             buttonsStyling: false,
                             confirmButtonText: "Ok, got it!",

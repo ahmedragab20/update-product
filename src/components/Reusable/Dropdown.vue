@@ -4,7 +4,7 @@
       <div
         class="text-truncate w-100"
         :class="[headClasses, !disabled ? '' : `${disabledClasses}`]"
-        @click="!disabled ? dropdownHandler($event) : ''"
+        @click="!disabled ? dropdownHandler($event, false) : ''"
         :style="`cursor: ${disabled ? 'not-allowed' : 'pointer'};`"
       >
         <slot name="headerContent" :item="{ selectedItem, isOpened }" />

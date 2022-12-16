@@ -16,6 +16,7 @@ interface screenDimensionsObject {
   availHeight: number;
   availWidth: number;
 }
+
 export const dateFormat = (date: Date, withoutTime?: boolean) => {
   const newData = new Date(date);
   const numberWithTwoDigits = {

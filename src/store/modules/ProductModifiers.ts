@@ -1,5 +1,5 @@
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
-import { productModifiersType } from "@/api/data/ProductModifiers";
+import  productModifiersType  from "@/api/data/ProductModifiers";
 import { ConnectedProduct } from "@/api/data/ConnectedProduct";
 import { Pagination } from "@/interfaces/pagination";
 import Api from "@/utils/ApiHelper";
@@ -88,7 +88,7 @@ export default class ProductModifiers extends VuexModule {
   @Mutation
   [Mutations.DELETE_PRODUCT_MODIFIERS](id) {
     Swal.fire({
-      text: i18n.global.t("deleteSuccess"),
+      text: 'Modifier Deleted Successfully !',
       icon: "success",
       buttonsStyling: false,
       confirmButtonText: i18n.global.t("ok"),
@@ -97,7 +97,7 @@ export default class ProductModifiers extends VuexModule {
       },
     });
 
-    // this.Modifiers = this.Modifiers.filter(ele => ele.id != id)
+    this.Modifiers = this.Modifiers.filter(ele => ele.id != id)
   }
   @Mutation
   [Mutations.GET_MODIFIER_PRODUCTS](products) {
@@ -217,7 +217,7 @@ export default class ProductModifiers extends VuexModule {
   }
   @Action
   [Actions.ADD_MODIFIERS](payload) {
-   
+    payload.modifierGroupItems.forEach(function(v){ delete v.timeStamp });
     return new Promise((resolve, reject) => {
     Api({ method: "post", url: Actions.ADD_MODIFIERS, payload }).then((res) => {
   
@@ -232,20 +232,7 @@ export default class ProductModifiers extends VuexModule {
           confirmButton: "btn fw-bold btn-light-primary",
         },
       });
-      // let newItem: Object = {};
-      // newItem = {
-      //   id: res?.data.data.id,
-      //   name: payload.resources[0].name,
-      // };
 
-      // const returnedTarget: productModifiersType = Object.assign(
-      //   payload,
-      //   newItem
-      // );
-
-      // let newModifier = Object.assign({}, returnedTarget);
-
-      // this.context.commit(Mutations.ADD_MODIFIERS, newModifier);
     }) .catch((er) => {
       reject(er);
     })

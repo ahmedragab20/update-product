@@ -34,7 +34,7 @@
           <div class="mb-0">
             <button
               type="button"
-              class="btn btn-danger er fs-6 px-8 py-4 w-100"
+              class="btn btn-primary er fs-6 px-8 py-4 w-100"
               data-bs-toggle="modal"
               data-bs-target="#kt_modal_deposite-1"
             >
@@ -79,7 +79,7 @@
           <div class="mb-2">
             <button
               type="submit"
-              class="btn btn-primary w-100"
+              class="btn btn-danger w-100"
               data-bs-toggle="modal"
               data-bs-target="#kt_modal_withdraw"
             >
@@ -127,15 +127,9 @@ import WalletDetails from "../components/WalletDetails.vue";
 
 import TransactionTable from "../components/TransactionTable.vue";
 
-import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
-import i18n from "@/core/plugins/i18n";
 
-onMounted(() => {
-  setCurrentPageBreadcrumbs(i18n.global.t("walletDetails"), [
-    i18n.global.t("Apps"),
-    i18n.global.t("wallet"),
-  ]);
-});
+
+
 const DepositeWithdrawForm = ref();
 
 const props = defineProps({

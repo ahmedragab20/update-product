@@ -212,7 +212,7 @@ export default class ProductTags extends VuexModule {
                 Api({ method: 'post', url: Actions.REMOVE_PRODUCT_FROM_TAG, payload: payload }).then(res => {
                     this.context.commit(Mutations.DELETE_PRODUCT_FROM_TAG, payload.connectedProducts)
                     Swal.fire({
-                        text: i18n.global.t('deleteSuccess'),
+                        text: i18n.global.t('deleteProductTagSuccess'),
                         icon: "success",
                         buttonsStyling: false,
                         confirmButtonText: i18n.global.t('ok'),
@@ -239,7 +239,7 @@ export default class ProductTags extends VuexModule {
                 Api({ method: "post", url: Actions.DELETE_PRODUCT_TAGS, payload: { id: payload } }).then((res) => {
                     this.context.commit(Mutations.REMOVE_PRODUCT_TAGS, payload);
                     Swal.fire({
-                        text: i18n.global.t('deleteSuccess'),
+                        text: i18n.global.t('deleteTagSuccess'),
                         icon: "success",
                         buttonsStyling: false,
                         confirmButtonText: i18n.global.t('ok'),

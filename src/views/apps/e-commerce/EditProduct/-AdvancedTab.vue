@@ -873,10 +873,14 @@ const editorOptions = ref({
 
 // meta add tag logic
 const tag = ref<any>("");
-let metaTags = ref<any[]>([]);
+const metaTags = ref<any[]>([]);
 
 const metaPushTagHandler = (text: string) => {
-  if (tag.value && !metaTags.value.includes(text)) {
+  console.log(text, metaTags.value);
+
+  if (text && metaTags.value && !metaTags.value.includes(text)) {
+    console.log(`I'm existed`);
+
     metaTags.value.push(text);
   }
   tag.value = "";
@@ -891,11 +895,11 @@ const saveMetaChanges = async () => {
     metaTagsLoading.value = true;
 
     const payload = {
-      id: props.product.id,
+      id: props.product?.id,
       metaData: {
-        title: productMetaTags.value.title,
-        description: productMetaTags.value.description,
-        keywords: metaTags.value.toString(),
+        title: productMetaTags.value?.title,
+        description: productMetaTags.value?.description,
+        keywords: metaTags.value?.toString(),
       },
     };
 
@@ -1015,12 +1019,12 @@ onMounted(() => {
       dropdownSelectedProductLabels(props.product.labelProducts, true);
     }
     // product meta data
-    if (props.product.productMetaData) {
-      productMetaTags.value.description =
-        props.product.productMetaData.description;
-      productMetaTags.value.title = props.product.productMetaData.title;
-      productMetaTags.value.keywords = props.product.productMetaData.keywords;
-    }
+    // if (props.product.productMetaData) {
+    //   productMetaTags.value.description =
+    //     props.product.productMetaData.description;
+    //   productMetaTags.value.title = props.product.productMetaData.title;
+    //   productMetaTags.value.keywords = props.product.productMetaData.keywords || [];
+    // }
 
     upSellingProducts.value = props.product?.upsellProducts;
     crossSellingProducts.value = props.product?.crosssellProducts;
@@ -1040,16 +1044,19 @@ watchEffect(() => {
   }
   if (props.product.productMetaData) {
     productMetaTags.value.description =
-      props.product.productMetaData.description;
+      props.product.productMetaData.description || `<p><br /></p>`;
     productMetaTags.value.title = props.product.productMetaData.title;
 
-    productMetaTags.value.keywords =
-      props.product.productMetaData.keywords?.split(",");
-    metaTags.value = props.product.productMetaData.keywords?.split(",");
+    if (![null, undefined, ""].includes(props.product.productMetaData.keywords)) {
+      console.log(`yes I'm right over here`);
+      
+      productMetaTags.value.keywords =
+        props.product.productMetaData.keywords?.split(",");
+      metaTags.value = props.product.productMetaData.keywords?.split(",") || [];
+    }
   }
   if (props.product.pointsClassId && props.product.pointsClassValue) {
     if (props.product.pointsClassId === "2") {
-      console.log(`I'm running`);
       pointsSystem.value.customSettings = "1";
       pointsSystem.value.term = props.product.pointsClassValue;
     }

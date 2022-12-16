@@ -17,7 +17,7 @@
               class="btn btn-sm btn-icon btn-active-color-primary"
               data-bs-dismiss="modal">
               <span class="svg-icon svg-icon-1">
-                <inline-svg src="media/icons/duotune/arrows/arr061.svg" />
+                <inline-svg src="/media/icons/duotune/arrows/arr061.svg" />
               </span>
             </div>
           </div>
@@ -211,6 +211,7 @@
                     <span v-if="!isValidSlug" class="text-danger">{{
                       validMessageSlug
                     }}</span>
+
                     <ErrorMessage
                       class="text-danger"
                       name="slug"></ErrorMessage>
@@ -294,12 +295,13 @@
                     <!--begin::Input isPublished On JetOrder-->
                     <div class="form-check form-check-solid">
                       <input
+                        id="isPublished"
                         class="form-check-input"
                         v-model="ProductCategories.isPublishedOnJetOrder"
                         type="checkbox"
                         checked=""
                         data-kt-check="false" /><label
-                        class="form-check-label ps-2">
+                        class="form-check-label ps-2" for="isPublished">
                         {{ $t("isPublishedOnJetOrderApp") }}
                       </label>
                     </div>
@@ -309,11 +311,13 @@
                     <div class="form-check form-check-solid mx-5">
                       <input
                         class="form-check-input"
+                        id="isPublishedOnShopLink"
                         v-model="ProductCategories.isPublishedOnShopLink"
                         type="checkbox"
                         checked=""
                         data-kt-check="false" /><label
-                        class="form-check-label ps-2">
+                        class="form-check-label ps-2"
+                        for="isPublishedOnShopLink">
                         {{ $t("isPublishedOnShopLink") }}
                       </label>
                     </div>
@@ -338,7 +342,14 @@
                       type="submit"
                       ref="submitButton"
                       class="btn btn-lg btn-primary addproduct">
-                      {{ $t("addCategory") }}
+                      <span v-if="!isLoading">
+                        {{ $t("addCategory") }} <span class="fas fa-plus"></span>
+                      </span>
+                      <span v-if="isLoading" class="indicator-progress d-block">
+                        {{ $t("wait") }}
+                        <span class="spinner-border spinner-border-sm align-middle ms-2" />
+                      </span>
+                      
                     </button>
                     <!--end::group button-->
                   </div>
@@ -391,35 +402,40 @@ const validMessageSlug = computed(() => {
 const validMessageCode = computed(() => {
   return store.state.ProductCategories.messageIsValidCode;
 });
-const isValidSlug = computed(() => {
-  return store.state.ProductCategories.isValidSlug;
-});
-const isValidCode = computed(() => {
-  return store.state.ProductCategories.isValidCode;
-});
+// const isValidSlug = computed(() => {
+//   return store.state.ProductCategories.isValidSlug;
+// });
+// const isValidCode = computed(() => {
+//   return store.state.ProductCategories.isValidCode;
+// });
+const isValidCode = ref(true);
+const isValidSlug = ref(true);
+const isLoading = ref(false);
 function checkValueCode(e) {
-  codeLoading.value = true;
   if (e.target.value.length > 3) {
+    codeLoading.value = true;
     store
       .dispatch(Actions.IS_VALID_CODE_PRODUCT_CATEGORY, {
         id: 0,
         code: e.target.value,
       })
-      .then(() => {
+      .then((res) => {
         codeLoading.value = false;
+        isValidCode.value = res;
       });
   }
 }
 const checkValueSlug = (e) => {
-  slugLoading.value = true;
   if (e.target.value.length > 3) {
+    slugLoading.value = true;
     store
       .dispatch(Actions.IS_VALID_SLUG_PRODUCT_CATEGORIES, {
         id: 0,
         slug: e.target.value,
       })
-      .then(() => {
+      .then((res) => {
         slugLoading.value = false;
+        isValidSlug.value = res;
       });
   }
 };
@@ -428,7 +444,7 @@ const imageUrl = ref("/media/svg/files/blank-image.svg");
 
 // Handle Image
 const removeImage = () => {
-  imageUrl.value = "media/avatars/blank.png";
+  imageUrl.value = "/media/avatars/blank.png";
 };
 
 const handleSubmit = async (event: Event) => {
@@ -475,10 +491,9 @@ const props = defineProps({
 const ProductCategories = reactive({
   resources: [],
   code: "",
-  thumbnail: "",
   slug: "",
   parentId: null,
-
+  thumbnail: "",
   order: 0,
   connectedShops: [],
 
@@ -492,7 +507,6 @@ function initResources() {
     form.resources.push({
       languageId: element.id,
       name: "",
-      description: "",
     });
   });
 }
@@ -517,13 +531,12 @@ const submitButton = ref<HTMLButtonElement | null>(null);
 const GategoriesForm = yup.object({
   code: yup
     .string()
-    .min(4, i18n.global.t("codeNotValid"))
-
-    .required(i18n.global.t("fieldRequired")),
+    .min(4, i18n.global.t("codeNotValid")),
+    //.required(i18n.global.t("fieldRequired")),
   slug: yup
     .string()
-
-    .required(i18n.global.t("fieldRequired")),
+    .min(4, i18n.global.t("slugNotValid")),
+    //.required(i18n.global.t("fieldRequired")),
   connectedShops: yup
     .array()
     .of(yup.number())
@@ -538,11 +551,12 @@ const GategoriesForm = yup.object({
 
 //Form submit function
 function submit(values, { resetForm }) {
-  if (isValidSlug.value) {
+  if (isValidSlug.value && isValidCode.value) {
     console.log("ProductCategories", ProductCategories);
-
+    isLoading.value = true;
     store.dispatch(Actions.ADD_CATEGORIES, ProductCategories).then(() => {
       resetForm();
+      isLoading.value = false;
       hideModal(addSubCategoriesModalRef.value);
       ProductCategories.connectedShops = [];
     });

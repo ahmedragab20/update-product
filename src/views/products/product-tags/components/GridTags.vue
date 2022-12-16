@@ -89,7 +89,7 @@
                     class="menu-link px-3 d-flex justify-content-between align-items-center"
                   >
                     <span>{{ $t("delete") }}</span>
-                    <span class="svg-icon svg-icon-3">
+                    <span class="svg-icon svg-icon-danger svg-icon-3">
                       <inline-svg
                         src="/media/icons/duotune/general/gen027.svg"
                       />

@@ -123,7 +123,7 @@
               </tabs-duplicator>
               <div class="row">
                 <div class="col-12 col-sm-12 mb-1">
-                  <div>
+                  <div v-if="selectedLanguage && selectedLanguage.id">
                     <input
                       type="text"
                       id="modifierName"
@@ -644,7 +644,7 @@
           </tabs-duplicator>
           <div class="row">
             <div class="col-12 col-sm-12 mb-1">
-              <div>
+              <div v-if="selectedLanguage && selectedLanguage.id">
                 <input
                   type="text"
                   id="modifierName"
@@ -1335,6 +1335,8 @@ const submitAll = async () => {
 const editTarget = ref<any>();
 const editModifierDialog = ref(false);
 const editModifierDialogToggle = (target: any) => {
+  console.log("edit modifier dialog toggle", target);
+
   editTarget.value = target;
   setEditTargetedModifier();
   editModifierDialog.value = !editModifierDialog.value;
@@ -1477,10 +1479,24 @@ const removeModifier = async () => {
         reqErrorMsg.value = data.message;
       }
     } else {
+      console.log(
+        `%cHello bro I'm your groups 😊`,
+        "color: brown; font-weight: bold"
+      );
+      let groupItems: any[] = [];
+
       if (editTarget.value && editTarget.value.modifierGroupItems) {
-        editTarget.value = editTarget.value.modifierGroupItems?.filter(
+        groupItems = editTarget.value.modifierGroupItems?.filter(
           (i) => i.id !== targetInfo.id
         );
+        editTarget.value["modifierGroupItems"] = groupItems;
+        modifierGroupItems.value = groupItems;
+
+        console.log({
+          groupItems: editTarget.value["modifierGroupItems"],
+          modifierGroupItems: modifierGroupItems.value,
+          target: editTarget.value,
+        });
       } else {
         modifierGroupItems.value = modifierGroupItems.value.filter(
           (i) => i.id !== targetInfo.id
@@ -1533,6 +1549,9 @@ watch(addModifierDialog, (newV) => {
 });
 watch(confirmationDialog, (newV) => {
   if (!newV) reqErrorMsg.value = "";
+});
+watch(editTarget, (newV, oldV) => {
+  console.log({ newV, oldV });
 });
 const resetData = () => {
   if (props.modifiers) {

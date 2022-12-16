@@ -251,7 +251,7 @@ const saveCodeChange = async (code: string) => {
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-code",
-    payload: { id: form.value.id, code },
+    payload: { id: product.value.id || null, code },
   };
   try {
     codeLoading.value = true;
@@ -274,7 +274,7 @@ const saveSlugChange = async (slug: string) => {
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-slug",
-    payload: { id: form.value.id, slug },
+    payload: { id: product.value.id || null, slug },
   };
   try {
     slugLoading.value = true;

@@ -31,8 +31,16 @@
                         'is-valid': meta.valid,
                         'is-invalid': meta.validated && !meta.valid,
                       }"
+                      @blur="validateSlug($event)"
                     />
+                    <div
+                      v-if="loadSlug"
+                      class="spinner-border spinner-border-sm align-middle ms-2"
+                    ></div>
                   </Field>
+                  <span v-if="!isValidSlug" class="text-danger">
+                    {{ $t("slugNotValidReq") }}
+                  </span>
                   <ErrorMessage class="text-danger" name="slug"></ErrorMessage>
                 </div>
 
@@ -68,8 +76,16 @@
                         'is-valid': meta.valid,
                         'is-invalid': meta.validated && !meta.valid,
                       }"
+                      @blur="validateCode($event)"
                     />
+                    <div
+                      v-if="loadCode"
+                      class="spinner-border spinner-border-sm align-middle ms-2"
+                    ></div>
                   </Field>
+                  <span v-if="!isValidCode" class="text-danger">
+                      {{ $t("codeNotValidReq") }}
+                    </span>
                   <ErrorMessage class="text-danger" name="code"></ErrorMessage>
                 </div>
                 <!--end::code -->
@@ -261,9 +277,7 @@
             <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
               <div class="card card-flush">
                 <div class="card-header">
-                  <div class="card-title">
-                    <h2>{{ $t("shopTag") }}</h2>
-                  </div>
+                
                   <div class="d-flex justify-content-center align-items-center">
                     <el-select
                       v-model="pageSize"
@@ -419,7 +433,7 @@
                           @click="removeProduct(scope.row.id)"
                           class="btn btn-icon btn-danger-light btn-active-color-danger btn-sm"
                         >
-                          <span class="svg-icon svg-icon-1">
+                          <span class="svg-icon svg-icon-danger  svg-icon-1">
                             <inline-svg
                               src="/media/icons/duotune/general/gen027.svg"
                             />
@@ -533,6 +547,10 @@ let tagsDto = ref({
 const connectedValue = ref([]);
 
 const tagForm = ref();
+const loadSlug = ref(false);
+const loadCode = ref(false);
+const isValidCode = ref(true)
+const isValidSlug = ref(true)
 const langs = computed(() => {
   return store.getters.getSupportedLanguages;
 });
@@ -558,13 +576,13 @@ const schema = yup.object({
   code: yup
     .string()
     .min(4)
-    .test("isValidSlug", i18n.global.t("codeValidation"), validateCode)
+    //.test("isValidSlug", i18n.global.t("codeValidation"), validateCode)
     .required(i18n.global.t("codeIsRequire")),
   order: yup.number().required(i18n.global.t("codeIsRequire")),
   slug: yup
     .string()
     .min(4)
-    .test("isValidSlug", i18n.global.t("slugValidation"), validateSlug)
+    //.test("isValidSlug", i18n.global.t("slugValidation"), validateSlug)
     .required(i18n.global.t("slugIsRequire")),
   // connectedShops: yup.array().of(yup.string()).required(),
   resources: yup.array().of(
@@ -640,7 +658,7 @@ function updateTags() {
     .then(() => {
       isLoading.value = false;
       Swal.fire({
-        text: i18n.global.t("updateSuccess"),
+        text: i18n.global.t("updateTagSuccess"),
         icon: "success",
         buttonsStyling: false,
         confirmButtonText: i18n.global.t("ok"),
@@ -653,30 +671,36 @@ function updateTags() {
 }
 
 function validateSlug(e) {
-  return new Promise<boolean>((resolve) => {
-    if (e && e.length >= 4) {
+  return new Promise<boolean>((resolve, reject) => {
+    if (e.target.value.length >= 4) {
+      loadSlug.value = true;
       api({
         url: "ProductTagCommands/is-valid-slug",
         method: "post",
-        payload: { slug: e, id: props.id },
+        payload: { slug: e.target.value },
       }).then((res) => {
         resolve(res?.data.data as boolean);
+        loadSlug.value = false;
+        isValidSlug.value = res?.data.data
       });
-    } else resolve(false);
+    } else reject(false);
   });
 }
 
 function validateCode(e) {
-  return new Promise<boolean>((resolve) => {
-    if (e && e.length >= 4)
+  return new Promise<boolean>((resolve, reject) => {
+    if (e.target.value.length >= 4) {
+      loadCode.value = true;
       api({
         url: "ProductTagCommands/is-valid-code",
         method: "post",
-        payload: { code: e, id: props.id },
+        payload: { code: e.target.value },
       }).then((res) => {
         resolve(res?.data.data as boolean);
+        loadCode.value = false;
+        isValidCode.value = res?.data.data
       });
-    else resolve(false);
+    } else reject(false);
   });
 }
 function submitAction() {

@@ -139,6 +139,7 @@
                               }
                             : {}
                         "
+                        @blur="validateCode($event)"
                       />
 
                       <div
@@ -146,7 +147,9 @@
                         class="spinner-border spinner-border-sm align-middle ms-2"
                       ></div>
                     </Field>
-
+                    <span v-if="!isValidCode" class="text-danger">
+                      {{ $t("codeNotValidReq") }}
+                    </span>
                     <ErrorMessage
                       class="text-danger"
                       name="code"
@@ -169,6 +172,7 @@
                               }
                             : {}
                         "
+                        @blur="validateSlug($event)"
                       />
 
                       <div
@@ -176,7 +180,9 @@
                         class="spinner-border spinner-border-sm align-middle ms-2"
                       ></div>
                     </Field>
-
+                    <span v-if="!isValidSlug" class="text-danger">
+                      {{ $t("slugNotValidReq") }}
+                    </span>
                     <ErrorMessage
                       class="text-danger"
                       name="slug"
@@ -302,19 +308,21 @@ const marketShops = computed(() => store.getters.getMarketData.shops);
 const isLoading = ref(false);
 const loadSlug = ref(false);
 const loadCode = ref(false);
+const isValidCode = ref(true)
+const isValidSlug = ref(true)
 const isDisabled = ref(false);
 //Create form validation object
 const schema = yup.object({
   code: yup
     .string()
     .min(4)
-    .test("isValidSlug", i18n.global.t("codeValidation"), validateCode)
+    //.test("isValidSlug", i18n.global.t("codeValidation"), validateCode)
     .required(i18n.global.t("codeIsRequire")),
   order: yup.number().required(i18n.global.t("orderIsRequire")),
   slug: yup
     .string()
     .min(4)
-    .test("isValidSlug", i18n.global.t("slugValidation"), validateSlug)
+    //.test("isValidSlug", i18n.global.t("slugValidation"), validateSlug)
     .required(i18n.global.t("slugIsRequire")),
   connectedShops: yup
     .array()
@@ -401,17 +409,16 @@ function resetForm() {
 }
 
 function onSubmit(e) {
-  isLoading.value = true;
-  console.log("in function submit");
-
-  store
-    .dispatch(Actions.ADD_PRODUCT_TAGS, {
-      ...e,
-      resources: tagsDto.resources,
-      isPublishedOnJetOrderApp: tagsDto.isPublishedOnJetOrderApp,
-      isPublishedOnShopLink: tagsDto.isPublishedOnShopLink,
-    })
-    .then((data) => {
+  if (isValidSlug.value && isValidCode.value) {
+    isLoading.value = true;
+    store
+      .dispatch(Actions.ADD_PRODUCT_TAGS, {
+        ...e,
+        resources: tagsDto.resources,
+        isPublishedOnJetOrderApp: tagsDto.isPublishedOnJetOrderApp,
+        isPublishedOnShopLink: tagsDto.isPublishedOnShopLink,
+      })
+      .then((data) => {
       if (data.statusCode == 200) {
         isLoading.value = false;
         Swal.fire({
@@ -426,38 +433,53 @@ function onSubmit(e) {
           resetForm();
           emit("add-tags");
         });
+      } else {
+        isLoading.value = false;
+        Swal.fire({
+          text: data.message,
+          icon: "error",
+          buttonsStyling: false,
+          confirmButtonText: "Try again!",
+          customClass: {
+            confirmButton: "btn fw-bold btn-light-danger",
+          },
+        });
       }
-    });
+    })
+  }
+  
 }
 function validateSlug(e) {
-  return new Promise<boolean>((resolve) => {
-    if (e && e.length >= 4) {
+  return new Promise<boolean>((resolve, reject) => {
+    if (e.target.value.length >= 4) {
       loadSlug.value = true;
       api({
         url: "ProductTagCommands/is-valid-slug",
         method: "post",
-        payload: { slug: e },
+        payload: { slug: e.target.value },
       }).then((res) => {
         resolve(res?.data.data as boolean);
         loadSlug.value = false;
+        isValidSlug.value = res?.data.data
       });
-    } else resolve(false);
+    } else reject(false);
   });
 }
 
 function validateCode(e) {
-  return new Promise<boolean>((resolve) => {
-    if (e && e.length >= 4) {
+  return new Promise<boolean>((resolve, reject) => {
+    if (e.target.value.length >= 4) {
       loadCode.value = true;
       api({
         url: "ProductTagCommands/is-valid-code",
         method: "post",
-        payload: { code: e },
+        payload: { code: e.target.value },
       }).then((res) => {
         resolve(res?.data.data as boolean);
         loadCode.value = false;
+        isValidCode.value = res?.data.data
       });
-    } else resolve(false);
+    } else reject(false);
   });
 }
 </script>

@@ -27,7 +27,7 @@
             <div
               class="d-flex align-items-center collapsible toggle collapsed"
               data-bs-toggle="collapse"
-              :data-bs-target="`#kt_account_details_${account.accountId}`"
+              :data-bs-target="`#kt_account_deposite_${account.accountId}`"
               aria-expanded="false"
             >
               <div class="me-3 rotate-90">
@@ -99,7 +99,7 @@
           </div>
 
           <div
-            :id="`kt_account_details_${account.accountId}`"
+            :id="`kt_account_deposite_${account.accountId}`"
             class="fs-6 ps-10 collapse"
             style=""
           >

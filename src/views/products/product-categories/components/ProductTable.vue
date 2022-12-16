@@ -37,7 +37,7 @@
                     filterable
                     remote
                     reserve-keyword
-                    placeholder="Please enter a keyword"
+                    :placeholder="$t('enterKeyword')"
                     :remote-method="getProducts"
                     :loading="productsLoading"
                   >
@@ -63,7 +63,7 @@
                         v-if="
                           itemsConnectedProduct.some((p) => p.id == item.id)
                         "
-                        >Already Selected</span
+                        >{{ $t("alreadySelected") }}</span
                       >
                     </el-option>
                   </el-select>
@@ -88,6 +88,8 @@
                     />
                   </span>
                   <span v-else> {{ $t("save") }}</span>
+
+                  
                 </button>
               </div>
 
@@ -178,18 +180,22 @@ function deleteProduct(id) {
     confirmButtonText: i18n.global.t("deleteAlertConfirm"),
     cancelButtonText: i18n.global.t("cancel"),
   }).then((status) => {
-    if (status.isConfirmed) console.log("ppayloads", payload);
-    store.dispatch(Actions.REMOVE_PRODUCTS_FOMR_CATEGORY, payload);
-    for (let i = 0; i < itemsConnectedProduct.value.length; i++) {
-      if (itemsConnectedProduct.value[i].id === id) {
-        itemsConnectedProduct.value.splice(i, 1);
+    if (status.isConfirmed){
+      store.dispatch(Actions.REMOVE_PRODUCTS_FOMR_CATEGORY, payload);
+      for (let i = 0; i < itemsConnectedProduct.value.length; i++) {
+        if (itemsConnectedProduct.value[i].id === id) {
+          itemsConnectedProduct.value.splice(i, 1);
+        }
       }
+      getConnectedProducts(CategoryId.value)
+    }else{
+      return null;
     }
+    
   });
 }
 function saveProduct() {
   someproduct.value = false;
-
   productsList.value = [];
   store
     .dispatch(Actions.ADD_PRODUCTS_TO_CATEGORY, {
@@ -198,6 +204,7 @@ function saveProduct() {
     })
     .then(() => {
       connectedProductsSelect.value = [];
+      getConnectedProducts(CategoryId.value)
     });
 }
 

@@ -526,10 +526,8 @@ const getConditionData = (condition) => {
     isControlMulti(control) &&
     getSelectedOptionById(control?.controlId)?.isDefaultInputType ===
       "checkbox";
-  console.log(getSelectedOptionById(control?.controlId)?.isDefaultInputType)
   if (isOptionMultiSelect) {
     const optionsIds: any[] = condition.value?.split(",");
-    console.log({ optionsIds });
     option = control?.options?.filter((option) =>
       optionsIds.includes(option.connectionId)
     );
@@ -538,7 +536,6 @@ const getConditionData = (condition) => {
   } else {
     option = condition.value;
   }
-  console.log({ control, operation, option });
   return { control, operation, option };
 };
 

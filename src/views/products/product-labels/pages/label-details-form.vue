@@ -88,18 +88,21 @@
                         'is-valid': meta.valid && !isLoading,
                         'is-invalid': meta.validated && !meta.valid && !isLoading,
                       }"
+                      @blur="validateCode($event)"
                     />
                   </Field>
 
                   <span
-                    v-if="isLoading"
+                    v-if="codeLoading"
                     class="indicator-progress d-block"
                     style="position: absolute; right: 15px; bottom: 15px"
                   >
                     <span class="spinner-border spinner-border-sm align-middle ms-2" />
                   </span>
                 </div>
-
+                <span v-if="!isValidCode" class="text-danger">
+                  {{ $t("codeNotValidReq") }}
+                </span>
                 <ErrorMessage class="text-danger" name="code"></ErrorMessage>
               </div>
               <!--end::code -->
@@ -239,13 +242,14 @@
               <div class="col-12 my-3">
                 <label class="required fs-5 fw-bold mb-2 d-inline"
                   >{{ $t("connectedShops") }}
+                
                 </label>
                 <div class="d-flex">
-                  <Field name="connectedShops" type="text" v-slot="{ field, value }">
+                  <Field name="connectedShops" v-model="form.connectedShops" type="text" v-slot="{ field, value }">
                     <!-- :remote-method="getProducts" -->
                     <el-select
                       class="w-100 form-control-solid border-0"
-                      v-model="form.shops"
+                      v-model="form.connectedShops"
                       multiple
                       filterable
                       remote
@@ -313,6 +317,11 @@
                         :label="item.name"
                         style="height: 60px"
                         :value="item"
+                        :disabled="
+                          connectedProductsResult.some(
+                            (p) => p.id == item.id
+                          )
+                        "
                       >
                         <img
                           :src="item.thumbnail"
@@ -321,6 +330,15 @@
                           alt=""
                         />
                         <span class="mx-2">{{ item.name }}</span>
+                        <span
+                            class="mx-2 text-danger"
+                            v-if="
+                              connectedProductsResult.some(
+                                (p) => p.id == item.id
+                              )
+                            "
+                            >{{ $t("alreadySelected") }}</span
+                          >
                       </el-option>
                     </el-select>
                   </Field>
@@ -350,7 +368,7 @@
                 <label>{{ $t("connectedProducts") }}</label>
                 <el-table :data="connectedProductsResult" class="tag-products w-100 pt-4">
                   >
-                  <el-table-column width="70" :label="$t('thumbnail')">
+                  <el-table-column width="70" :label="$t('Image')">
                     <template #default="scope">
                       <div class="d-flex align-items-center">
                         <img
@@ -379,9 +397,9 @@
                     <template #default="scope">
                       <a
                         @click="removeProduct(scope.row.id)"
-                        class="btn btn-icon btn-danger-light btn-active-color-danger btn-sm"
+                        class="btn btn-icon btn-danger-light btn-active-color-primary btn-sm"
                       >
-                        <span class="svg-icon svg-icon-1">
+                        <span class="svg-icon svg-icon-danger svg-icon-1">
                           <inline-svg src="/media/icons/duotune/general/gen027.svg" />
                         </span>
                       </a>
@@ -421,6 +439,7 @@
                 >
                   <Field
                     name="textColor"
+                    v-model="form.textColor"
                     value="#000000"
                     type="color"
                     v-slot="{ value, field }"
@@ -445,6 +464,7 @@
                 >
                   <Field
                     name="backgroundColor"
+                    v-model="form.backgroundColor"
                     value="#ffffff"
                     type="color"
                     v-slot="{ field }"
@@ -469,7 +489,13 @@
               {{ $t("goBack") }}
             </button>
             <button class="btn btn-primary" type="button" @click="validate">
-              {{ $t("save") }}
+              <span v-if="!isLoading">
+                {{ $t("save") }} 
+              </span>
+              <span v-if="isLoading" class="indicator-progress d-block">
+                {{ $t("wait") }}
+                <span class="spinner-border spinner-border-sm align-middle ms-2" />
+              </span>
             </button>
           </div>
         </div>
@@ -500,17 +526,21 @@ onMounted(async () => {
 const localPagination = reactive({ pageNumber: 1, pageSize: 5 });
 const labelForm = ref(null);
 const keyword = ref("");
+const codeLoading = ref<boolean>(false);
+const isValidCode = ref(true);
 const store = useStore();
 let props = defineProps({
   id: string,
 });
-let form = ref<ProductLabel>({
+let form = ref({
   code: "",
   icon: "",
   name: "",
-  shops: [],
+  connectedShops: [],
   numberOfConnectedProducts: 0,
   numberOfConnectedShops: 0,
+  textColor: "",
+  backgroundColor: "",
   isPublishedOnJetOrderApp: false,
   isPublishedOnShopLink: false,
   order: 0,
@@ -523,7 +553,7 @@ const schema = yup.object({
   code: yup
     .string()
     .min(4, i18n.global.t("codeNotValid"))
-    .test("isValidCode", i18n.global.t("codeNotValid"), validateCode)
+    //.test("isValidCode", i18n.global.t("codeNotValid"), validateCode)
     .required(i18n.global.t("fieldRequired")),
   order: yup.number().required(i18n.global.t("fieldRequired")),
   textColor: yup
@@ -548,17 +578,19 @@ const langs = computed(() => {
 });
 function validateCode(e) {
   return new Promise<boolean>((resolve, reject) => {
-    if (e.length >= 4) {
-      isLoading.value = true;
+    if (e.target.value.length >= 4 && codeCheck.value !== e.target.value) {
+      codeLoading.value = true;
       api({
         url: "ProductLabelCommands/is-valid-code",
         method: "post",
-        payload: { code: e, id: props.id },
+        payload: { code: e.target.value },
       }).then((res) => {
-        isLoading.value = false;
+        codeLoading.value = false;
         resolve(res?.data.data as boolean);
+        console.log("code res",res?.data.data);
+        isValidCode.value = res?.data.data;
       });
-    } else reject(false);
+    }
   });
 }
 const connectedProductsResult = computed(() =>
@@ -577,12 +609,14 @@ const marketShops = computed(() => store.getters.getMarketData.shops);
 const connectedProducts = computed(() => store.state.ProductLabels.connectedProducts);
 const icons = computed(() => store.getters.getIcons);
 const productsList = computed(() => store.state.ProductLabels.products);
+const codeCheck = ref("");
 //                                              FUNCTIONS and ACTIONS DEFINETION
 function getProductLabel(id) {
-  store.dispatch(Actions.GET_PRODUCT_LABEL, { id }).then((data: ProductLabel) => {
-    form.value = {
-      ...data,
-    };
+  store.dispatch(Actions.GET_PRODUCT_LABEL, { id }).then((data : any) => {
+    console.log("gggggggg", data);
+    
+    form.value = data
+    form.value.connectedShops=data?.shops
     selectedItem.value = form.value.resources[0];
   });
 }
@@ -657,16 +691,19 @@ function removeProduct(id) {
   });
 }
 function onSubmit(e) {
+  console.log("form ", ...form)
+  isLoading.value = true;
   store.dispatch(Actions.UPDATE_PRODUCT_LABEL, {
     ...e,
-    connectedShops: form.value.shops,
-    resources: form.value.resources,
-    isPublishedOnJetOrderApp: form.value.isPublishedOnJetOrderApp,
-    isPublishedOnShopLink: form.value.isPublishedOnShopLink,
+    ...form.value,
     id: props.id,
-  });
+  }).then(() => {
+      isLoading.value = false;
+    });
+  
 }
-//                                              SETUP FUNCTIONS EXECUTION
+
+// SETUP FUNCTIONS EXECUTION
 setCurrentPageBreadcrumbs(i18n.global.t("labelDetails"), [i18n.global.t("labels")]);
 getProductLabel(props.id);
 getConnectedProducts();

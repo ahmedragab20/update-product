@@ -253,20 +253,24 @@
 import Api from "@/utils/ApiHelper";
 import SaveChangeBtn from "@/views/apps/e-commerce/EditProduct/-SaveChangeBtn.vue";
 import Dropdown from "@/components/Reusable/Dropdown.vue";
-import { reactive, ref } from "@vue/reactivity";
+import { ref } from "@vue/reactivity";
 import { useStore } from "vuex";
 import { computed, onBeforeMount, onMounted } from "vue";
+import { Product, Categories } from "@/types";
 
-const props = defineProps([
-  "product",
-  "categories",
-  "brands",
-  "deliveryClasses",
-]);
+interface Props {
+  product: Product;
+  categories: Categories[];
+  brands: any[];
+  deliveryClasses: any[];
+}
+
+const props = defineProps<Props>();
+
 const store = useStore();
 
 const isLoading = ref(false);
-const dataChange = ref(false);
+const dataChange = ref<string | boolean>(false);
 const product = computed(() => store.state.UpdateProduct.product);
 // Brands logic
 const brandsDropdownSelectedItem = ref();
@@ -324,11 +328,11 @@ const errorMessage = ref("");
 
 const sendProductDetails = async () => {
   const payload = {
-    id: props.product.id,
-    brandId: brandsDropdownSelectedItem.value.id,
+    id: props.product.id || null,
+    brandId: brandsDropdownSelectedItem.value?.id,
     connectedProductCategories: selectedItemsIds.value,
     deliveryTimeCategoryId: deliveryClassesDropdownSelectedItem.value
-      ? deliveryClassesDropdownSelectedItem.value.id
+      ? deliveryClassesDropdownSelectedItem.value?.id
       : (errorMessage.value = "can't send empty data"),
   };
 

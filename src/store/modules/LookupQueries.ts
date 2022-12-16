@@ -8,6 +8,7 @@ import {
   Settings,
   ShopTag,
   Icon,
+  Categories,
 } from "@/types";
 import Api from "@/utils/ApiHelper";
 import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators";
@@ -25,7 +26,7 @@ export default class LookupQueries extends VuexModule {
   shopCategories = [] as ShopTag[];
   cities = [];
   shops = [] as any[];
-  categories = [] as any[];
+  categories = [] as Categories[];
   brands = [] as any[];
   deliveryClasses = [] as any[];
   vehicleTypes = [] as any[];
@@ -455,6 +456,7 @@ export default class LookupQueries extends VuexModule {
 
     Api(payload).then((response) => {
       this.context.commit(Mutations.SET_OPERATION_TYPES, response?.data.data);
+      this.context.commit(Mutations.SET_OPERATIONS, response?.data.data);
     });
   }
 

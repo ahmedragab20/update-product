@@ -243,7 +243,11 @@
               <!--end::Connected Shops-->
 
               <!--begin::Connected Products-->
-              <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
+            
+              <!--end::Connected Products-->
+            </div>
+          </div>
+          <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
                 <div class="card card-flush py-4 mb-4">
                   <div class="card-header d-flex align-items-center">
                     <div class="card-title">
@@ -393,9 +397,6 @@
                   </div>
                 </div>
               </div>
-              <!--end::Connected Products-->
-            </div>
-          </div>
 
           <div class="card card-flush py-4">
             <!--begin::Card header-->
@@ -408,157 +409,243 @@
             </div>
 
             <div class="card-body pt-0">
-              <div class="col-12 mt-5">
-                <div
-                  v-for="(groupItem, index) in form.modifierGroupItems"
-                  :key="index">
-                  <!--begin:: Resources-->
-                  <div class="col-12 my-3">
-                    <tabs-duplicator
-                      :items="langs"
-                      @selectedItem="setselectedItemgroup">
-                      <template #label="{ item }">
-                        {{ item.label }}
-                      </template>
-                    </tabs-duplicator>
-                    <div class="fields">
+               <!--begin::Array Modifier Group Items-->
+               <div
+                  v-if="form.modifierGroupItems && form.modifierGroupItems.length > 0"
+                  class="mt-5"
+                >
+                  <section>
+                    <div
+                      class="d-flex justify-content-between gap-1 align-items-center flex-wrap"
+                    >
+                      <label class="form-label">Modifiers Group items</label>
                       <div>
-                        <div class="inputs_fields my-3">
-                          <div
-                            v-for="(item, i) in groupItem.resources"
-                            :key="i">
+                        <button
+                          @click="toggleAddGroupItemDialog"
+                          type="button"
+                          class="btn btn-sm bg-light-primary text-primary btn-hover-rise rounded-pill"
+                        >
+                          + Add new modifier group item
+                        </button>
+                      </div>
+                    </div>
+             
+                    <table class="table gs-3 gy-3 gx-5">
+                      <thead>
+                        <tr
+                          class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
+                        >
+                          <th class="text-truncate">#</th>
+                          <th class="text-truncate">name</th>
+                          <th class="text-truncate">price</th>
+                          <th class="text-truncate">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="(item, index) in form.modifierGroupItems"
+                          :key="item.id"
+                        >
+                          <td class="text-truncate">
+                            <div class="td-holder" v-text="index + 1" />
+                          </td>
+                          <td class="text-truncate">
                             <div
-                              v-show="item.languageId == selectedItemgroup.id">
-                              <Field
-                                v-model="groupItem.resources[i].name"
-                                :name="`form.modifierGroupItems[${index}].resources[${i}].name`"
-                                type="text"
-                                v-slot="{ field, meta }"
-                                :label="`Product Modifier Name$`">
-                                <input
-                                  v-bind="field"
-                                  :dir="selectedItemgroup.dir"
-                                  type="text"
-                                  class="form-control form-control-solid form-control-lg"
-                                  :class="{
-                                    'is-valid': meta.valid,
-                                    'is-invalid': meta.validated && !meta.valid,
-                                  }" />
-                              </Field>
-                              <ErrorMessage
-                                :name="`form.modifierGroupItems[${index}].resources[${i}].name`"
-                                class="text-danger">
-                              </ErrorMessage>
+                              class="td-holder"
+                              v-text="item.resources[0].name"
+                              :title="item.resources[0].name"
+                            />
+                          </td>
+                          <td class="text-truncate">
+                            <div
+                              class="td-holder"
+                              v-text="item.prices[0].price"
+                            />
+                          </td>
+                          <td>
+                            <div class="td-holder gap-2">
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-bg-light rounded-pill btn-text-info me-2"
+                                title="edit"
+                                @click="
+                                  setClickedModifier(item),
+                                    toggleAddGroupItemDialog()
+                                "
+                              >
+                                <i
+                                  class="bi bi-pencil-square text-info"
+                                  style="font-size: 1rem"
+                                ></i>
+                              </button>
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-bg-light rounded-pill btn-text-danger"
+                                title="remove"
+                                @click="removeModifier(item.id)"
+                              >
+                                <i
+                                  class="bi bi-trash3 text-danger"
+                                  style="font-size: 1rem"
+                                ></i>
+                              </button>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <!--end::Input-->
-                  <div class="fv-row mb-10">
-                    <div class="form-check form-check-solid mx-5">
-                      <input
-                        :key="index"
-                        class="form-check-input"
-                        v-model="groupItem.selected"
-                        type="checkbox"
-                        @change="check($event, groupItem)"
-                        checked=""
-                        data-kt-check="false" /><label
-                        class="form-check-label ps-2">
-                        {{ $t("Selected") }}
-                      </label>
-                    </div>
-                  </div>
-                  <!--start::Price-->
-                  <div class="row mb-10">
-                    <div class="col-md-6 fv-row">
-                      <tabs-duplicator
-                        :items="Currency"
-                        @selectedItem="setselectedItemgroupCurrency">
-                        <template #label="{ item }">
-                          {{ item.label }}
-                        </template>
-                      </tabs-duplicator>
-                      <div class="fields">
-                        <div>
-                          <div class="inputs_fields my-3">
-                            <div v-for="(item, i) in groupItem.prices" :key="i">
-                              <div
-                                v-show="
-                                  item.currencyId ==
-                                  selectedItemgroupCurrency.id
-                                ">
-                                <Field
-                                  v-model="groupItem.prices[i].price"
-                                  :name="`form.modifierGroupItems[${index}].prices[i].price`"
-                                  type="text"
-                                  v-slot="{ field, meta }"
-                                  :label="`Product Modifier Name$`">
-                                  <input
-                                    v-bind="field"
-                                    :dir="selectedItemgroupCurrency.dir"
-                                    type="number"
-                                    min="0"
-                                    class="form-control form-control-solid form-control-lg"
-                                    :class="{
-                                      'is-valid': meta.valid,
-                                      'is-invalid':
-                                        meta.validated && !meta.valid,
-                                    }" />
-                                </Field>
-                                <ErrorMessage
-                                  :name="`form.modifierGroupItems[${index}].prices[i].price`"
-                                  class="text-danger">
-                                </ErrorMessage>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-6 fv-row order">
-                      <label class="required fs-5 fw-bold mb-2 d-inline">{{
-                        $t("order")
-                      }}</label>
-
-                      <Field
-                        class="form-control form-control-lg form-control-solid"
-                        type="number"
-                        :name="`form.modifierGroupItems[${index}].order`"
-                        autocomplete="off"
-                        v-model="groupItem.order"
-                        min="0" />
-                      <!--end::Input-->
-                      <div class="fv-plugins-message-container">
-                        <div class="fv-help-block">
-                          <ErrorMessage
-                            :name="`form.modifierGroupItems[${index}].order`" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <!--end::Input-->
-                  </div>
-                  <div class="fv-row mb-10">
-                    <button
-                      v-if="index != 0"
-                      type="button"
-                      class="btn btn-lg btn-secondary"
-                      @click="removeItem(index)">
-                      {{ $t("remove") }}
-                    </button>
-                  </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-lg btn-primary add-another-item"
-                  @click="addnewItem()">
-                  {{ $t("addAnotherItem") }}
-                  <inline-svg src="/media/icons/duotune/arrows/arr075.svg" />
-                </button>
-              </div>
+                <div v-else class="mt-5">
+                  <button
+                    @click="toggleAddGroupItemDialog"
+                    type="button"
+                    class="btn bg-light-success text-primary btn-hover-rise btn-sm mb-5"
+                  >
+                    + Add modifier group item
+                  </button>
+                  <span class="text-danger row">
+                    {{ $t("modifires must have one option at least") }}
+                  </span>
+                </div>
+                <el-dialog
+                  class="modal fade"
+                  v-model="groupItemDialog"
+                  :title="
+                    !clickedModifier
+                      ? 'Add Group Item Modifier'
+                      : clickedModifier.resources[0].name
+                  "
+                  :width="screenDimensions().availWidth > 480 ? '480px' : '95%'"
+                  top="5vh"
+                >
+                  <template #default>
+                    <section
+                      style="
+                        max-height: 70vh;
+                        overflow: auto;
+                        overflow-x: hidden;
+                      "
+                    >
+                      <div>
+                        <div>
+                          <div>
+                            <label
+                              for="modifierItem1Name"
+                              class="form-label mb-0 mt-3"
+                            >
+                              Name
+                            </label>
+                            <tabs-duplicator
+                              v-if="langs && langs.length > 0"
+                              :items="langs"
+                              @selectedItem="setselectedItemgroup"
+                            >
+                              <template #label="{ item }">
+                                {{ item.label }}
+                              </template>
+                            </tabs-duplicator>
+                            <input
+                              type="text"
+                              id="modifierItem1Name"
+                              class="form-control mt-2"
+                              placeholder="Modifier Name"
+                              v-model="
+                                itemInstance.resources[selectedItemgroup.id]
+                              "
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              for="modifierItem1Price"
+                              class="form-label mb-0 mt-3"
+                            >
+                              Price
+                            </label>
+                            <tabs-duplicator
+                              v-if="Currency && Currency.length > 0"
+                              :items="Currency"
+                              @selectedItem="setselectedItemgroupCurrency"
+                              class="mb-3"
+                            >
+                              <template #label="{ item }">
+                                <span>
+                                  {{ item.label }}
+                                </span>
+                              </template>
+                            </tabs-duplicator>
+                            <input
+                              type="number"
+                              id="modifierItem1Price"
+                              class="form-control"
+                              placeholder="Modifier Price"
+                              v-model="
+                                itemInstance.prices[
+                                  selectedItemgroupCurrency.id
+                                ]
+                              "
+                            />
+                          </div>
+
+                          <div>
+                            <label
+                              for="modifierItem1Order"
+                              class="form-label mb-0 mt-3"
+                            >
+                              Order
+                            </label>
+                            <input
+                              type="number"
+                              id="modifierItem1Order"
+                              class="form-control"
+                              placeholder="Modifier Order"
+                              v-model="itemInstance.order"
+                            />
+                          </div>
+
+                          <div class="separator my-5 border-3 rounded-pill" />
+
+                          <div>
+                            <div class="form-check form-check-solid">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                @change="check($event, itemInstance)"
+                                value=""
+                                id="isSelectedModifier"
+                                v-model="itemInstance.selected"
+                              />
+                              <label class="form-check-label ps-2">
+                                Selected
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="mt-7">
+                          <button
+                            v-if="!clickedModifier"
+                            type="button"
+                            class="btn btn-primary btn-text-white btn-hover-rise shadow-sm"
+                            :disabled="!isAddModifierGroupFormValid"
+                            @click="pushNewModifierGroupItems"
+                          >
+                            Submit Data
+                          </button>
+                          <button
+                            v-else
+                            type="button"
+                            class="btn btn-primary btn-text-white btn-hover-rise shadow-sm"
+                            :disabled="!isAddModifierGroupFormValid"
+                            @click="editModifierGroupItem"
+                          >
+                            Edit Data
+                          </button>
+                        </div>
+                      </div>
+                    </section>
+                  </template>
+                </el-dialog>
             </div>
           </div>
 
@@ -566,15 +653,26 @@
             <button class="btn btn-light" type="button" @click="$router.go(-1)">
               {{ $t("goBack") }}
             </button>
-            <button class="btn btn-primary" type="submit">
-              {{ $t("save") }}
-            </button>
+            <button
+                      :disabled="!isSubmitAllValid"
+                      type="submit"
+                      ref="submitButton"
+                      class="btn btn-lg btn-primary addproduct"
+                    >
+                      <span v-if="!isLoading">
+                        {{ $t("update") }}
+                        <span class="fas fa-plus"></span>
+                      </span>
+                      <span v-if="isLoading" class="indicator-progress d-block">
+                        {{ $t("wait") }}
+                        <span
+                          class="spinner-border spinner-border-sm align-middle ms-2"
+                        />
+                      </span>
+                    </button>
           </div>
         </div>
-        <!--end::main column-->
-
-        <!--begin::group button-->
-
+     
         <!--end::group button-->
       </Form>
     </div>
@@ -583,7 +681,7 @@
 
 <script lang="ts" setup>
 import { useStore } from "vuex";
-import { ref, defineProps, computed, reactive, onMounted } from "vue";
+import { ref, defineProps, computed, reactive, onMounted,unref } from "vue";
 import { Actions } from "@/store/enums/StoreEnums";
 import { string } from "yup";
 import { productModifiers, ModifiersItem } from "@/types";
@@ -591,14 +689,38 @@ import { Form, Field } from "vee-validate";
 import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 import * as yup from "yup";
 import Swal from "sweetalert2";
-
+import { uuid } from "vue-uuid";
 import i18n from "@/core/plugins/i18n";
 
-//                                             Variables and Getters Init
+//     
+interface screenDimensionsObject {
+  availHeight: number;
+  availWidth: number;
+}
+const screenDimensions = (): screenDimensionsObject => {
+  const availWidth = window.innerWidth;
+  const availHeight = window.innerHeight;
+
+  return { availWidth, availHeight };
+};
 const store = useStore();
 let props = defineProps({
   id: string,
 });
+// initial form
+let form = ref<productModifiers>({
+  code: "",
+  icon: "",
+  id: "",
+  name: "",
+  connectedShops: [],
+  numberOfConnectedProducts: 0,
+  numberOfConnectedShops: 0,
+  order: 0,
+  resources: [],
+  modifierGroupItems: [],
+});
+
 const codeLoading = ref<boolean>(false);
 const marketShops = computed(() => store.getters.getMarketData.shops);
 const Currency = computed(() => store.getters.getSupportedCurrencies);
@@ -621,9 +743,7 @@ onMounted(() => {
   }
 });
 
-// const modifierGroupItems = computed(
-//   () => store.state.ProductModifiers.ProductModifiers.modifierGroupItems
-// );
+const isLoading = ref(false);
 const keyword = ref("");
 const productsList = computed(() => store.state.ProductModifiers.products);
 
@@ -696,6 +816,100 @@ function getConnectedProducts() {
   //   // selectedItem.value = form.value.resources[0];
   // });
 }
+const pushNewModifierGroupItems = () => {
+  const item = unref(itemInstance.value);
+  let resources: any[] = [];
+  let prices: any[] = [];
+
+  Object.keys(item.resources).forEach((langId: any) => {
+    resources.push({
+      languageId: langId,
+      name: item.resources[langId],
+    });
+  });
+  Object.keys(item.prices).forEach((currencyId: any) => {
+    prices.push({
+      currencyId: currencyId,
+      price: item.prices[currencyId],
+    });
+  });
+
+  form.value.modifierGroupItems.push({
+    id: uuid.v4(),
+    selected: item.selected,
+    order: item.order,
+    prices,
+    resources,
+    timeStamp: item.timeStamp,
+  });
+
+  toggleAddGroupItemDialog();
+  itemInstance.value = {
+    resources: {},
+    prices: {},
+    order: null,
+    timeStamp: 0,
+    selected: false,
+    image: "",
+  };
+};
+const removeModifier = async (id) => {
+  try {
+    Swal.fire({
+      title: i18n.global.t("alertText"),
+      text: i18n.global.t("deleteModifierAlertText"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      cancelButtonText: i18n.global.t("cancel"),
+      confirmButtonText: i18n.global.t("yesSure"),
+    }).then((status) => {
+      if (status.isConfirmed) {
+        
+        form.value.modifierGroupItems =   form.value.modifierGroupItems.filter(
+          (i) => i.id !== id
+        );
+        
+        toggleConfirmationDialog({ id: null, array: "" });
+      }
+    });
+  } catch (error) {
+ 
+    console.error(error);
+  } 
+};
+const editModifierGroupItem = () => {
+  if (clickedModifier.value) {
+    const item = unref(itemInstance);
+    let resources: any[] = [];
+    let prices: any[] = [];
+
+    let targeted = form.value.modifierGroupItems.find(
+      (el: any) => el.id === clickedModifier.value.id
+    );
+
+    Object.keys(item.resources).forEach((langId: any) => {
+      resources.push({
+        languageId: langId,
+        name: item.resources[langId],
+      });
+    });
+    Object.keys(item.prices).forEach((currencyId: any) => {
+      prices.push({
+        currencyId: currencyId,
+        price: item.prices[currencyId],
+      });
+    });
+
+    targeted.order = item.order;
+    targeted.selected = item.selected;
+    targeted.resources = resources;
+    targeted.prices = prices;
+
+    toggleAddGroupItemDialog();
+  }
+};
 // local pagination
 const connectedProductsResult = computed(() =>
   connectedProducts.value
@@ -710,37 +924,37 @@ const connectedProductsResult = computed(() =>
     )
 );
 
-// initial lang and price
-const getlang = () => {
-  let resource: { name: string; languageId: string }[] = [];
-  langs.value.forEach((el) => {
-    resource.push({ languageId: el.id, name: "" });
+
+const groupItemDialog = ref(false);
+const confirmationDialog = ref(false);
+const clickedModifier = ref();
+const setClickedModifier = (item) => {
+  clickedModifier.value = item;
+
+  itemInstance.value.timeStamp = item.timeStamp;
+  itemInstance.value.order = item.order;
+  itemInstance.value.selected = item.selected;
+
+  item.resources?.forEach((el) => {
+    itemInstance.value.resources[el.languageId] = el.name;
   });
-  return resource;
-};
-const getPrice = () => {
-  let ArrayPrices: { currencyId: string; price: string }[] = [];
-  Currency.value.forEach((el) => {
-    ArrayPrices.push({
-      currencyId: el.id,
-      price: "",
-    });
+  item.prices?.forEach((el) => {
+    itemInstance.value.prices[el.currencyId] = el.price;
   });
-  return ArrayPrices;
 };
-// initial form
-let form = ref<productModifiers>({
-  code: "",
-  icon: "",
-  id: "",
-  name: "",
-  shops: [],
-  numberOfConnectedProducts: 0,
-  numberOfConnectedShops: 0,
-  order: 0,
-  resources: [],
-  modifierGroupItems: [],
+const targetRemovedDetails = ref({
+  id: null,
+  array: "",
 });
+const toggleConfirmationDialog = (info) => {
+
+targetRemovedDetails.value = info;
+
+confirmationDialog.value = !confirmationDialog.value;
+};
+const toggleAddGroupItemDialog = () => {
+  groupItemDialog.value = !groupItemDialog.value;
+};
 
 // get selectedItem for tabsDuplicator
 
@@ -753,67 +967,56 @@ const setselectedItemgroupCurrency = (payload: any) => {
 const setSelectedItem = (payload: any) => {
   selectedItem.value = payload;
 };
+const isAddModifierGroupFormValid = computed(() => {
+  const item = unref(itemInstance.value);
+  const langValid = Object.keys(item.resources).length === langs.value?.length;
+  const priceValid = Object.keys(item.prices).length === Currency.value?.length;
+  const isOrderValid = !!item.order && typeof +item.order === "number";
+
+  return langValid && priceValid && isOrderValid;
+});
 
 const submitButton = ref<HTMLButtonElement | null>(null);
 
-// Remove and Add new Item to ModifierGroup
-const removeItem = (index) => {
-  form.value.modifierGroupItems.splice(index, 1);
-};
-const addnewItem = (i) => {
-  form.value.modifierGroupItems.push({
-    order: 0,
-    selected: true,
 
-    resources: getlang(),
-    prices: getPrice(),
-  });
-};
 
 // check time selected item in modifierGroup
 const check = (e, item) => {
-  const currentDate = new Date();
-  item.timeStamp = currentDate.getTime();
+  item.timeStamp = e.timeStamp;
 };
 
-//Create form validation object
-const schema = yup.object({
-  code: yup
-    .string()
-    .min(4, i18n.global.t("codeNotValid"))
-    .required(i18n.global.t("fieldRequired")),
-  order: yup.number().required(i18n.global.t("fieldRequired")),
-  connectedShops: yup
-    .array()
-    .of(yup.number())
-    .required(i18n.global.t("fieldRequired")),
-  resources: yup.array().of(
-    yup.object().shape({
-      name: yup.string().required(i18n.global.t("fieldRequired")),
-      languageId: yup.string(),
-    })
-  ),
+const itemInstance = ref({
+  resources: {},
+  prices: {},
+  order: null,
+  selected: false,
+  image: "",
+  timeStamp: 0,
+});
+const isSubmitAllValid = computed(() => {
+  const langValid =
+    Object.keys(form.value.resources).length === langs.value?.length;
+  const selectedShops = form.value.connectedShops.length > 0;
+  const code = form.value.code;
+  const order = form.value.order;
+console.log('langValid',langValid)
+  const groupItems = form.value.modifierGroupItems.length > 0;
+
+  return langValid && selectedShops && code && order && groupItems;
 });
 
 // Verify that the value specified in ProductModifiers.maximumSelectionValue has not been exceeded
 const getSelectionNumber = () => {
   let countSelection = 0;
-  console.log(ProductModifiers.value.maximumSelectionValue);
+ 
   ProductModifiers.value.modifierGroupItems.forEach((el) => {
     if (el.selected) {
       countSelection++;
     }
   });
-  console.log("countSelection", countSelection);
-  console.log(
-    "ProductModifiers.value.maximumSelectionValue",
-    ProductModifiers.value.maximumSelectionValue
-  );
+ 
   if (countSelection > ProductModifiers.value.maximumSelectionValue) {
-    let selectedItemArray = [];
-    console.log("ohno");
-    console.log(ProductModifiers.value.modifierGroupItems);
-    console.log("countSelection", countSelection);
+    let selectedItemArray =[] as any;
     ProductModifiers.value.modifierGroupItems.forEach((el) => {
       if (el.selected) {
         selectedItemArray.push(el);
@@ -823,13 +1026,12 @@ const getSelectionNumber = () => {
     let min = selectedItemArray.reduce((prev, curr) =>
       prev.timeStamp < curr.timeStamp ? prev : curr
     );
-    selectedItemArray = [];
-    console.log("min", min);
+ 
     ProductModifiers.value.modifierGroupItems.forEach((el) => {
       if (el.id == min.id) {
-        console.log("el", el);
+     
         el.selected = false;
-        return;
+       
       }
     });
     getSelectionNumber();
@@ -839,10 +1041,14 @@ const getSelectionNumber = () => {
 };
 
 function submit() {
+  isLoading.value = true;
   if (getSelectionNumber()) {
-    store.dispatch(Actions.UPDATE_MODIFIERS, form.value);
+    isLoading.value = true;
+    store.dispatch(Actions.UPDATE_MODIFIERS, form.value).then(() => {
+          isLoading.value = false;
+    })
   } else {
-    let name = [];
+    let name = [] as any;
     ProductModifiers.value.modifierGroupItems.forEach((el) => {
       if (el.selected) {
         name.push(el.resources[0].name);
@@ -860,7 +1066,10 @@ function submit() {
       },
     }).then((status) => {
       if (status.isConfirmed) {
-        store.dispatch(Actions.UPDATE_MODIFIERS, form.value);
+        isLoading.value = true;
+        store.dispatch(Actions.UPDATE_MODIFIERS, form.value).then(() => {
+          isLoading.value = false;
+    })
       }
     });
   }

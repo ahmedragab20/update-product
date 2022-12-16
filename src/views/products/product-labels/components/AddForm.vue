@@ -3,7 +3,7 @@
     ref="labelForm"
     :validation-schema="schema"
     class="form fv-plugins-bootstrap5 fv-plugins-framework p-5"
-    @submit="onSubmit"
+    @submit="submit"
   >
     <div class="row">
       <!--begin:: Resources-->
@@ -57,7 +57,7 @@
         <label class="required fs-5 fw-bold mb-2 d-inline">
           {{ $t("connectedShops") }}</label
         >
-        <Field name="connectedShops" type="text" v-slot="{ field, value }">
+        <Field name="connectedShops" v-model="form.connectedShops" type="text" v-slot="{ field, value }">
           <el-select
             v-bind="field"
             :mode-value="value"
@@ -116,18 +116,21 @@
                 'is-valid': meta.valid && !isLoading,
                 'is-invalid': meta.validated && !meta.valid && !isLoading,
               }"
+              @blur="validateCode($event)"
             />
           </Field>
 
           <span
-            v-if="isLoading"
+            v-if="codeLoading"
             class="indicator-progress d-block"
             style="position: absolute; right: 15px; bottom: 15px"
           >
             <span class="spinner-border spinner-border-sm align-middle ms-2" />
           </span>
         </div>
-
+        <span v-if="!isValidCode" class="text-danger">
+          {{ $t("codeNotValidReq") }}
+        </span>
         <ErrorMessage class="text-danger" name="code"></ErrorMessage>
       </div>
       <!--end::code -->
@@ -230,7 +233,7 @@
     <div class="row my-5">
       <div class="col">
         <div class="d-flex justify-content-end w-100">
-          <button class="btn btn-primary" @click="submit">
+          <button class="btn btn-primary">
             <span v-if="!isLoading">
               {{ $t("add") }} <span class="fas fa-plus"></span>
             </span>
@@ -255,6 +258,11 @@ import * as yup from "yup";
 import i18n from "@/core/plugins/i18n";
 import api from "@/utils/ApiHelper";
 
+interface Resources {
+    languageId: string;
+    name: string;
+}
+
 const labelForm = ref(null);
 const store = useStore();
 
@@ -266,7 +274,7 @@ const selectedItem = ref();
 const emit = defineEmits(["label-added"]);
 
 const productLabelAttrs = {
-  resources: [],
+  resources: [] as Resources[],
   code: "",
   icon: "",
   connectedShops: [],
@@ -278,7 +286,8 @@ const productLabelAttrs = {
 };
 
 const isLoading = ref(false);
-
+const codeLoading = ref<boolean>(false);
+const isValidCode = ref(true);
 const form = reactive(productLabelAttrs);
 
 function initResources() {
@@ -286,7 +295,6 @@ function initResources() {
     form.resources.push({
       languageId: element.id,
       name: "",
-      description: "",
     });
   });
 }
@@ -303,31 +311,35 @@ function submit() {
 }
 
 function onSubmit(e) {
-  isLoading.value = true;
-  store
-    .dispatch(Actions.ADD_PRODUCT_LABEL, {
-      ...form,
-      resources: form.resources,
-      isPublishedOnJetOrderApp: form.isPublishedOnJetOrderApp,
-      isPublishedOnShopLink: form.isPublishedOnShopLink,
-    })
-    .then(() => {
-      isLoading.value = false;
-      emit("label-added");
-      resetForm();
-    });
+  if (isValidCode.value) {
+    isLoading.value = true;
+    store
+      .dispatch(Actions.ADD_PRODUCT_LABEL, {
+        ...form,
+        resources: form.resources,
+        isPublishedOnJetOrderApp: form.isPublishedOnJetOrderApp,
+        isPublishedOnShopLink: form.isPublishedOnShopLink,
+      })
+      .then(() => {
+        isLoading.value = false;
+        emit("label-added");
+        resetForm();
+      });
+  }
 }
 function validateCode(e) {
   return new Promise<boolean>((resolve, reject) => {
-    if (e.length >= 4) {
-      isLoading.value = true;
+    if (e.target.value.length >= 4) {
+      codeLoading.value = true;
       api({
         url: "ProductLabelCommands/is-valid-code",
         method: "post",
-        payload: { code: e },
+        payload: { code: e.target.value },
       }).then((res) => {
-        isLoading.value = false;
+        codeLoading.value = false;
         resolve(res?.data.data as boolean);
+        console.log("code res",res?.data.data);
+        isValidCode.value = res?.data.data;
       });
     } else reject(false);
   });
@@ -365,7 +377,7 @@ const schema = yup.object({
   code: yup
     .string()
     .min(4, i18n.global.t("codeNotValid"))
-    .test("isValidSlug", i18n.global.t("codeNotValid"), validateCode)
+    //.test("isValidSlug", i18n.global.t("codeNotValid"), validateCode)
     .required(i18n.global.t("fieldRequired")),
   order: yup.number().required(i18n.global.t("fieldRequired")),
   textColor: yup
@@ -377,7 +389,7 @@ const schema = yup.object({
     .matches("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", i18n.global.t("invalidHex"))
     .required(i18n.global.t("fieldRequired")),
   icon: yup.string().required(i18n.global.t("fieldRequired")),
-  connectedShops: yup.array().of(yup.string()),
+  connectedShops: yup.array().of(yup.string()).min(1).required(i18n.global.t("fieldRequired")),
   resources: yup.array().of(
     yup.object().shape({
       name: yup.string().required(i18n.global.t("fieldRequired")),

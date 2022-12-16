@@ -31,9 +31,7 @@
   <!-- Search End  -->
 
   <!-- Page Title-->
-  <div class="d-flex justify-content-between align-items-center w-100">
-    <h2>{{ $t("walletPage") }}</h2>
-  </div>
+
 
   <!--begin::Card body-->
   <div class="row g-4">
@@ -158,17 +156,23 @@
 
 <script lang="ts" setup>
 import { useStore } from "vuex";
-import { ref, computed } from "vue";
+import { ref, computed,onMounted } from "vue";
 
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { Wallet } from "@/types";
-
+import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
+import i18n from "@/core/plugins/i18n";
 const store = useStore();
 const filterDto = computed(() => store.state.AllAccounts.filterDto);
 // REF
 
 const search = ref("");
+onMounted(() => {
+  setCurrentPageBreadcrumbs(i18n.global.t("wallet"), [
+    i18n.global.t("Apps"),
 
+  ]);
+});
 // Computed
 const WalletList = computed(
   () => store.state.WalletModule.WalletList as Array<Wallet>

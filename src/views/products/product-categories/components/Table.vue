@@ -7,7 +7,7 @@
         :per-page="perPage"
         :current-page="currentPage"
       >
-        <el-table-column prop="thumbnail" label="Img" width="50">
+        <el-table-column prop="thumbnail" :label="$t('image')" width="80">
           <template #default="scope">
             <div>
               <img :src="scope.row.thumbnail" class="img-option" height="30" />
@@ -20,21 +20,21 @@
               v-model="search"
               size="big"
               prop="name"
-              label="Name"
-              placeholder="Search By Name"
+              :label="$t('name')"
+              :placeholder="$t('searchByName')"
             />
           </template>
           <template #default="scope">
             <div>{{ scope.row.name }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="Action" width="80">
+        <el-table-column prop="name" :label="$t('actions')" width="80">
           <template #default="scope">
             <a
-              @click="deleteProductFromModifier(scope.row.id)"
+              @click="deleteProductFromCategory(scope.row.id)"
               class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
             >
-              <span class="svg-icon svg-icon-3">
+              <span class="svg-icon svg-icon-danger svg-icon-3">
                 <inline-svg src="/media/icons/duotune/general/gen027.svg" />
               </span>
             </a>
@@ -95,7 +95,7 @@ const setPage = (val) => {
 const total = computed(() => store.state.ProductCategories.products.length);
 console.log("total", total);
 
-function deleteProductFromModifier(id) {
+function deleteProductFromCategory(id) {
   emit("deleteProduct", id);
 }
 

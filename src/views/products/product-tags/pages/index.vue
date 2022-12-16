@@ -27,14 +27,16 @@
             >
               {{ $t("search") }}
             </button>
+            <button class="btn btn-light" type="button" @click="reset">
+            {{ $t("reset") }}
+          </button>
           </div>
           <!--end::Search-->
           <!-- </div> -->
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-between align-items-center py-5">
-      <h2 class="px-5 m-0">{{ $t("productTags") }}</h2>
+  
       <div class="d-flex justify-content-end align-items-center mx-5">
         <!-- {{ pagination.pageSize }} -->
         <el-select
@@ -91,15 +93,24 @@
           {{ $t("addTag") }}
         </button>
       </div>
-    </div>
+ 
     <div class="card-body pt-0 pb-5">
       <component
+      v-if="(productTags.length >0 )"
         :pagination="pagination"
         :items="productTags"
         :is="activeComponent"
         @delete-product-tag="deleteProductTag"
         @update-pagination="search"
       />
+  
+  <div v-else>
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span>Loading...</span>
+          </div>
+        </div>
+      </div>
     </div>
     <FormModal></FormModal>
   </div>
@@ -113,6 +124,8 @@ import TagCard from "@/views/products/product-tags/components/GridTags.vue";
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import FormModal from "@/views/products/product-tags/components/AddFormTags.vue";
 import { Pagination } from "@/types";
+import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
+import i18n from "@/core/plugins/i18n";
 const store = useStore();
 const isGrid = ref(true);
 const searchValue = ref("");
@@ -152,10 +165,18 @@ const search = () => {
 function tagAdd() {
   search();
 }
-
+const reset = () => {
+  searchValue.value = "";
+  store.dispatch(Actions.GET_PRODUCT_TAGS, {
+    query: "",
+    pageSize: pagination.value.pageSize,
+    pageNumber: pagination.value.pageNumber,
+  });
+};
 const deleteProductTag = (id) => {
   store.dispatch(Actions.DELETE_PRODUCT_TAGS, id);
 };
+setCurrentPageBreadcrumbs(i18n.global.t("productTags") , []);
 search();
 </script>
 <style lang="scss">

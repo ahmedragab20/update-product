@@ -819,29 +819,7 @@
                 <!--begin::Step 3-->
                 <div data-kt-stepper-element="content">
                   <div class="w-100">
-                    <!--begin::Input group-->
-                    <div class="fv-row mb-10">
-                      <!--begin::Label-->
-                      <label class="required fs-5 fw-bold mb-2">
-                        {{ $t("yourPassword") }}
-                      </label>
-                      <!--end::Label-->
-
-                      <!--begin::Input-->
-                      <Field
-                        type="text"
-                        class="form-control form-control-lg form-control-solid"
-                        name="password"
-                        placeholder=""
-                        v-model="depositForm.password"
-                      />
-                      <ErrorMessage
-                        class="fv-plugins-message-container invalid-feedback"
-                        name="password"
-                      />
-                      <!--end::Input-->
-                    </div>
-                    <!--end::Input group-->
+                  
 
                     <!--begin::Input group-->
                     <div class="fv-row mb-10">
@@ -1020,7 +998,7 @@ interface Step2 {
 
 interface Step4 {
   notes: string;
-  password: string;
+
 }
 
 interface Step3 {
@@ -1071,7 +1049,7 @@ export default defineComponent({
       name: "",
       shopId: "",
       accountTypeMthod: "",
-      password: "",
+
       accountType: "",
       accountId: "",
       amount: 1,
@@ -1234,7 +1212,7 @@ export default defineComponent({
 
       Yup.object({
         notes: Yup.string().required().label("notes"),
-        password: Yup.string().required().label("password"),
+  
       }),
     ];
 
@@ -1320,7 +1298,7 @@ export default defineComponent({
       depositForm.value.accountSubTypeId = "";
       depositForm.value.shopId = "";
       depositForm.value.accountTypeMthod = "";
-      depositForm.value.password = "";
+
       depositForm.value.accountType = "";
       depositForm.value.accountId = "";
       depositForm.value.amount = 0;

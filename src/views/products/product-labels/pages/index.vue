@@ -21,6 +21,9 @@
           <button type="button" class="btn btn-primary me-5" @click="fetchData">
             {{ $t("search") }}
           </button>
+          <button class="btn btn-light" type="button" @click="reset">
+            {{ $t("reset") }}
+          </button>
         </div>
         <!--end:Action-->
       </div>
@@ -69,13 +72,12 @@
     <!--end::Modal dialog-->
   </div>
   <!-- Form-Modal End -->
-  <div class="d-flex justify-content-between align-items-center w-100">
-    <h2>{{ $t("productLabels") }}</h2>
-    <!--begin::Filter-->
-    <div class="d-flex align-items-center justify-content-end my-3">
+
+  <div class="d-flex align-items-center justify-content-end my-3">
       <ul class="nav nav-pills me-6 mb-2 mb-sm-0">
         <li>
           <el-select
+            style="width: 100px"
             @change="setItemsPerPage"
             v-model="pagination.pageSize"
             placeholder="Number Of Item"
@@ -121,18 +123,26 @@
         {{ $t("addLabel") }}
       </button>
     </div>
-  </div>
 
   <!--end::Filter-->
 
   <!--begin::Card body-->
   <component
+  v-if="(productLabels.length >0 )"
     :pagination="pagination"
     @update-pagination="fetchData"
     :items="productLabels"
     :is="activeComponent"
     @delete-product-label="deleteProductLabel"
   />
+ 
+  <div v-else>
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span>Loading...</span>
+          </div>
+        </div>
+      </div>
   <!--end::Card body-->
   <!--end::Card-->
 </template>
@@ -146,6 +156,8 @@ import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { ProductLabel } from "@/api/data/ProductLabels";
 import ProductLabelForm from "../components/AddForm.vue";
 import { hideModal } from "@/core/helpers/dom";
+import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
+import i18n from "@/core/plugins/i18n";
 const store = useStore();
 enum views {
   TABLE_VIEW = 1,
@@ -180,6 +192,14 @@ const fetchData = () => {
     pageNumber: pagination.value.pageNumber,
   });
 };
+const reset = () => {
+  search.value = "";
+  store.dispatch(Actions.GET_PRODUCT_LABELS, {
+    query: "",
+    pageSize: pagination.value.pageSize,
+    pageNumber: pagination.value.pageNumber,
+  });
+};
 const fetchIcons = () => {
   store.dispatch(Actions.FONTAWESOME_ICONS);
 };
@@ -197,4 +217,6 @@ const onLabelAdded = () => {
 
 fetchIcons();
 fetchData();
+setCurrentPageBreadcrumbs(i18n.global.t("productLabels") , []);
+
 </script>

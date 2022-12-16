@@ -191,12 +191,7 @@ function deleteModifier(id) {
   }).then((status) => {
     if (status.isConfirmed) emit("delete-product-modifiers", id);
 
-    for (let i = 0; i < items.value.length; i++) {
-      if (items.value[i].id === id) {
-        items.value.splice(i, 1);
-      }
-    }
-    console.log(items);
+  
   });
 }
 const pagination = computed(

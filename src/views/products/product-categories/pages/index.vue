@@ -2,7 +2,7 @@
 
 
   <div class="d-flex justify-content-between align-items-center w-100">
-    <h2>{{ $t("productCategories") }}</h2>
+   
     <!--begin::Filter-->
 
     <div
@@ -18,7 +18,7 @@
         <span class="svg-icon svg-icon-3">
           <inline-svg src="media/icons/duotune/general/gen035.svg" />
         </span>
-        {{ $t("addProductCategorie") }}
+        {{ $t("addProductCategory") }}
       </button>
     </div>
     <product-table ref="producttable" />
@@ -32,11 +32,20 @@
   <!--begin::Card body-->
 
   <nested-draggable
+  v-if="(Gategories.length >0 )"
     :Gategories="Gategories"
     :fetchData="fetchData"
     @fetchProduct="fetchProduct"
     @updateProduct="updateProduct"
   />
+
+  <div v-else>
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span>Loading...</span>
+          </div>
+        </div>
+      </div>
   <!--end::Card body-->
   <!--end::Card-->
 </template>
@@ -48,7 +57,8 @@ import AddCategoriesForm from "../components/AddCategoriesForm.vue";
 import { Actions } from "@/store/enums/StoreEnums";
 import ProductTable from "../components/ProductTable.vue";
 import  {productCategories} from "@/types"
-
+import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
+import i18n from "@/core/plugins/i18n";
 import { showModal } from "@/core/helpers/dom";
 import UpdateCategoriesForm from "../components/UpdateCategoriesForm.vue";
 
@@ -85,7 +95,7 @@ export default defineComponent({
       return store.dispatch(Actions.GET_CATEGORIES);
     };
     fetchData();
-
+    setCurrentPageBreadcrumbs(i18n.global.t("productCategories") , []);
     const Gategories = computed(
       () =>
         store.state.ProductCategories.Gategories as Array<productCategories>

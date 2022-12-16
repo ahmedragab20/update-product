@@ -1,9 +1,11 @@
 import type { ModifiersItem } from "@/types";
-export interface productModifiersType {
+export default interface productModifiersType {
     id: string;
  
-    name: string;
-    order: number;
+    resources :Array<any>;
+    connectedShops :Array<any>;
+    order: string;
+    code: string;
     minimumSelectionValue:number,
     maximumSelectionValue:number
     numberOfConnectedProducts: number;

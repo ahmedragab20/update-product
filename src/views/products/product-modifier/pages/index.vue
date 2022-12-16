@@ -33,8 +33,7 @@
   </div>
   <!-- Search End  -->
 
-  <div class="d-flex justify-content-between align-items-center w-100">
-    <h2>{{ $t("productModifiers") }}</h2>
+
     <!--begin::Filter-->
 
     <div
@@ -102,8 +101,8 @@
       </button>
     </div>
 
-    <AddForm @modifier-added="fetchData"></AddForm>
-  </div>
+    <AddForm @modifier-added="forceRerender" :key="componentKey"></AddForm>
+ 
 
   <!--end::Filter-->
 
@@ -120,15 +119,16 @@
 </template>
 
 <script lang="ts" setup>
+   import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
 import { useStore } from "vuex";
 import AddForm from "../components/AddForm.vue";
 import { ref, computed } from "vue";
 import TableView from "../components/TableView.vue";
 import GridView from "../components/GridView.vue";
 import { Pagination } from "@/interfaces/pagination";
-
+import i18n from "@/core/plugins/i18n";
 import { Actions } from "@/store/enums/StoreEnums";
-import { proModifiers } from "@/api/data/ProductModifiers";
+import  proModifiers  from "@/api/data/ProductModifiers";
 
 const store = useStore();
 enum views {
@@ -154,7 +154,8 @@ const setItemsPerPage = (event) => {
 
   fetchData();
 };
-
+const componentKey = ref(0)
+setCurrentPageBreadcrumbs(i18n.global.t("productModifier") , []);
 // Methods
 const deleteProductModifiers = (id) => {
   store.dispatch(Actions.DELETE_PRODUCT_MODIFIERS, id);
@@ -177,7 +178,14 @@ const fetchData = () => {
     pageSize: pagination.value.pageSize,
     pageNumber: pagination.value.pageNumber,
   });
+ 
 };
+const forceRerender = () => {
+  
+  fetchData()
+    // incrementing componentKey constant
+    componentKey.value++
+}
 
 fetchData();
 </script>

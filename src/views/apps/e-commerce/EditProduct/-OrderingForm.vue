@@ -707,6 +707,7 @@ import { computed, onMounted, watch } from "vue";
 import { useStore } from "vuex";
 import { screenDimensions } from "@/utils/helpers";
 import { onUpdated, watchEffect } from "@vue/runtime-core";
+import { isDate } from "lodash";
 
 type option = {
   connectionId: string;
@@ -935,7 +936,16 @@ const editingLabel = ref<boolean | string>(false);
 const optionUnderEditing = ref<any>();
 
 const getActiveOrderForm = computed((): any => {
-  return props.activeForms?.find((form: any) => form.connectionId === id.value);
+  const form = props.activeForms?.find((form: any) => form.connectionId === id.value);
+
+  if(form) {
+    return form
+  } else {
+    return {
+      connectionId: id.value,
+      ...formData.value
+    }
+  }
 });
 const getSelectedOptionById = computed((): any => {
   if (props.options && getActiveOrderForm.value) {
@@ -948,6 +958,7 @@ const getSelectedOptionById = computed((): any => {
 
 const dropdownSelectedItem = (item: any) => {
   selectedOption.value = item;
+
   const isMultiple = item?.multiple;
   formData.value.controlId = item.id;
 
@@ -984,8 +995,8 @@ const formDataHandler = (type: string) => {
   if (!firstLoading.value) {
     emit("formData", {
       connectionId: id.value,
-      resources: formData.value.resources,
-      controlId: selectedOption.value.id || null,
+      resources: formData.value?.resources,
+      controlId: selectedOption.value?.id ? selectedOption.value.id : null,
       order: null,
       options: selectedOption.value.multiple ? activeOptions.value : null,
       displayConditions: displayConditionsData.value,
@@ -1275,17 +1286,19 @@ const firstLoading = ref(false);
 const resetData = () => {
   try {
     firstLoading.value = true;
-    getActiveOrderForm.value?.options?.forEach((option, index, array) => {
-      activeOptions.value[index] = option;
-    });
-    selectedOption.value = getSelectedOptionById.value;
-    formData.value = getActiveOrderForm.value;
-    placeHolder.value = getActiveOrderForm.value?.placeHolder;
-    isControlRequired.value = getActiveOrderForm.value?.isRequired;
-    setDisplayConditionOperationId(
-      getActiveOrderForm.value?.displayConditionOperationId
-    );
-    setDisplayConditionsData(getActiveOrderForm.value?.displayConditions);
+    if (getActiveOrderForm.value) {
+      getActiveOrderForm.value?.options?.forEach((option, index, array) => {
+        activeOptions.value[index] = option;
+      });
+      selectedOption.value = getSelectedOptionById.value;
+      formData.value = getActiveOrderForm.value;
+      placeHolder.value = getActiveOrderForm.value?.placeHolder;
+      isControlRequired.value = getActiveOrderForm.value?.isRequired;
+      setDisplayConditionOperationId(
+        getActiveOrderForm.value?.displayConditionOperationId
+      );
+      setDisplayConditionsData(getActiveOrderForm.value?.displayConditions);
+    }
   } catch (error) {
     console.error(error);
   } finally {
