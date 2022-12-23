@@ -26,7 +26,7 @@
                   <div class="card-title flex-column">
                     <h2>Code</h2>
                     <small
-                      >it's optional but if you will add one. then it must be
+                    >it's optional but if you will add one. then it must be
                       unique</small
                     >
                   </div>
@@ -202,7 +202,7 @@ import { Actions } from "@/store/enums/StoreEnums";
 import { useStore } from "vuex";
 import { ref } from "@vue/reactivity";
 import { watchEffect } from "@vue/runtime-core";
-import { computed, onBeforeMount, onMounted } from "vue";
+import { computed, onBeforeMount, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const store = useStore();
@@ -213,7 +213,7 @@ const pageMounted = ref(false);
 
 const breadcrumb = {
   title: "Edit Product",
-  pageBreadcrumbPath: ["eCommerce", "Catalog"],
+  pageBreadcrumbPath: ["eCommerce", "Catalog"]
 };
 
 const product = computed(() => store.state.UpdateProduct.product);
@@ -231,7 +231,7 @@ const currentTab = computed(() => route.query["tab"]);
 const form = ref({
   id: product.value.id,
   code: "",
-  slug: "",
+  slug: ""
 });
 
 const codeBaseData = ref();
@@ -251,7 +251,7 @@ const saveCodeChange = async (code: string) => {
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-code",
-    payload: { id: product.value.id || null, code },
+    payload: { id: product.value.id || null, code }
   };
   try {
     codeLoading.value = true;
@@ -274,7 +274,7 @@ const saveSlugChange = async (slug: string) => {
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-slug",
-    payload: { id: product.value.id || null, slug },
+    payload: { id: product.value.id || null, slug }
   };
   try {
     slugLoading.value = true;
@@ -324,8 +324,12 @@ onMounted(() => {
     form.value.code = product.value.code;
     slugBaseData.value = product.value.slug;
     form.value.slug = product.value.slug;
-    console.log("mounted");
   }
+});
+
+watch(currentTab, (newV) => {
+  console.log(newV);
+  fetchProduct(27);
 });
 </script>
 

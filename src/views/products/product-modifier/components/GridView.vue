@@ -88,7 +88,7 @@
               <div class="menu-item px-3">
                 <a
                   @click="deleteModifier(modifiers.id)"
-                  class="menu-link px-3 d-flex justify-content-between align-items-center">
+                  class="btn btn-sm btn-light-danger px-3 d-flex justify-content-between align-items-center">
                   <span>{{ $t("delete") }}</span>
                   <span class="svg-icon svg-icon-danger">
                     <inline-svg src="/media/icons/duotune/general/gen027.svg" />

@@ -15,7 +15,7 @@
                     cell.sortable
                   )
                 " :class="[
-                  cell.name && 'min-w-125px',
+                  cell.name ,
                   cell.sortable !== false && 'sorting',
                   tableHeader.length - 1 === i && 'text-end',
                   currentSort ===

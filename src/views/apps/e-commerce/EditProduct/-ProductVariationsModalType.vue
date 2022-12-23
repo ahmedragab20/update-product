@@ -94,119 +94,31 @@
           @tags="getBarcodes"
         />
       </div>
-      <!-- Discounts -->
-      <div class="col-12 mb-3">
-        <div v-if="!!discountsTableItems.length">
-          <table class="table gs-3 gy-3 gx-5">
-            <thead>
-              <tr
-                class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
-              >
-                <th class="text-truncate">#</th>
-                <th class="text-truncate">from</th>
-                <th class="text-truncate">to</th>
-                <th class="text-truncate">base amount</th>
-                <th class="text-truncate">status</th>
-                <th class="text-truncate">action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(item, $index) in discountsTableItems"
-                :key="$index"
-                @click="setTargetedDiscount(item)"
-              >
-                <td @click="openDiscountEditModal" class="text-truncate">
-                  <div class="td-holder">
-                    {{ $index + 1 }}
-                  </div>
-                </td>
-                <td @click="openDiscountEditModal" class="text-truncate">
-                  <div class="td-holder">
-                    {{ dateFormat(item.startDateTime) }}
-                  </div>
-                </td>
-                <td @click="openDiscountEditModal" class="text-truncate">
-                  <div class="td-holder">
-                    {{ dateFormat(item.endDateTime) }}
-                  </div>
-                </td>
-                <td @click="openDiscountEditModal" class="text-truncate">
-                  <div
-                    class="td-holder overflow-auto gap-3"
-                    style="max-width: 120px"
-                  >
-                    <div
-                      v-for="(price, i) in getCurrentDiscounts(
-                        item.discountPrices || item.prices
-                      )"
-                      :key="i"
-                      class="d-flex gap-2"
-                    >
-                      <strong v-text="price.discountPrice" />
-                      <span
-                        v-text="
-                          item.discountTypeId === '1' ? '%' : price.currencyCode
-                        "
-                        class="badge badge-secondary px-1"
-                      />
-                    </div>
-                  </div>
-                </td>
-                <td
-                  @click="openDiscountEditModal"
-                  class="text-truncate text-success"
-                >
-                  <div class="td-holder">
-                    <span class="badge badge-success">Active</span>
-                  </div>
-                </td>
-                <td class="text-truncate">
-                  <div class="td-holder">
-                    <button
-                      @click="toggleDeactivateDiscountModal()"
-                      type="button"
-                      class="btn btn-text-danger btn-sm"
-                    >
-                      Deactivate
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div>
-          <button
-            @click="toggleDiscountsModal()"
-            type="button"
-            class="btn btn-light-primary w-100"
-          >
-            + Add Discounts
-          </button>
-        </div>
-      </div>
-      <!-- Physicals -->
-      <div
-        v-for="item in physicalKeys"
-        :key="item.key"
-        class="col-12 col-sm-3 mb-3"
-      >
-        <label :for="item.key" class="form-label">{{ item.label }}</label>
-        <input
-          :id="item.key"
-          class="form-control"
-          type="number"
-          placeholder="0000"
-          v-model.number="physicalValues[item.key]"
-        />
-      </div>
 
-      <!-- Add shop modal button and table -->
-      <div class="mt-3 col-12">
-        <div v-if="!!shopsTable.length">
-          <table class="table gs-3 gy-3 gx-5">
-            <thead>
+      <div class="col-12 mb-3">
+        <div class="row">
+          <!-- Physicals -->
+          <div
+            v-for="item in physicalKeys"
+            :key="item.key"
+            class="col-12 col-sm-3 mb-3"
+          >
+            <label :for="item.key" class="form-label">{{ item.label }}</label>
+            <input
+              :id="item.key"
+              class="form-control"
+              type="number"
+              placeholder="0000"
+              v-model.number="physicalValues[item.key]"
+            />
+          </div>
+        </div>
+
+        <!-- Add shop modal button and table -->
+        <div class="mt-3 col-12">
+          <div v-if="!!shopsTable.length">
+            <table class="table gs-3 gy-3 gx-5">
+              <thead>
               <tr
                 class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
               >
@@ -214,8 +126,8 @@
                 <th class="text-truncate">Shop Name</th>
                 <th class="text-truncate">actions</th>
               </tr>
-            </thead>
-            <tbody>
+              </thead>
+              <tbody>
               <tr v-for="(item, $index) in shopsTable" :key="item.shopId">
                 <td>
                   <div class="td-holder">
@@ -251,16 +163,107 @@
                   </div>
                 </td>
               </tr>
+              </tbody>
+            </table>
+          </div>
+          <button
+            @click="openShopModal"
+            type="button"
+            class="btn btn-light-primary w-100"
+          >
+            + Add Shops
+          </button>
+        </div>
+        <!-- Discounts -->
+        <div class="mt-3" v-if="!!discountsTableItems.length">
+          <table class="table gs-3 gy-3 gx-5">
+            <thead>
+            <tr
+              class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
+            >
+              <th class="text-truncate">#</th>
+              <th class="text-truncate">from</th>
+              <th class="text-truncate">to</th>
+              <th class="text-truncate">base amount</th>
+              <th class="text-truncate">status</th>
+              <th class="text-truncate">action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr
+              v-for="(item, $index) in discountsTableItems"
+              :key="$index"
+              @click="setTargetedDiscount(item)"
+            >
+              <td @click="openDiscountEditModal" class="text-truncate">
+                <div class="td-holder">
+                  {{ $index + 1 }}
+                </div>
+              </td>
+              <td @click="openDiscountEditModal" class="text-truncate">
+                <div class="td-holder">
+                  {{ dateFormat(item.startDateTime) }}
+                </div>
+              </td>
+              <td @click="openDiscountEditModal" class="text-truncate">
+                <div class="td-holder">
+                  {{ dateFormat(item.endDateTime) }}
+                </div>
+              </td>
+              <td @click="openDiscountEditModal" class="text-truncate">
+                <div
+                  class="td-holder overflow-auto gap-3"
+                  style="max-width: 120px"
+                >
+                  <div
+                    v-for="(price, i) in getCurrentDiscounts(
+                        item.discountPrices || item.prices
+                      )"
+                    :key="i"
+                    class="d-flex gap-2"
+                  >
+                    <strong v-text="price.discountPrice" />
+                    <span
+                      v-text="
+                          item.discountTypeId === '1' ? '%' : price.currencyCode
+                        "
+                      class="badge badge-secondary px-1"
+                    />
+                  </div>
+                </div>
+              </td>
+              <td
+                @click="openDiscountEditModal"
+                class="text-truncate text-success"
+              >
+                <div class="td-holder">
+                  <span class="badge badge-success">Active</span>
+                </div>
+              </td>
+              <td class="text-truncate">
+                <div class="td-holder">
+                  <button
+                    @click="toggleDeactivateDiscountModal()"
+                    type="button"
+                    class="btn btn-text-danger btn-sm"
+                  >
+                    Deactivate
+                  </button>
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
-        <button
-          @click="openShopModal"
-          type="button"
-          class="btn btn-light-primary w-100"
-        >
-          + Add Shops
-        </button>
+        <div class="mt-3">
+          <button
+            @click="toggleDiscountsModal()"
+            type="button"
+            class="btn btn-light-primary w-100"
+          >
+            + Add Discounts
+          </button>
+        </div>
       </div>
     </div>
 
@@ -352,7 +355,7 @@
                 </div>
                 <div class="form-group my-1 w-50 p-2">
                   <label for="2maxQuantityPerOrder" class="form-label"
-                    >Max Quantity Per Order</label
+                  >Max Quantity Per Order</label
                   >
                   <input
                     type="number"
@@ -621,7 +624,7 @@
                 :readonly="discountEditMode"
               />
               <small class="text-muted fw-bold px-1"
-                >* the discount must be more than the base price!</small
+              >* the discount must be more than the base price!</small
               >
             </div>
           </div>
@@ -787,12 +790,12 @@ const store = useStore();
 const props = defineProps({
   type: {
     type: Object,
-    required: true,
+    required: true
   },
   dialogWidth: {
     type: String,
-    required: true,
-  },
+    required: true
+  }
 });
 
 const emit = defineEmits(["modal-data", "is-form-valid"]);
@@ -815,7 +818,7 @@ const shopForm = ref({
   isSoldOutOnShopLink: false,
   isSoldOutOnJetOrder: false,
   isPublishedOnShopLink: false,
-  isPublishedOnJetOrderApplication: false,
+  isPublishedOnJetOrderApplication: false
 });
 const addShopModalVisible = ref(false);
 const selectedShop = ref();
@@ -848,15 +851,15 @@ const submitNewShop = () => {
     availableQuantity: shopForm.value.availableQuantity,
     maxQuantityPerOrder: shopForm.value.maxQuantityPerOrder,
     quantityNotificationCountLimit:
-      shopForm.value.quantityNotificationCountLimit,
+    shopForm.value.quantityNotificationCountLimit,
     maxQuantityPerClientAllThetime:
-      shopForm.value.maxQuantityPerClientAllThetime,
+    shopForm.value.maxQuantityPerClientAllThetime,
     isSoldOutOnShopLink: shopForm.value.isSoldOutOnShopLink,
     isSoldOutOnJetOrder: shopForm.value.isSoldOutOnJetOrder,
     isPublishedOnShopLink: shopForm.value.isPublishedOnShopLink,
     isPublishedOnJetOrderApplication:
-      shopForm.value.isPublishedOnJetOrderApplication,
-    preparingTimeInMinutes: shopForm.value.preparingTimeInMinutes,
+    shopForm.value.isPublishedOnJetOrderApplication,
+    preparingTimeInMinutes: shopForm.value.preparingTimeInMinutes
   };
 
   let item = shopsTable.value.find((i) => i.shopId === data.shopId);
@@ -905,7 +908,7 @@ const openShopModal = () => {
       isSoldOutOnShopLink: false,
       isSoldOutOnJetOrder: false,
       isPublishedOnShopLink: false,
-      isPublishedOnJetOrderApplication: false,
+      isPublishedOnJetOrderApplication: false
     };
     setSelectedShop(null);
   }
@@ -927,10 +930,10 @@ watch(addShopModalVisible, (newVal) => {
       isSoldOutOnShopLink: false,
       isSoldOutOnJetOrder: false,
       isPublishedOnShopLink: false,
-      isPublishedOnJetOrderApplication: false,
+      isPublishedOnJetOrderApplication: false
     };
     setSelectedShop(null);
-    closeShopModal()
+    closeShopModal();
   }
 });
 // code
@@ -941,20 +944,20 @@ const order = ref();
 const physicalKeys = ref([
   {
     key: "weightInKG",
-    label: "Weight in KG",
+    label: "Weight in KG"
   },
   {
     key: "widthInCM",
-    label: "Width in CM",
+    label: "Width in CM"
   },
   {
     key: "lengthInCM",
-    label: "Length in CM",
+    label: "Length in CM"
   },
   {
     key: "heightInCM",
-    label: "Height in CM",
-  },
+    label: "Height in CM"
+  }
 ]);
 const physicalValues = ref({});
 
@@ -1022,7 +1025,7 @@ const setSelectedDiscountType = (payload: any) => {
 const getDiscountTypes = async () => {
   const reqData = {
     method: "get",
-    url: "/LookupQueries/get-product-discount-types",
+    url: "/LookupQueries/get-product-discount-types"
   };
   try {
     const { data }: any = await Api(reqData);
@@ -1076,7 +1079,7 @@ const getCurrentDiscounts = (prices: any[]) => {
           discountPrice: price.discountPrice,
           currencyId: currency.id,
           currencyCode: currency.code,
-          currencyName: currency.label,
+          currencyName: currency.label
         });
       }
     });
@@ -1122,7 +1125,7 @@ const submitDiscountData = () => {
   Object.keys(discounts.value).forEach((el) => {
     discountPrices.push({
       currencyId: el,
-      discountPrice: discounts.value[el],
+      discountPrice: discounts.value[el]
     });
   });
 
@@ -1133,7 +1136,7 @@ const submitDiscountData = () => {
     shops: selectedProductDiscountShops.value,
     startDateTime: discountStartDate.value,
     endDateTime: discountEndDate.value,
-    discountPrices,
+    discountPrices
   };
 
   const targetedStartDate = dateFormat(discountData["startDateTime"]);
@@ -1258,8 +1261,8 @@ const updateProductVariationData = () => {
         {
           currencyId: "",
           price: 0,
-          costPrice: 0,
-        },
+          costPrice: 0
+        }
       ],
       discountData: [
         {
@@ -1269,18 +1272,18 @@ const updateProductVariationData = () => {
           discountPrices: [
             {
               currencyId: "",
-              discountPrice: 0,
-            },
+              discountPrice: 0
+            }
           ],
           startDateTime: "",
-          endDateTime: "",
-        },
+          endDateTime: ""
+        }
       ],
       barcodes: barcodes.value,
       skUs: skUs.value,
       optionIds: props.type["connectionIds"],
-      connectedShops: [...shopsTable.value],
-    },
+      connectedShops: [...shopsTable.value]
+    }
   };
 
   let finalPrices: any = new Map();
@@ -1290,7 +1293,7 @@ const updateProductVariationData = () => {
         finalPrices.set(currency.id, {
           currencyId: currency.id,
           price: prices.value[currency.id],
-          costPrice: costPrices.value[currency.id],
+          costPrice: costPrices.value[currency.id]
         });
       }
     });

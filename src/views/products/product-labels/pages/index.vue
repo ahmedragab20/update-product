@@ -194,11 +194,7 @@ const fetchData = () => {
 };
 const reset = () => {
   search.value = "";
-  store.dispatch(Actions.GET_PRODUCT_LABELS, {
-    query: "",
-    pageSize: pagination.value.pageSize,
-    pageNumber: pagination.value.pageNumber,
-  });
+  fetchData()
 };
 const fetchIcons = () => {
   store.dispatch(Actions.FONTAWESOME_ICONS);

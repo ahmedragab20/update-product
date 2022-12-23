@@ -96,12 +96,13 @@
 
                       <!--begin::Menu item-->
                       <div class="menu-item px-3">
-                        <a
+                        <a 
+                        role="button"
                           @click="emit(deleteBrand(brand.id))"
-                          class="menu-link px-3 d-flex justify-content-between align-items-center"
+                          class=" px-3 d-flex btn btn-sm btn-light-danger justify-content-between btn-light-danger align-items-center"
                         >
                           <span>{{ $t("delete") }}</span>
-                          <span class="svg-icon svg-icon-3">
+                          <span class="svg-icon svg-icon-3 svg-icon-danger">
                             <inline-svg src="/media/icons/duotune/general/gen027.svg" />
                           </span>
                         </a>

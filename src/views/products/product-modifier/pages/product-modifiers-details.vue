@@ -763,7 +763,7 @@ function checkValueCode(e) {
   if (e.target.value.length > 3) {
     store
       .dispatch(Actions.IS_VALID_CODE_PRODUCT_MODIFIER, {
-        id: 0,
+        id:props.id,
         code: e.target.value,
       })
       .then(() => {

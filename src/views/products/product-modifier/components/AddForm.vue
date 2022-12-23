@@ -252,7 +252,7 @@
                         class="form-check-input"
                         v-model="ProductModifiers.isPublishedOnJetOrder"
                         type="checkbox"
-                        checked=""
+                     
                         data-kt-check="false"
                       /><label class="form-check-label ps-2">
                         {{ $t("isPublishedOnJetOrder") }}
@@ -266,7 +266,7 @@
                         class="form-check-input"
                         v-model="ProductModifiers.isPublishedOnShopLink"
                         type="checkbox"
-                        checked=""
+                        
                         data-kt-check="false"
                       /><label class="form-check-label ps-2">
                         {{ $t("isPublishedOnShopLink") }}

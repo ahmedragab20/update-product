@@ -20,6 +20,9 @@
           <button type="button" class="btn btn-primary me-5" @click="fetchData">
             {{ $t("search") }}
           </button>
+          <button class="btn btn-light" type="button" @click="reset">
+            {{ $t("reset") }}
+          </button>
         </div>
         <!--end:Action-->
       </div>
@@ -69,13 +72,13 @@
     <!--end::Modal dialog-->
   </div>
   <!-- Form-Modal End -->
-  <div class="d-flex justify-content-between align-items-center w-100">
-    <h2>{{ $t("brands") }}</h2>
+ 
     <!--begin::Filter-->
     <div class="d-flex align-items-center justify-content-end my-3">
-      <ul class="nav nav-pills me-6 mb-2 mb-sm-0">
+      <ul class="nav nav-pills me-6 mb-2 mb-sm-0 ">
         <li>
           <el-select
+          style="width: 100px"
             @change="setItemsPerPage"
             v-model="pagination.pageSize"
             placeholder="Number Of Item"
@@ -121,13 +124,20 @@
         {{ $t("addBrand") }}
       </button>
     </div>
-  </div>
+
 
   <!--end::Filter-->
 
   <!--begin::Card body-->
 
-  <component :is="activeComponent" @delete-brand="deleteBrand"></component>
+  <component  v-if="(Brands.length >0 )"  :items="Brands" :is="activeComponent" @delete-brand="deleteBrand"/>
+  <div v-else>
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span>Loading...</span>
+          </div>
+        </div>
+      </div>
   <div class="pagination-wrapper d-flex justify-content-end">
     <el-pagination
       v-model:current-page="pagination.pageNumber"
@@ -180,6 +190,10 @@ const fetchData = () => {
     pageNumber: pagination.value.pageNumber,
   });
 };
+const reset = () => {
+  name.value = "";
+  fetchData()
+};
 const setItemsPerPage = (e) => {
   store.commit(Mutations.UPDATE_PAGINATION, {
     ...pagination.value,
@@ -187,6 +201,7 @@ const setItemsPerPage = (e) => {
   });
   fetchData();
 };
+const Brands = computed(() => store.getters.getBrands);
 const onBrandAdded = () => {
   fetchData();
   hideModal(modalRef.value);

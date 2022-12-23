@@ -8,31 +8,31 @@
     <div class="my-3 table-responsive">
       <table class="table table-row-dashed table-row-gray-300 gy-7 w-100">
         <thead>
-          <tr class="fw-bolder fs-5 text-gray-800">
-            <th style="max-width: 160px">Name</th>
-            <th>Type Id</th>
-          </tr>
+        <tr class="fw-bolder fs-5 text-gray-800">
+          <th style="max-width: 160px">Name</th>
+          <th>Type Id</th>
+        </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(option, $index) in options"
-            :key="$index"
-            class="product-details-box rounded-3"
-            @click.prevent="updateRowIndex($index), (dialogShown = true)"
-          >
-            <td>
-              <div v-html="getOptionName(option)" />
-            </td>
-            <td>
-              <div>
-                <div
-                  v-if="returnTheRightType(option)"
-                  v-text="returnTheRightType(option).id"
-                />
-                <div v-else v-text="`no data yet🙎🏻‍♂️`" />
-              </div>
-            </td>
-          </tr>
+        <tr
+          v-for="(option, $index) in options"
+          :key="$index"
+          class="product-details-box rounded-3"
+          @click.prevent="updateRowIndex($index), (dialogShown = true)"
+        >
+          <td>
+            <div v-html="getOptionName(option)" />
+          </td>
+          <td>
+            <div>
+              <div
+                v-if="returnTheRightType(option)"
+                v-text="returnTheRightType(option).id"
+              />
+              <div v-else v-text="`no data yet🙎🏻‍♂️`" />
+            </div>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -124,16 +124,16 @@ import { computed, onMounted, watch } from "vue";
 const props = defineProps({
   options: {
     type: Array,
-    required: true,
+    required: true
   },
   variationTypes: {
     type: Array,
-    required: true,
+    required: true
   },
   fetchVariations: {
     type: Function,
-    required: true,
-  },
+    required: true
+  }
 });
 
 const screenWidth = computed(() => screenDimensions().availWidth);
@@ -214,14 +214,14 @@ const generateEmptyTypeObject = (optionIds) => {
     barcodes: [],
     skUs: [],
     connectionIds: optionIds,
-    productShops: [],
+    productShops: []
   };
 };
 const productVariationModalData = ref();
 const isUpdateProductVariationLoading = ref(false);
 const updateProductVariationRequestMSG = ref({
   error: "",
-  success: "",
+  success: ""
 });
 const isTypeFormValid = ref(false);
 const isFormDataHandler = (payload: boolean) => {
@@ -246,7 +246,7 @@ const updateProductVariation = () => {
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-variations",
-    payload: productVariationModalData.value,
+    payload: productVariationModalData.value
   };
 
   Api(reqData)
@@ -255,6 +255,7 @@ const updateProductVariation = () => {
       if (!!response.data?.data) {
         updateProductVariationRequestMSG.value.success = `we're done🙌🥰`;
         updateProductVariationRequestMSG.value.error = "";
+        props.fetchVariations();
       } else {
         updateProductVariationRequestMSG.value.success = "";
         updateProductVariationRequestMSG.value.error = `😓 ${response.data?.message}`;
@@ -266,7 +267,6 @@ const updateProductVariation = () => {
     })
     .finally(() => {
       isUpdateProductVariationLoading.value = false;
-      props.fetchVariations();
     });
 };
 

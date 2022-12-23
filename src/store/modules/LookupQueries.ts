@@ -8,7 +8,12 @@ import {
   Settings,
   ShopTag,
   Icon,
+  ShopsSocialMedia,
+  shopContacts,
   Categories,
+  copmerisonType,
+  conditionsOperatorType,
+  clientConditionType
 } from "@/types";
 import Api from "@/utils/ApiHelper";
 import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators";
@@ -17,8 +22,11 @@ import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators";
 export default class LookupQueries extends VuexModule {
   //? sate
   icons = [] as Icon[];
+  contactsType = [] as shopContacts[];
+  ShopsSocialMedia= [] as ShopsSocialMedia[];
   countries = [] as Country[];
   areas = [] as Area[];
+  paymentMethod= [] as Area[];
   languages = [] as Language[];
   currencies = [] as Currency[];
   settings = {} as Settings;
@@ -42,7 +50,12 @@ export default class LookupQueries extends VuexModule {
   digitalProductFileLocation = [];
   productTaxClasses = [];
   timeUnits = [];
-  operationTypes = [] as Array<{ id: string; value: number | string }>;
+  operationTypes = [] as Array<{ id: string; value: number | string }>;  conditionType=[] as conditionsOperatorType[];
+  copmerisonType=[] as copmerisonType[];
+  clientsCondition=[] as clientConditionType[];
+  gender=[];
+ 
+
   //* Mutations
 
   @Mutation
@@ -50,11 +63,44 @@ export default class LookupQueries extends VuexModule {
     this.countries = payload;
   }
 
+  
   @Mutation
   [Mutations.CURRENCIES](payload: Currency[]) {
     this.currencies = payload;
   }
-
+  @Mutation
+  [Mutations.SET_CONDITION_TYPE](payload) {
+    payload.forEach(el => {
+      this.conditionType.push({
+        id:el.id,
+        name:el.value
+      }) 
+    });
+    
+  }
+  @Mutation
+  [Mutations.SET_CLIENTS_CONDITION](payload) {
+    
+    payload.forEach(el => {
+      this.clientsCondition.push({
+        id:el.id,
+        name:el.value
+      }) 
+    });
+  }
+  @Mutation
+  [Mutations.SET_COPMERISON_TYPE](payload) {
+    payload.forEach(el => {
+      this.copmerisonType .push({
+        id:el.id,
+        name:el.value
+      }) 
+    });
+   
+  } @Mutation
+  [Mutations.SET_GENDER](payload) {
+    this.gender = payload;
+  }
   @Mutation
   [Mutations.LANGUAGES](payload: Language[]) {
     this.languages = payload;
@@ -74,7 +120,15 @@ export default class LookupQueries extends VuexModule {
   [Mutations.SET_CITIES](cities) {
     this.cities = cities;
   }
-
+  
+  @Mutation
+  [Mutations.SET_CONTACT_TYPE](contactsType) {
+    this.contactsType = contactsType;
+  }
+  @Mutation
+  [Mutations.SET_SOCIAL_MEDIA_TYPE](ShopsSocialMedia) {
+    this.ShopsSocialMedia = ShopsSocialMedia;
+  }
   @Mutation
   [Mutations.SET_AREAS](areas) {
     this.areas = areas;
@@ -165,31 +219,10 @@ export default class LookupQueries extends VuexModule {
   [Mutations.PRODUCT_TAX_CLASSES](payload) {
     this.productTaxClasses = payload;
   }
+  
+  
 
-  //! Actions
-
-  @Action
-  [Actions.GET_CITY_BY_COUNTRYID](countryId) {
-    const payload = {
-      method: "get",
-      url: Actions.GET_CITY_BY_COUNTRYID + "?countryId=" + countryId,
-    };
-    Api(payload).then((res) => {
-      this.context.commit(Mutations.SET_CITIES, res?.data.data);
-    });
-  }
-
-  @Action
-  [Actions.GET_AREA_BY_CITYID](cityId) {
-    const payload = {
-      method: "get",
-      url: Actions.GET_AREA_BY_CITYID + "?cityId=" + cityId,
-    };
-    Api(payload).then((res) => {
-      this.context.commit(Mutations.SET_AREAS, res?.data.data);
-    });
-  }
-
+ 
   @Action
   [Actions.COUNTRIES]() {
     const payload = {
@@ -198,9 +231,38 @@ export default class LookupQueries extends VuexModule {
     };
 
     Api(payload).then((response) => {
-      this.context.commit(Mutations.COUNTRIES, response?.data);
+      this.context.commit(Mutations.COUNTRIES, response?.data.data);
+      console.log({ countries: response?.data.data });
     });
   }
+  @Action
+  [Actions.GET_CONTACT_TYPE]() {
+    const payload = {
+      method: "get",
+      url: Actions.GET_CONTACT_TYPE,
+    };
+
+    Api(payload).then((response) => {
+      this.context.commit(Mutations.SET_CONTACT_TYPE, response?.data.data);
+      console.log({ shopsContact: response?.data.data });
+    });
+  }
+  @Action
+  [Actions.GET_SOCIAL_MEDIA_TYPE]() {
+    const payload = {
+      method: "get",
+      url: Actions.GET_SOCIAL_MEDIA_TYPE,
+    };
+
+    Api(payload).then((response) => {
+      this.context.commit(Mutations.SET_SOCIAL_MEDIA_TYPE, response?.data.data);
+      console.log({ Socialmedia: response?.data.data });
+    });
+  }
+
+  
+ 
+
 
   @Action
   [Actions.CURRENCIES]() {
@@ -211,6 +273,91 @@ export default class LookupQueries extends VuexModule {
 
     Api(payload).then((response) => {
       this.context.commit(Mutations.CURRENCIES, response?.data);
+    });
+  }
+
+
+
+
+  
+  @Action
+  [Actions.GET_CITY_BY_COUNTRYID](id) {
+    return new Promise((resolve, reject) => {
+      Api({ method: "get", url: Actions.GET_CITY_BY_COUNTRYID+ `?countryId=${id}` })
+        .then((response) => {
+          this.context.commit(Mutations.SET_CITIES , response?.data.data);
+          console.log({ CITIES: response?.data });
+          resolve(response?.data.data);
+        })
+        .catch((er) => {
+          reject(er);
+        });
+    });
+  }
+  @Action
+  [Actions.GET_AREA_BY_CITYID](id) {
+    return new Promise((resolve, reject) => {
+      Api({ method: "get", url: Actions.GET_AREA_BY_CITYID+ `?cityId=${id}` })
+        .then((response) => {
+          this.context.commit(Mutations.SET_AREAS , response?.data.data);
+          console.log({ Areas: response?.data });
+          resolve(response?.data.data);
+        })
+        .catch((er) => {
+          reject(er);
+        });
+    });
+  }
+  
+  
+  @Action
+  [Actions.CONDITION_TYPE]() {
+    const payload = {
+      method: "get",
+      url: Actions.CONDITION_TYPE,
+    };
+
+    Api(payload).then((response) => {
+      this.context.commit(Mutations.SET_CONDITION_TYPE, response?.data.data);
+      console.log({ CONDITION_TYPE: response?.data.data });
+    });
+  }
+  @Action
+  [Actions.GENDER]() {
+    const payload = {
+      method: "get",
+      url: Actions.GENDER,
+    };
+
+    Api(payload).then((response) => {
+      this.context.commit(Mutations.SET_GENDER, response?.data.data);
+      console.log({ GENDER: response?.data.data });
+    });
+  }
+  @Action
+  [Actions.CLIENTS_CONDITION]() {
+    const payload = {
+      method: "get",
+      url: Actions.CLIENTS_CONDITION,
+    };
+
+    Api(payload).then((response) => {
+      this.context.commit(Mutations.SET_CLIENTS_CONDITION, response?.data.data);
+      console.log({ CLIENTS_CONDITION: response?.data.data });
+    });
+  }
+ 
+  @Action
+  [Actions.COPMERISON_TYPE]() {
+    const payload = {
+      method: "get",
+      url: Actions. COPMERISON_TYPE,
+    };
+
+    Api(payload).then((response) => {
+      
+      this.context.commit(Mutations.SET_COPMERISON_TYPE, response?.data.data);
+      console.log({  COPMERISON_TYPE: response?.data.data });
     });
   }
   @Action
@@ -502,4 +649,17 @@ export default class LookupQueries extends VuexModule {
   get getOperationTypes() {
     return this.operationTypes;
   }
+  get getConditionType() {
+    return this.conditionType;
+  }
+  get getcopmerisonType() {
+    return this.copmerisonType;
+  }
+  get getclientsCondition(){
+    return this.clientsCondition
+  }
+  get getGender(){
+    return this.gender
+  }
+  
 }

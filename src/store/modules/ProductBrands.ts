@@ -225,6 +225,10 @@ export default class ProductBrands extends VuexModule {
   }
   @Action
   [Actions.EDIT_PRODUCT_BRAND](payload) {
+    delete payload?.numberOfConnectedShops
+    delete payload?.numberOfConnectedProducts
+    delete payload?.shops
+    delete payload?.thumbnailPath
     console.log(payload);
     return new Promise((resolve) => {
       Api({ method: "post", url: Actions.EDIT_PRODUCT_BRAND, payload }).then((res) => {

@@ -168,7 +168,7 @@
                 data-bs-target="#add-up-selling-modal"
                 data-bs-toggle="modal"
                 href="#"
-                >+ Add new one</a
+              >+ Add new one</a
               >
             </div>
           </div>
@@ -211,45 +211,45 @@
               class="table gs-3 gy-3 gx-5"
             >
               <thead>
-                <tr
-                  class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
-                >
-                  <th class="text-truncate">Product name</th>
-                  <th class="text-truncate">Action</th>
-                </tr>
+              <tr
+                class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
+              >
+                <th class="text-truncate">Product name</th>
+                <th class="text-truncate">Action</th>
+              </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in upSellingProducts" :key="index">
-                  <td>
-                    <div class="d-flex gap-2">
-                      <div
-                        class="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
-                        style="width: 25px; height: 25px"
-                      >
-                        <img
-                          :src="item.thumbnail"
-                          style="width: 100%; height: 100%; object-fit: cover"
-                        />
-                      </div>
-                      <p
-                        class="text-truncate my-auto"
-                        style="max-width: 220px"
-                        v-text="item.name"
+              <tr v-for="(item, index) in upSellingProducts" :key="index">
+                <td>
+                  <div class="d-flex gap-2">
+                    <div
+                      class="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
+                      style="width: 25px; height: 25px"
+                    >
+                      <img
+                        :src="item.thumbnail"
+                        style="width: 100%; height: 100%; object-fit: cover"
                       />
                     </div>
-                  </td>
-                  <td>
-                    <div>
-                      <button
-                        @click="removeUpSellingProductDialog(item.id)"
-                        class="btn btn-text-danger btn-sm"
-                        type="button"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    <p
+                      class="text-truncate my-auto"
+                      style="max-width: 220px"
+                      v-text="item.name"
+                    />
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <button
+                      @click="removeUpSellingProductDialog(item.id)"
+                      class="btn btn-text-danger btn-sm"
+                      type="button"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </td>
+              </tr>
               </tbody>
             </table>
             <div v-else>
@@ -268,7 +268,7 @@
                 data-bs-target="#add-cross-selling-modal"
                 data-bs-toggle="modal"
                 href="#"
-                >+ Add new one</a
+              >+ Add new one</a
               >
             </div>
           </div>
@@ -310,45 +310,45 @@
               class="table gs-3 gy-3 gx-5"
             >
               <thead>
-                <tr
-                  class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
-                >
-                  <th class="text-truncate">Product name</th>
-                  <th class="text-truncate">Action</th>
-                </tr>
+              <tr
+                class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
+              >
+                <th class="text-truncate">Product name</th>
+                <th class="text-truncate">Action</th>
+              </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in crossSellingProducts" :key="index">
-                  <td>
-                    <div class="d-flex gap-2">
-                      <div
-                        class="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
-                        style="width: 25px; height: 25px"
-                      >
-                        <img
-                          :src="item.thumbnail"
-                          style="width: 100%; height: 100%; object-fit: cover"
-                        />
-                      </div>
-                      <p
-                        class="text-truncate my-auto"
-                        style="max-width: 220px"
-                        v-text="item.name"
+              <tr v-for="(item, index) in crossSellingProducts" :key="index">
+                <td>
+                  <div class="d-flex gap-2">
+                    <div
+                      class="rounded-circle overflow-hidden d-flex justify-content-center align-items-center"
+                      style="width: 25px; height: 25px"
+                    >
+                      <img
+                        :src="item.thumbnail"
+                        style="width: 100%; height: 100%; object-fit: cover"
                       />
                     </div>
-                  </td>
-                  <td>
-                    <div>
-                      <button
-                        class="btn btn-text-danger btn-sm"
-                        @click="removeCrossSellingProductDialog(item.id)"
-                        type="button"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    <p
+                      class="text-truncate my-auto"
+                      style="max-width: 220px"
+                      v-text="item.name"
+                    />
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <button
+                      class="btn btn-text-danger btn-sm"
+                      @click="removeCrossSellingProductDialog(item.id)"
+                      type="button"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </td>
+              </tr>
               </tbody>
             </table>
             <div v-else>
@@ -375,7 +375,7 @@
               @input="pointsSystemChanged = true"
             />
             <label class="form-check-label" for="followTheStore"
-              >Follow the store</label
+            >Follow the store</label
             >
           </div>
           <div class="form-check form-check-custom form-check-solid mb-3">
@@ -389,7 +389,7 @@
               @input="pointsSystemChanged = true"
             />
             <label class="form-check-label" for="customSettings"
-              >Custom settings</label
+            >Custom settings</label
             >
           </div>
           <div v-if="pointsSystem.customSettings === '1'" class="my-3">
@@ -454,7 +454,7 @@
               </template>
             </Editor>
             <small class="text-muted fw-bold ps-1"
-              >Set a meta tag description to the product for increased SEO
+            >Set a meta tag description to the product for increased SEO
               ranking.</small
             >
           </div>
@@ -522,9 +522,9 @@ import { swalAlert } from "@/utils/helpers";
 const props = defineProps({
   product: {
     type: Object,
-    required: true,
+    required: true
   },
-  currentTab: Number,
+  currentTab: Number
 });
 
 /* APPEARANCE DATA LOGIC BLOCK */
@@ -588,14 +588,14 @@ const saveApearanceDataChanges = async () => {
       id: props.product.id,
       productAppearanceData: {
         labels,
-        tags,
-      },
+        tags
+      }
     };
 
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-appearance",
-      payload,
+      payload
     };
     const { data }: any = await Api(reqData);
 
@@ -624,7 +624,7 @@ const saveUpSellingChanges = async () => {
     upSellingLoading.value = true;
     upSellingProducts.value = [
       ...upSellingProductsValues.value,
-      ...props.product.upsellProducts,
+      ...props.product.upsellProducts
     ];
     const newUpSelling = upSellingProductsValues.value?.map(
       (el): [string] => el.id
@@ -636,19 +636,19 @@ const saveUpSellingChanges = async () => {
 
     const payload = {
       id: props.product.id,
-      upSellingProducts: upSellingProductsPayload,
+      upSellingProducts: upSellingProductsPayload
     };
     const reqData = {
       method: "post",
       url: "/ProductCommands/add-upselling-products",
-      payload,
+      payload
     };
 
     const { data }: any = await Api(reqData);
     if (!data.succeeded) {
       upSellingProducts.value = [
         ...upSellingProductsValues.value,
-        props.product.upsellProducts,
+        props.product.upsellProducts
       ];
       upSellingErrorMessage.value = data.message;
     } else
@@ -665,7 +665,7 @@ const removeUpSellingProduct = async (payload: any): Promise<any> => {
     const reqData = {
       method: "post",
       url: "/ProductCommands/remove-upselling-products",
-      payload,
+      payload
     };
 
     const { data }: any = await Api(reqData);
@@ -685,7 +685,7 @@ const removeUpSellingProduct = async (payload: any): Promise<any> => {
 const removeUpSellingProductDialog = (id: never) => {
   const payload = {
     id: props.product.id,
-    upSellingProducts: [],
+    upSellingProducts: []
   };
 
   payload.upSellingProducts.push(id);
@@ -694,7 +694,7 @@ const removeUpSellingProductDialog = (id: never) => {
     title: "We're Done!",
     text: "The Data has been saved!",
     handler: removeUpSellingProduct,
-    payload: payload,
+    payload: payload
   });
 };
 
@@ -713,7 +713,7 @@ const saveCrossSellingChanges = async () => {
     crossSellingLoading.value = true;
     crossSellingProducts.value = [
       ...crossSellingProductsValues.value,
-      ...crossSellingProducts.value,
+      ...crossSellingProducts.value
     ];
     const newCrossSelling = crossSellingProductsValues.value?.map(
       (el): [string] => el.id
@@ -723,24 +723,24 @@ const saveCrossSellingChanges = async () => {
     );
     const crossSellingProductsPayload = [
       ...newCrossSelling,
-      ...currentCrossSelling,
+      ...currentCrossSelling
     ];
 
     const payload = {
       id: props.product.id,
-      crossSellProducts: crossSellingProductsPayload,
+      crossSellProducts: crossSellingProductsPayload
     };
     const reqData = {
       method: "post",
       url: "/ProductCommands/Add-crossselling-products",
-      payload,
+      payload
     };
 
     const { data }: any = await Api(reqData);
     if (!data.succeeded) {
       crossSellingProducts.value = [
         ...crossSellingProductsValues.value,
-        props.product.crosssellProducts,
+        props.product.crosssellProducts
       ];
       crossSellingErrorMessage.value = data.message;
     } else
@@ -757,7 +757,7 @@ const removeCrossSellingProduct = async (payload: any): Promise<any> => {
     const reqData = {
       method: "post",
       url: "/ProductCommands/remove-crossselling-products",
-      payload,
+      payload
     };
 
     const { data }: any = await Api(reqData);
@@ -778,7 +778,7 @@ const removeCrossSellingProduct = async (payload: any): Promise<any> => {
 const removeCrossSellingProductDialog = (id: never) => {
   const payload = {
     id: props.product.id,
-    crossSellProducts: [],
+    crossSellProducts: []
   };
 
   payload.crossSellProducts.push(id);
@@ -787,7 +787,7 @@ const removeCrossSellingProductDialog = (id: never) => {
     title: "We're Done!",
     text: "The Data has been saved!",
     handler: removeCrossSellingProduct,
-    payload: payload,
+    payload: payload
   });
 };
 /* END UP SELLING AND CROSS SELLING LOGIC BLOCK */
@@ -795,7 +795,7 @@ const removeCrossSellingProductDialog = (id: never) => {
 /* Points System logic */
 const pointsSystem = ref({
   customSettings: "0",
-  term: null,
+  term: null
 });
 
 const pointsSystemChanged = ref<any>(false);
@@ -810,13 +810,13 @@ const savePointsSystem = async () => {
       pointsSystemClassId:
         pointsSystem.value.customSettings === "1" ? "2" : "1",
       pointsSystemValue:
-        pointsSystem.value.customSettings === "1" ? pointsSystem.value.term : 0,
+        pointsSystem.value.customSettings === "1" ? pointsSystem.value.term : 0
     };
 
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-points-system",
-      payload,
+      payload
     };
 
     const { data }: any = await Api(reqData);
@@ -847,7 +847,7 @@ const metaTagsMsg = ref<string>("");
 const productMetaTags = ref<any>({
   title: null,
   description: null,
-  keywords: "",
+  keywords: ""
 });
 const editorOptions = ref({
   toolbar: [
@@ -867,8 +867,8 @@ const editorOptions = ref({
     [{ font: [] }],
     [{ align: [] }],
 
-    ["clean"], // remove formatting button
-  ],
+    ["clean"] // remove formatting button
+  ]
 });
 
 // meta add tag logic
@@ -899,14 +899,14 @@ const saveMetaChanges = async () => {
       metaData: {
         title: productMetaTags.value?.title,
         description: productMetaTags.value?.description,
-        keywords: metaTags.value?.toString(),
-      },
+        keywords: metaTags.value?.toString()
+      }
     };
 
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-metadata",
-      payload,
+      payload
     };
 
     const { data }: any = await Api(reqData);
@@ -937,7 +937,7 @@ const fetchProductLabels = async () => {
   try {
     const reqData = {
       method: "get",
-      url: "/ProductLabelQueries/get-labels",
+      url: "/ProductLabelQueries/get-labels"
     };
     const { data }: any = await Api(reqData);
     if (data?.succeeded) {
@@ -951,7 +951,7 @@ const fetchProductTags = async () => {
   try {
     const reqData = {
       method: "get",
-      url: "/ProductTagQueries/get-tags",
+      url: "/ProductTagQueries/get-tags"
     };
     const { data }: any = await Api(reqData);
     if (data?.succeeded) {
@@ -968,7 +968,7 @@ const fetchAllModifiers = async () => {
   try {
     const reqData = {
       method: "get",
-      url: "/ProductModifierQueries/get-modifiers",
+      url: "/ProductModifierQueries/get-modifiers"
     };
     const { data }: any = await Api(reqData);
     if (data?.succeeded) {
@@ -989,14 +989,14 @@ const fetchProductModifiers = async () => {
       method: "get",
       url: "/ProductQueries/get-product-modifiers",
       payload: {
-        id: props.product.id,
-      },
+        id: props.product.id
+      }
     };
     const { data }: any = await Api(reqData);
     if (data?.succeeded) {
       productModifiers.value = data.data;
       console.log({
-        productModifiers: productModifiers.value,
+        productModifiers: productModifiers.value
       });
     } else {
       console.log(data.message);
@@ -1018,13 +1018,6 @@ onMounted(() => {
       dropdownSelectedProductTags(props.product.tagProducts, true);
       dropdownSelectedProductLabels(props.product.labelProducts, true);
     }
-    // product meta data
-    // if (props.product.productMetaData) {
-    //   productMetaTags.value.description =
-    //     props.product.productMetaData.description;
-    //   productMetaTags.value.title = props.product.productMetaData.title;
-    //   productMetaTags.value.keywords = props.product.productMetaData.keywords || [];
-    // }
 
     upSellingProducts.value = props.product?.upsellProducts;
     crossSellingProducts.value = props.product?.crosssellProducts;
@@ -1049,7 +1042,7 @@ watchEffect(() => {
 
     if (![null, undefined, ""].includes(props.product.productMetaData.keywords)) {
       console.log(`yes I'm right over here`);
-      
+
       productMetaTags.value.keywords =
         props.product.productMetaData.keywords?.split(",");
       metaTags.value = props.product.productMetaData.keywords?.split(",") || [];

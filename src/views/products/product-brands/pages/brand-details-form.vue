@@ -30,7 +30,7 @@
                       <img
                         height="100"
                         width="100"
-                        :src="thumbnail"
+                        :src="brandsDto.thumbnailPath"
                         style="object-fit: contain"
                       />
                     </div>
@@ -223,12 +223,13 @@
                 </div>
                 <div class="card-body pt-0">
                   <!--begin::Input group-->
-
+                  
                   <div class="col-12 my-3" v-if="brandsDto.resources.length">
                     <tabs-duplicator
                       :items="brandsDto.resources"
                       @selectedItem="setSelectedItem"
                     >
+                 
                       <template #label="{ item }">
                         {{ getLangLabel(item.languageId).label }}
                       </template>
@@ -276,8 +277,10 @@
                                 $t("description")
                               }}</label>
                               <QuillTextEditor
+                              
                                 v-if="item.languageId == selectedItem.languageId"
                                 v-model:content="item.description"
+                                
                                 @editorContext="setDescription($event, i)"
                                 contentType="html"
                               />
@@ -312,7 +315,7 @@
                         <!-- :remote-method="getProducts" -->
                         <el-select
                           class="w-100 form-control-solid border-0"
-                          v-model="brandsDto.shops"
+                          v-model="brandsDto.connectedShops"
                           multiple
                           filterable
                           remote
@@ -545,12 +548,13 @@ let brandsDto = ref({
   resources: [] as BrandResources[],
   thumbnail: "",
   order: 0,
+  thumbnailPath:'',
   slug: "",
   numberOfConnectedShops: 0,
   numberOfConnectedProducts: 0,
   isPublishedOnJetOrderApp: true,
   isPublishedOnShopLink: true,
-  shops: [],
+  connectedShops: [],
 });
 const pagination = computed(() => store.state.ProductBrands.pagination);
 const connectedValue = ref([]);
@@ -624,18 +628,25 @@ const connectedProductsList = computed(
   () => store.state.ProductBrands.searchConnectedProducts
 );
 
+const image = (path) => {
+  return `https://mfproductimages.s3.amazonaws.com/` + path;
+};
 function changeImage(event) {
   const file = event.target.files[0];
   const fd = new FormData();
   fd.append("file", file);
   api({ url: Actions.UPLOAD_FILE, method: "post", payload: fd });
   store.dispatch(Actions.UPLOAD_FILE, fd).then((res) => {
-    brandsDto.value.thumbnail = res?.data.data;
+    console.log("brandsDto",res[1])
+    brandsDto.value.thumbnail = res[1]?.data.data;
+    brandsDto.value.thumbnailPath = image(res[1]?.data.data);
+    
   });
 }
 function getProductBrand(id) {
   store.dispatch(Actions.GET_PRODUCT_BRAND, { id }).then((data) => {
     brandsDto.value = data;
+    brandsDto.value.connectedShops=data?.shops
     setSelectedItem(brandsDto.value.resources[0]);
     if (data.thumbnail) {
       thumbnail.value = data.thumbnailPath;

@@ -116,10 +116,15 @@
             <input
               v-bind="field"
               class="form-control form-control-solid form-control-lg"
-              :class="{
-                'is-valid': meta.valid && !codeLoading,
-                'is-invalid': meta.validated && !meta.valid && !codeLoading,
-              }"
+              :class="
+                          !codeLoading
+                            ? {
+                                'is-valid': meta.valid,
+                                'is-invalid': meta.validated && !meta.valid,
+                              }
+                            : {}
+                        "
+               @blur="validateCode($event)"
             />
           </Field>
 
@@ -131,6 +136,9 @@
             <span class="spinner-border spinner-border-sm align-middle ms-2" />
           </span>
         </div>
+        <span v-if="!isValidCode" class="text-danger">
+          {{ $t("codeNotValidReq") }}
+        </span>
         <ErrorMessage class="text-danger" name="code"></ErrorMessage>
       </div>
       <!--end::code -->
@@ -149,10 +157,15 @@
             <input
               v-bind="field"
               class="form-control form-control-solid form-control-lg"
-              :class="{
-                'is-valid': meta.valid && !slugLodaing,
-                'is-invalid': meta.validated && !meta.valid && !slugLodaing,
-              }"
+              :class="
+                          !slugLodaing
+                            ? {
+                                'is-valid': meta.valid,
+                                'is-invalid': meta.validated && !meta.valid,
+                              }
+                            : {}
+                        "
+               @blur="validateSlug($event)"
             />
             <span
               v-if="slugLodaing"
@@ -163,6 +176,9 @@
             </span>
           </Field>
         </div>
+        <span v-if="!isValidSlug" class="text-danger">
+                      {{ $t("slugNotValidReq") }}
+                    </span>
         <ErrorMessage class="text-danger" name="slug"></ErrorMessage>
       </div>
       <!--end::slug -->
@@ -308,7 +324,8 @@ const imageUrl = ref("/media/svg/files/blank-image.svg");
 const isLoading = ref(false);
 const codeLoading = ref(false);
 const slugLodaing = ref(false);
-
+const isValidCode = ref(true);
+const isValidSlug= ref(true);
 let form = reactive(productBrandAttrs);
 
 const setSelectedItem = (payload: any) => {
@@ -342,6 +359,7 @@ function validate() {
   });
 }
 function onSubmit() {
+  if (isValidSlug.value && isValidCode.value) {
   isLoading.value = true;
   store
     .dispatch(Actions.ADD_PRODUCT_BRANDS, {
@@ -372,6 +390,7 @@ function onSubmit() {
       }
     });
 }
+}
 function initResources() {
   if (langs && langs.value)
     langs.value.forEach((element) => {
@@ -384,36 +403,39 @@ function initResources() {
 }
 function validateSlug(e) {
   return new Promise<boolean>((resolve, reject) => {
-    if (e.length >= 4) {
+    if (e.target.value.length >= 4) {
       slugLodaing.value = true;
       api({
         url: "ProductBrandCommands/is-valid-slug",
         method: "post",
-        payload: { slug: e },
+        payload: { slug: e.target.value  },
       })
         .then((res) => {
           slugLodaing.value = false;
           resolve(res?.data.data as boolean);
+          isValidSlug.value = res?.data.data
         })
         .catch((er) => (slugLodaing.value = false));
-    } else reject(false);
+    } 
   });
 }
 function validateCode(e) {
+  console.log("codeLoading")
   return new Promise<boolean>((resolve, reject) => {
-    if (e.length >= 4) {
+    if (e.target.value.length >= 4) {
       codeLoading.value = true;
       api({
         url: "ProductBrandCommands/is-valid-code",
         method: "post",
-        payload: { code: e },
+        payload: { code: e.target.value  },
       })
         .then((res) => {
           codeLoading.value = false;
           resolve(res?.data.data as boolean);
+          isValidCode.value = res?.data.data;
         })
         .catch((er) => (codeLoading.value = false));
-    } else reject(false);
+    } 
   });
 }
 //Getters
@@ -438,12 +460,12 @@ const schema = yup.object({
   code: yup
     .string()
     .min(4, i18n.global.t("codeNotValid"))
-    .test("isValidSlug", i18n.global.t("codeNotValid"), validateSlug)
+  
     .required(i18n.global.t("fieldRequired")),
   slug: yup
     .string()
     .min(4, i18n.global.t("slugNotValid"))
-    .test("isValidSlug", i18n.global.t("slugNotValid"), validateCode)
+ 
     .required(i18n.global.t("fieldRequired")),
   connectedShops: yup.array().of(yup.string()),
   resources: yup.array().of(

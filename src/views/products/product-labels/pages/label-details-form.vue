@@ -583,7 +583,7 @@ function validateCode(e) {
       api({
         url: "ProductLabelCommands/is-valid-code",
         method: "post",
-        payload: { code: e.target.value },
+        payload: { id: props.id,code: e.target.value },
       }).then((res) => {
         codeLoading.value = false;
         resolve(res?.data.data as boolean);

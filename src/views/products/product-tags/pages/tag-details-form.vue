@@ -677,7 +677,7 @@ function validateSlug(e) {
       api({
         url: "ProductTagCommands/is-valid-slug",
         method: "post",
-        payload: { slug: e.target.value },
+        payload: { id: props.id,slug: e.target.value },
       }).then((res) => {
         resolve(res?.data.data as boolean);
         loadSlug.value = false;
@@ -694,7 +694,7 @@ function validateCode(e) {
       api({
         url: "ProductTagCommands/is-valid-code",
         method: "post",
-        payload: { code: e.target.value },
+        payload: {id: props.id, code: e.target.value },
       }).then((res) => {
         resolve(res?.data.data as boolean);
         loadCode.value = false;

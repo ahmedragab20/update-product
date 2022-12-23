@@ -41,6 +41,32 @@
               </span>
             </a>
           </li>
+          
+          <li
+            class="nav-item mb-2"
+            data-bs-toggle="tooltip"
+            data-bs-trigger="hover"
+            data-bs-placement="right"
+            data-bs-dismiss="click"
+            data-bs-original-title="clients"
+          >
+            <a
+              class="
+                nav-link
+                btn
+                btn-icon
+                btn-active-color-primary
+                btn-color-gray-400
+                btn-active-light
+              "
+              data-bs-toggle="tab"
+              href="#clients"
+            >
+              <span class="svg-icon svg-icon-2x">
+                 <inline-svg src="/media/icons/duotune/communication/com006.svg" />
+              </span>
+            </a>
+          </li>
 
           <li
             class="nav-item mb-2"

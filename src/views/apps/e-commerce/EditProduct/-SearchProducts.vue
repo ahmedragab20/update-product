@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="currentProduct">
     <el-select
       class="w-100 form-control-solid border-0"
       v-model="selectedProducts"
@@ -46,14 +46,18 @@ import Api from "@/utils/ApiHelper";
 import { Actions } from "@/store/enums/StoreEnums";
 import { ref } from "@vue/reactivity";
 import { watchEffect } from "@vue/runtime-core";
+import { computed } from "vue";
+import { useStore } from "vuex";
 
+const store = useStore();
 const emit = defineEmits(["selectedProducts"]);
 const props = defineProps({
   selectedItems: {
     type: Array,
-    default: [],
-  },
+    default: []
+  }
 });
+const currentProduct = computed(() => store.state.UpdateProduct.product);
 const selectedProducts = ref([]);
 const products = ref([]);
 const query = ref("");
@@ -68,12 +72,22 @@ const getProducts = async (param) => {
       method: "get",
       url: Actions.SEARCH_PRODUCTS,
       payload: {
-        Value: param,
-      },
+        Value: param
+      }
     };
 
     const response = await Api(reqData);
-    products.value = response?.data.data;
+    const items: any[] = response?.data.data;
+
+    const isCurrentProductIncluded = items?.find(i => i.id === currentProduct.value?.id);
+
+    if (isCurrentProductIncluded) {
+      products.value = items.filter(i => i.id !== currentProduct.value?.id);
+
+      return;
+    }
+
+    products.value = items;
   } catch (error) {
     console.error(error);
   } finally {

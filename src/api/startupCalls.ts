@@ -9,6 +9,14 @@ export default () => {
   store.dispatch(Actions.LANGUAGES);
   store.dispatch(Actions.ACCOUNTS_TYPE);
   store.dispatch(Actions.SHOP_CATEGORIES);
+  store.dispatch(Actions.CONDITION_TYPE);
+  store.dispatch(Actions.COPMERISON_TYPE);
+  store.dispatch(Actions.CLIENTS_CONDITION);
+  store.dispatch(Actions.GENDER);
+  store.dispatch(Actions.FONTAWESOME_ICONS);
+
+  
+  
   store.dispatch(Actions.DELIVERY_CLASSES);
   store.dispatch(Actions.VEHICLE_TYPES);
   store.dispatch(Actions.VEHICLE_SPECIAL_REQUIREMENTS);
@@ -27,7 +35,9 @@ export default () => {
     store.dispatch(Actions.USER);
     store.dispatch(Actions.SETTINGS);
     store.dispatch(Actions.MARKET);
-    store.dispatch(Actions.GET_SHOPS);
+    // store.dispatch(Actions.GET_SHOPS);
     store.dispatch(Actions.CATEGORIES);
+   
+    
   }
 };

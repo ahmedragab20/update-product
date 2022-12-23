@@ -1,5 +1,6 @@
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import ProductCategoriesType from "@/api/data/productCategoriesType";
+import GategoriesOptions from "@/api/data/GategoriesOptions";
 import { ConnectedProduct } from "@/api/data/ConnectedProduct";
 import { Pagination } from "@/interfaces/pagination";
 import parentList from "@/api/data/parentList"
@@ -12,6 +13,7 @@ import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators";
 export default class ProductCategories extends VuexModule {
   //? sate
   Gategories: Array<ProductCategoriesType> = [];
+  GategoriesOptions: Array<GategoriesOptions> = [];
 
   GategoriesList: Array<ProductCategoriesType> = [];
   parentList : Array<parentList>=[]
@@ -39,6 +41,13 @@ export default class ProductCategories extends VuexModule {
   @Mutation
   [Mutations.GET_CATEGORIES](CATEGORIES: Array<ProductCategoriesType>) {
     this.Gategories = CATEGORIES;
+  }
+
+
+  
+  @Mutation
+  [Mutations.SET_CATEGORIES_OPTIONS](CATEGORIES: Array<GategoriesOptions>) {
+    this.GategoriesOptions = CATEGORIES;
   }
   @Mutation
   [Mutations.GET_CATEGORIES_LIST](CATEGORIES: Array<ProductCategoriesType>) {
@@ -360,7 +369,7 @@ CATEGORIES.forEach(el=>{
     };
 
     let CategoriesResult: Array<ProductCategoriesType> = [];
-
+    let CategoriesResultOptions: Array<any> = [];
     Api(payload).then((response) => {
       this.context.commit(Mutations.GET_CATEGORIES_LIST, response?.data.data);
  
@@ -383,11 +392,23 @@ CATEGORIES.forEach(el=>{
           Gategories: GenerateCategoriesTree(CategoriesChild, el),
         });
       });
+      parent.forEach((el) => {
+        return CategoriesResultOptions.push({
+          id: el.id,
+          label: el.name,
+          thumbnailPath: el.thumbnailPath,
+          children: GenerateCategoriesOptionsTree(CategoriesChild, el),
+        });
+      });
       console.log("CategoriesResult", CategoriesResult);
 
       this.context.commit(
         Mutations.GET_CATEGORIES,
         CategoriesResult as Array<ProductCategoriesType>
+      );
+      this.context.commit(
+        Mutations.SET_CATEGORIES_OPTIONS,
+        CategoriesResultOptions as Array<GategoriesOptions>
       );
     });
   }
@@ -440,6 +461,28 @@ function GenerateCategoriesTree(Array1: Array<any>, object: any) {
         parentId: el.parentId,
         order: el.order,
         Gategories: GenerateCategoriesTree(Array1, el),
+      });
+    }
+  });
+
+  return list;
+}
+function GenerateCategoriesOptionsTree(Array1: Array<any>, object: any) {
+  let list: Array<GategoriesOptions> = [];
+
+  Array1.forEach((el) => {
+    // console.log("Array1",Array1)
+    // console.log("Array1",typeof(object.id))
+
+    object.id = parseInt(object.id);
+
+    //el.parentId==object.id
+    if (el.parentId == object.id) {
+      list.push({
+        id: el.id,
+        label: el.name,
+        thumbnailPath: el.thumbnailPath,
+        children: GenerateCategoriesOptionsTree(Array1, el),
       });
     }
   });

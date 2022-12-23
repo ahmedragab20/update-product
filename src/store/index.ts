@@ -15,8 +15,11 @@ import Order from "@/store/modules/OrderModule";
 import AbandonedCarts from '@/store/modules/AbandonedCarts';
 import ProductWishlists from '@/store/modules/WishlistModule';
 import AllAccounts from "@/store/modules/AccountsModule";
-import WalletModule from "@/store/modules/Wallet"
-import PointSystems from "@/store/modules/PointSystems";
+import WalletModule from "@/store/modules/Wallet";
+import Shops from "@/store/modules/ShopsModule"
+import PointSystems from "@/store/modules/PointSystems";;
+import ClientGroup from '@/store/modules/ClientGroup';
+import Clients from '@/store/modules/Client';
 import { createStore } from "vuex";
 import { config } from "vuex-module-decorators";
 
@@ -58,7 +61,10 @@ const store = createStore({
     AllAccounts,
     WalletModule,
     UpdateProduct,
-    PointSystems
+    PointSystems,
+    Shops,
+    ClientGroup,
+    Clients
   },
 });
 

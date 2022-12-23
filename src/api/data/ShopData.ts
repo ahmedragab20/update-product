@@ -1,5 +1,3 @@
-import type { ShopTag } from "@/types";
-
 export default interface ShopData {
   id: string;
   name: string;
@@ -15,5 +13,4 @@ export default interface ShopData {
   isVisibleOnJetOrder: boolean;
   isClosedOnJetOrder: boolean;
   logoKey: string;
-  tags?: Array<ShopTag>;
 }

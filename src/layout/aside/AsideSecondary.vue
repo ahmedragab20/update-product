@@ -22,9 +22,13 @@
             >
               <AsideMenu :items="dashboardItems" :title="`dashboard`" />
             </div>
+             <div class="tab-pane fade" id="clients" role="tabpanel">
+              <AsideMenu :items="clientsItems" :title="`clients`" />
+            </div>
             <div class="tab-pane fade" id="market" role="tabpanel">
               <AsideMenu :items="marketItems" :title="`market`" />
             </div>
+            
             <div class="tab-pane fade" id="products" role="tabpanel">
               <AsideMenu :items="productsItems" :title="`products`" />
             </div>
@@ -118,9 +122,18 @@ export default defineComponent({
         link: "/dashboard/sales",
         icon: "bi-cart",
       },
+      
+    ]);
+     const clientsItems = ref([
+     
       {
         name: "clients",
         link: "/dashboard/clients",
+        icon: "bi-people",
+      },
+      {
+        name: "clients-group",
+        link: "/dashboard/clients-group",
         icon: "bi-people",
       },
     ]);
@@ -133,7 +146,7 @@ export default defineComponent({
       },
       {
         name: "shops",
-        link: "/market/shops",
+        link: "/shops",
         icon: "bi-building",
       },
     ]);
@@ -238,6 +251,7 @@ export default defineComponent({
       getIllustrationsPath,
       t,
       dashboardItems,
+      clientsItems,
       productsItems,
       marketItems,
       loyaltyItems,

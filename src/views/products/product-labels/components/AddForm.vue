@@ -270,6 +270,7 @@ const store = useStore();
 const langs = computed(() => {
   return store.getters.getSupportedLanguages;
 });
+
 const selectedItem = ref();
 const emit = defineEmits(["label-added"]);
 

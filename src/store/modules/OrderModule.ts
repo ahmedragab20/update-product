@@ -27,6 +27,11 @@ export default class Order extends VuexModule {
   get getRoles() {
     return this.roles;
   }
+  
+  get getOrderAction() {
+    console.log('this.OrderAction',this.OrderAction)
+    return this.OrderAction;
+  }
   //* Mutations
   @Mutation
   [Mutations.SET_ROLES](payload) {
@@ -76,7 +81,9 @@ export default class Order extends VuexModule {
   }
   @Mutation
   [Mutations.SET_ORDER_ACTION_TEMPLATE](ORDERS) {
+    
     this.OrderAction = [...ORDERS];
+    console.log( this.OrderAction)
   }
 
   //! Actions

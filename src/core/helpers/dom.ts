@@ -14,6 +14,8 @@ const showModal = (modalEl: HTMLElement | null): void => {
   const myModal = Modal.getOrCreateInstance(modalEl);
   myModal?.show();
 };
+
+
 const removeModalBackdrop = (): void => {
   if (document.querySelectorAll(".modal-backdrop.fade.show").length) {
     document.querySelectorAll(".modal-backdrop.fade.show").forEach((item) => {
@@ -22,4 +24,5 @@ const removeModalBackdrop = (): void => {
   }
 };
 
-export { removeModalBackdrop, hideModal ,showModal};
+export { removeModalBackdrop, hideModal,showModal };
+

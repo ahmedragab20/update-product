@@ -9,6 +9,11 @@ enum Actions {
   LOGIN = "/Autentication/login",
   SETTINGS = "/Application/get-app-settings",
   COUNTRIES = "/LookupQueries/get-countries",
+
+  CONDITION_TYPE="LookupQueries/get-formula-condition-types",
+  COPMERISON_TYPE="LookupQueries/get-copmerison-opertation-types",
+  CLIENTS_CONDITION="LookupQueries/get-client-group-conditions",
+  GENDER="LookupQueries/get-sex-types",
   LOGOUT = "logout",
   REGISTER = "/Autentication/register",
   USER = "/UserQueries/get-user",
@@ -22,6 +27,7 @@ enum Actions {
   SHOP_CATEGORIES = "/LookupQueries/get-shop-categories",
   GET_CITY_BY_COUNTRYID = "/LookupQueries/get-country-cities",
   GET_AREA_BY_CITYID = "/LookupQueries/get-city-areas",
+  GET_PAYMENT_METHODS = "/LookupQueries/get-payment-methods",
   SET_CURRENT_LANGS = "setCurrentLangs",
   SET_SETUP_DATA = "setSetupData",
   SET_SETUP_RESOURCES = "setSetupResources",
@@ -147,8 +153,52 @@ enum Actions {
   ADD_POINT_SYSTEMS = "/LoyaltyCommands/create-points-system",
   UPDATE_POINT_SYSTEMS = "/LoyaltyCommands/update-points-system",
   DELETE_POINT_SYSTEM = "/LoyaltyCommands/remove-points-system",
-  //// End Point Systems
+  //// End Point Systems,
+
+
+  // Shops
+
+ 
+  CREATE_SHOP = "/ShopCommands/create-shop",
+  GET_SHOPS_BASE_SETTINGS='/ShopQueries/get-shop-basic-settings',
+  GET_CONTACT_TYPE="/LookupQueries/get-contact-types",
+  GET_SOCIAL_MEDIA_TYPE="/LookupQueries/get-socialmedia-types",
+  UPDATE_SHOP_BASE_SETTINGS="/ShopCommands/update-shop-basic-settings",
+  GET_SHOPS_DELIVERY_SETTINGS="/ShopQueries/get-shop-delivery-settings",
+  UPDATE_SHOPS_DELIVERY_SETTINGS="/ShopCommands/update-shop-delivery-settings",
+  GET_SHOPS_JETORDER_SETTINGS="/ShopQueries/get-shop-jetorder-settings",
+  UPDATE_SHOPS_JETORDER_SETTINGS="/ShopCommands/update-shop-jetorder-settings",
+  GET_SHOPS_PAYEMENT="/ShopQueries/get-shop-payment-options",
+  UPDATE_SHOPS_PAYEMENT="/ShopCommands/update-shop-payment-settings",
+  GET_SHOPS_ORDER_SETTINGS='/ShopQueries/get-shop-order-settings',
+  UPDATE_SHOP_ORDER_SETTINGS="/ShopCommands/update-shop-order-settings",
+  GET_SHOP_CATEGORIES="/ShopQueries/get-shop-product-categories",
+  UPDATE_SHOP_CATEGORIES="/ShopCommands/update-shop-Item-categories",
+  GET_SHOP_USERS="/ShopQueries/get-shop-users",
+  UPDATE_SHOP_USERS="/ShopCommands/update-shop-users",
+  GET_USERS="/UserQueries/get-users",
+  GET_SHOP_FINANCIAL="/ShopQueries/get-shop-financial-settings",
+  DELETE_SHOP = "/ShopCommands/remove-shop",
+   // Clinet Group
+   ADD_CLIENT_GROUP="/ClientCommands/create-client-group",
+   GET_CLIENT_GROUP="/ClientQueries/search-client-group",
+   GET_CLIENT_GROUP_BY_ID="GET_CLIENT_GROUP_BY_ID",
+   UPDATE_CLIENT_GROUP="/ClientCommands/update-client-group",
+   DELETE_CLIENT_GROUP="/ClientCommands/remove-client-group",
+   //Client
+   GET_CLIENTS="/ClientQueries/search-clients", 
+   GET_CLIENT_BY_ID="/ClientQueries/get-client",
+   GET_JETORDER_ORDERS="/OrderQueries/search-jetorder-orders",
+   GET_SHOPLINKS_ORDERS="/OrderQueries/search-shoplink-orders",
+   GET_CLIENT_ADDRESS="/ClientQueries/get-client-addresses",
+   GET_CLIENT_WHISHLISTS="/ClientQueries/get-client-whishlists",
+   GET_CLIENT_WHISHLISTS_PRODUCTS="/ClientQueries/get-client-whishlist-produts",
+   GET_CLIENT_ABANDONED_CARTS="/ClientQueries/search-client-abandoned-carts",
+   GET_CLIENT_DEVICES="/ClientQueries/get-client-devices",
+   GET_CLIENT_ABANDONED_CARTS_PRODUCTS="/LoyaltyQueries/get-abandoned-cart"
+
 }
+
 enum Mutations {
   // mutation types
   SET_CLASSNAME_BY_POSITION = "appendBreadcrumb",
@@ -168,6 +218,10 @@ enum Mutations {
   COUNTRIES = "GET_COUNTRIES",
   SELECTED_COUNTRY = "SELECTED_COUNTRY",
   CURRENCIES = "SET_CURRENCIES",
+  SET_CONDITION_TYPE="SET_CONDITION_TYPE",
+  SET_CLIENTS_CONDITION=" SET_CLIENTS_CONDITION",
+  SET_GENDER="SET_GENDER",
+  SET_COPMERISON_TYPE=" SET_COPMERISON_TYPE",
   LANGUAGES = "SET_LANGUAGES",
   ACCOUNTS_TYPE = "SET_ACCOUNTS_TYPE",
   SHOP_CATEGORIES = "SET_SHOP_CATEGORIES",
@@ -185,6 +239,7 @@ enum Mutations {
   VEHICLE_TYPES = "SET_VEHICLE_TYPES",
   VEHICLE_SPECIAL_REQUIREMENTS = "SET_VEHICLE_SPECIAL_REQUIREMENTS",
   DELIVERY_TYPES_CATEGORIES = "SET_DELIVERY_TYPES_CATEGORIES",
+  SET_PAYMENT_METHODS="SET_PAYMENT_METHODS",
 
   //Modifier
   UPDATE_MODIFIERS = "UPDATE_MODIFIERS",
@@ -247,6 +302,7 @@ enum Mutations {
   UPDATE_CATEGORY_PRODUCT = "UPDATE_CATEGORY_PRODUCT",
   SET_MESSAGE_ISVALIDCODE = "SET_MESSAGE_ISVALIDCODE",
   ISVALID_CODE = "ISVALID_CODE",
+  SET_CATEGORIES_OPTIONS="SET_CATEGORIES_OPTIONS",
 
   //start tags
   SET_PRODUCT_TAGS = "SET_PRODUCT_TAGS",
@@ -299,7 +355,37 @@ enum Mutations {
   //// Start Point Systems
   SET_POINT_SYSTEMS = "SET_POINT_SYSTEMS",
   SET_POINT_SYSTEM = "SET_POINT_SYSTEM",
-  //// End Point Systems
+  //// End Point Systems,
+
+
+  // Shops
+  SET_SHOPS= "SET_SHOPS",
+  SET_SHOPS_RESOURCES="SET_SHOPS_RESOURCES",
+  SET_SHOPS_LOGO="SET_SHOPS_LOGO",
+  SET_CONTACT_TYPE="SET_SHOPS_CONTACT",
+  SET_SOCIAL_MEDIA_TYPE="SET_SOCIAL_MEDIA_TYPE",
+  SET_USERS="SET_USERS",
+  DELETE_SHOP = "DELETE_SHOP",
+ 
+  // Clinet Group
+  SET_CLIENT_GROUP="SET_CLIENT_GROUP",
+  SET_CLIENT_GROUP_BY_ID="SET_CLIENT_GROUP_BY_ID",
+  UPDATE_PAGINATION_CLIENT_GROUP="UPDATE_PAGINATION_CLIENT_GROUP",
+  FILTER_GROUP=" FILTER_GROUP",
+  SEARCH_GROUP="SEARCH_GROUP",
+  //Client
+  SET_CLIENTS="SET_CLIENTS",
+  UPDATE_PAGINATION_CLIENT="UPDATE_PAGINATION_CLIENT",
+  SET_CLIENT_BY_ID="SET_CLIENT_BY_ID",
+  SET_ORDERS="SET_ORDERS",
+  SET_CLIENT_ADDRESS="SET_CLIENT_ADDRESS",
+  SET_CLIENT_WHISHLISTS="SET_CLIENT_WHISHLISTS",
+  SET_CLIENT_WHISHLISTS_PRODUCTS="SET_CLIENT_WHISHLISTS_PRODUCTS",
+  SET_CLIENT_ABANDONED_CARTS="SET_CLIENT_ABANDONED_CARTS",
+  SET_CLIENT_DEVICES="SET_CLIENT_DEVICES",
+  UPDATE_CURRENT_PAGE_CLIENTS="UPDATE_CURRENT_PAGE_CLIENTS",
+  SET_CLIENT_ABANDONED_CARTS_PRODUCTS="SET_CLIENT_ABANDONED_CARTS_PRODUCTS"
+
 }
 
 export { Actions, Mutations };

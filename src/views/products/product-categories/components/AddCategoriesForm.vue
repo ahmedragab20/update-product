@@ -227,6 +227,7 @@
                       {{ $t("categoryLogo") }}
                     </label>
                     <!--begin::Image input-->
+                   
                     <Field
                       type="file"
                       v-slot="{ field }"

@@ -6,6 +6,7 @@ import { Products } from "./products";
 import { LoyaltyRoutes } from './loyalty'
 import {OrderRoutes} from './order'
 import { AccountsRoutes } from "./accounts"
+import {Shops} from "./shops"
 import {WalletRoutes} from './wallet'
 const cookies = useCookies(["token"]);
 
@@ -15,6 +16,32 @@ const routes: Array<RouteRecordRaw> = [
     redirect: "/dashboard",
     component: () => import("@/layout/Layout.vue"),
     children: [
+      {
+        path: "/dashboard/clients-group",
+        name: "clients-group",
+        component: () =>
+          import("@/views/clients/clients-group/pages/index.vue"),
+      },
+     
+      {
+        path: "/dashboard/clients",
+        name: "clients",
+        component: () =>
+          import("@/views/clients/clients/pages/index.vue"),
+      },
+      {
+        path: "/clients/client-details/:id",
+        name: "client-details",
+        props: true,
+        component: () =>
+          import("@/views/clients/clients/pages/client-details-page.vue"),
+      },
+      {
+        path: "/dashboard/clients",
+        name: "clients",
+        component: () =>
+          import("@/views/clients/clients/pages/index.vue"),
+      },
       {
         path: "/products",
         component: () =>
@@ -69,6 +96,19 @@ const routes: Array<RouteRecordRaw> = [
         name: "builder",
         component: () => import("@/views/Builder.vue"),
       },
+      {
+        path: "/shops",
+        name: "shops",
+        component: { render: () => h(RouterView) },
+        children: Shops,
+        meta: { requireAuth: true },
+      },
+      // {
+      //   path: "/market/shops",
+      //   name: "shops",
+      //   component: () => import("@/views/shops/index.vue"),
+      //   children: Shops,
+      // },
       {
         path: "/crafted/pages/profile",
         name: "profile",
@@ -303,6 +343,7 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  
   {
     path: "/",
     component: () => import("@/components/page-layouts/Auth.vue"),

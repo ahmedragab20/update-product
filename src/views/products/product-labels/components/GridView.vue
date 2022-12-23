@@ -75,19 +75,7 @@
               <div class="separator mb-3 opacity-75"></div>
               <!--end::Menu separator-->
 
-              <!--begin::Menu item-->
-              <div class="menu-item px-3">
-                <a
-                  @click="emit('delete-product-label')"
-                  class="menu-link px-3 d-flex justify-content-between align-items-center"
-                >
-                  <span>{{ $t("delete") }}</span>
-                  <span class="svg-icon svg-icon-danger svg-icon-3">
-                    <inline-svg src="/media/icons/duotune/general/gen027.svg" />
-                  </span>
-                </a>
-              </div>
-              <!--end::Menu item-->
+          
 
               <!--begin::Menu item-->
               <div class="menu-item px-3">
@@ -100,6 +88,19 @@
                     <inline-svg src="/media/icons/duotune/art/art005.svg" />
                   </span>
                 </router-link>
+              </div>
+              <!--end::Menu item-->
+                  <!--begin::Menu item-->
+                  <div class="menu-item px-3">
+                <a
+                  @click="emit('delete-product-label')"
+                  class=" px-3 d-flex btn btn-sm btn-light-danger justify-content-between align-items-center"
+                >
+                  <span>{{ $t("delete") }}</span>
+                  <span class="svg-icon svg-icon-danger svg-icon-3">
+                    <inline-svg src="/media/icons/duotune/general/gen027.svg" />
+                  </span>
+                </a>
               </div>
               <!--end::Menu item-->
             </div>
