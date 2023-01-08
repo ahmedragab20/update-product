@@ -37,8 +37,8 @@
       <div class="fv-row mb-10">
         <!--begin::Label-->
         <label class="form-label fs-6 fw-bolder text-dark">{{
-          $t("email")
-        }}</label>
+            $t("email")
+          }}</label>
         <!--end::Label-->
 
         <!--begin::Input-->
@@ -64,8 +64,8 @@
         <div class="d-flex flex-stack mb-2">
           <!--begin::Label-->
           <label class="form-label fw-bolder text-dark fs-6 mb-0">{{
-            $t("password")
-          }}</label>
+              $t("password")
+            }}</label>
           <!--end::Label-->
 
           <!--begin::Link-->
@@ -95,6 +95,9 @@
 
       <!--begin::Actions-->
       <div class="text-center">
+        <div class="mb-3">
+          <span class="badge badge-lg badge-light-danger" v-if="!!errorMessage" v-text="errorMessage" />
+        </div>
         <!--begin::Submit button-->
         <button
           type="submit"
@@ -112,51 +115,6 @@
           </span>
         </button>
         <!--end::Submit button-->
-
-        <!--begin::Separator-->
-        <!-- <div class="text-center text-muted text-uppercase fw-bolder mb-5">
-          or
-        </div> -->
-        <!--end::Separator-->
-
-        <!--begin::Google link-->
-        <!-- <a
-          href="#"
-          class="btn btn-flex flex-center btn-light btn-lg w-100 mb-5"
-        >
-          <img
-            alt="Logo"
-            src="/media/svg/brand-logos/google-icon.svg"
-            class="h-20px me-3"
-          />
-          Continue with Google
-        </a> -->
-        <!--end::Google link-->
-
-        <!--begin::Google link-->
-        <!-- <a
-          href="#"
-          class="btn btn-flex flex-center btn-light btn-lg w-100 mb-5"
-        >
-          <img
-            alt="Logo"
-            src="/media/svg/brand-logos/facebook-4.svg"
-            class="h-20px me-3"
-          />
-          Continue with Facebook
-        </a> -->
-        <!--end::Google link-->
-
-        <!--begin::Google link-->
-        <!-- <a href="#" class="btn btn-flex flex-center btn-light btn-lg w-100">
-          <img
-            alt="Logo"
-            src="/media/svg/brand-logos/apple-black.svg"
-            class="h-20px me-3"
-          />
-          Continue with Apple
-        </a> -->
-        <!--end::Google link-->
       </div>
       <!--end::Actions-->
     </Form>
@@ -169,7 +127,7 @@
 import { defineComponent, ref } from "vue";
 import { ErrorMessage, Field, Form } from "vee-validate";
 import { uuid } from "vue-uuid";
-import { Actions } from "@/store/enums/StoreEnums";
+import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useCookies } from "@vueuse/integrations/useCookies";
@@ -181,76 +139,49 @@ export default defineComponent({
   components: {
     Field,
     Form,
-    ErrorMessage,
+    ErrorMessage
   },
   setup() {
     const store = useStore();
     const router = useRouter();
     const cookies = useCookies();
+    const errorMessage = ref<string>("");
 
     const submitButton = ref<HTMLButtonElement | null>(null);
     //Create form validation object
     const login = Yup.object().shape({
       email: Yup.string().email().required().label("Email"),
-      password: Yup.string().min(4).required().label("Password"),
+      password: Yup.string().min(4).required().label("Password")
     });
 
     //Form submit function
     const onSubmitLogin = async (values: any) => {
-      // Clear existing errors
-      store.dispatch(Actions.LOGOUT);
-
       if (submitButton.value) {
-        // eslint-disable-next-line
         submitButton.value!.disabled = true;
         // Activate indicator
         submitButton.value.setAttribute("data-kt-indicator", "on");
       }
 
-      const deviceId = cookies.get<string>("deviceId") ?? uuid.v4();
+      const deviceId = localStorage.getItem("deviceId") ?? uuid.v4();
       const payload = {
         ...values,
-        deviceId,
+        deviceId
       };
 
       try {
-        await store.dispatch(Actions.LOGIN, payload);
-        Swal.fire({
-          text: "You have successfully logged in!",
-          icon: "success",
-          buttonsStyling: false,
-          confirmButtonText: "Ok, got it!",
-          customClass: {
-            confirmButton: "btn fw-bold btn-light-primary",
-          },
-        }).then(function () {
-          if (store.getters.isUserAuthenticated) {
-            store.dispatch(Actions.SETTINGS);
-            store.dispatch(Actions.USER);
-            store.dispatch(Actions.MARKET);
-          }
+        await store.dispatch(Actions.LOGIN, payload).then((res) => {
+          errorMessage.value = "";
 
-          if (store.state.ResponseHeaders["x-is-market-active"] === "False") {
-            cookies.set("isMarketActive", false);
-            router.push({ name: "setup" });
-            return;
-          }
-          cookies.set("isMarketActive", true);
-          router.push({ name: "Dashboard" });
+          store.dispatch(Actions.SETTINGS);
+          store.dispatch(Actions.USER);
+          store.dispatch(Actions.MARKET);
+          location.reload();
+        }).catch(e => {
+          errorMessage.value = `Your email or password isn't correct! 🤷🏻‍♂️`;
         });
       } catch (error) {
-        Swal.fire({
-          text: "Email or password is not correct",
-          icon: "error",
-          buttonsStyling: false,
-          confirmButtonText: "Try again!",
-          customClass: {
-            confirmButton: "btn fw-bold btn-light-danger",
-          },
-        });
+        console.log(error);
       }
-
-      // Send login reques
       //Deactivate indicator
       submitButton.value?.removeAttribute("data-kt-indicator");
       // eslint-disable-next-line
@@ -261,7 +192,8 @@ export default defineComponent({
       onSubmitLogin,
       login,
       submitButton,
+      errorMessage
     };
-  },
+  }
 });
 </script>

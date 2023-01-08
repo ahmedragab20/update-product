@@ -1,5 +1,6 @@
 <template>
-  <div class="card card-flush py-4">
+  <div class="card card-flush py-4"
+       :class="{'gradient-border' : updateProductState.changedSections.includes('product-details')}">
     <!--begin::Card header-->
     <div class="card-header">
       <!--begin::Card title-->
@@ -240,8 +241,7 @@
           :btnSubmit="sendProductDetails"
           :elChanged="dataChange"
           :elLoading="isLoading"
-          :fullWidth="true"
-          :noCancel="true"
+          :btn-reverse-submit="reverseProductDetails"
         />
       </div>
     </div>
@@ -255,7 +255,7 @@ import SaveChangeBtn from "@/views/apps/e-commerce/EditProduct/-SaveChangeBtn.vu
 import Dropdown from "@/components/Reusable/Dropdown.vue";
 import { ref } from "@vue/reactivity";
 import { useStore } from "vuex";
-import { computed, onBeforeMount, onMounted } from "vue";
+import { computed, onBeforeMount, onMounted, watch } from "vue";
 import { Product, Categories } from "@/types";
 
 interface Props {
@@ -272,6 +272,22 @@ const store = useStore();
 const isLoading = ref(false);
 const dataChange = ref<string | boolean>(false);
 const product = computed(() => store.state.UpdateProduct.product);
+const updateProductState = computed(() => store.state.UpdateProduct);
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
+
+
 // Brands logic
 const brandsDropdownSelectedItem = ref();
 const setBrandsDropdownSelectedItem = (
@@ -333,57 +349,124 @@ const sendProductDetails = async () => {
     connectedProductCategories: selectedItemsIds.value,
     deliveryTimeCategoryId: deliveryClassesDropdownSelectedItem.value
       ? deliveryClassesDropdownSelectedItem.value?.id
-      : (errorMessage.value = "can't send empty data"),
+      : (errorMessage.value = "can't send empty data")
   };
 
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-basicdetails",
-    payload,
+    payload
   };
 
   try {
     isLoading.value = true;
     const { data } = await Api(reqData);
-    if (data.succeeded) dataChange.value = "done";
-    else errorMessage.value = data.message;
+    if (data.succeeded) {
+      dataChange.value = "done";
+      errorMessage.value = "";
+      initializeComponentsData({
+        name: "productDetails",
+        content: {
+          productBrandId: payload.brandId,
+          deliveryTimeCategoryId: payload.deliveryTimeCategoryId,
+          productCategories: payload.connectedProductCategories
+        }
+      });
+    } else {
+      errorMessage.value = data.message;
+    }
   } catch (error) {
     console.error(error);
   } finally {
     isLoading.value = false;
   }
 };
+const reverseProductDetails = () => {
+  const { productDetails } = updateProductState.value;
 
-onBeforeMount(() => {
+  initProductBrands(productDetails.productBrandId, true);
+  initDeliveryClasses(productDetails.deliveryTimeCategoryId, true);
+  initProductCategories(productDetails.productCategories);
+
+  dataChange.value = false;
+  errorMessage.value = "";
+};
+const initProductBrands = (productBrandId: string, isGlobal?: boolean) => {
+  if (props.brands) {
+    const brand = props.brands.find((brand) => brand.id === productBrandId);
+    setBrandsDropdownSelectedItem(brand, isGlobal);
+  }
+};
+const initDeliveryClasses = (deliveryTimeCategoryId: string, isGlobal?: boolean) => {
+  if (props.deliveryClasses) {
+    const deliveryClass = props.deliveryClasses.find(
+      (deliveryClass) => deliveryClass.id === deliveryTimeCategoryId
+    );
+    setDeliveryClassesDropdownSelectedItem(deliveryClass, isGlobal);
+  }
+};
+
+const initProductCategories = (productCategories: string[]) => {
+  if (props.categories) {
+    const categoriesIds: any[] = [];
+    props.categories.forEach((category) => {
+      if (productCategories.includes(category.id)) {
+        categoriesIds.push(category.id);
+      }
+    });
+    outterCategoriesIds.value = categoriesIds;
+    selectedItemsIds.value = categoriesIds;
+    findSelectedItems(categoriesIds);
+    const items = props.categories.filter((category) =>
+      productCategories.includes(category.id)
+    );
+    selectedCategories.value = items;
+  }
+};
+
+onMounted(() => {
   if (product.value) {
-    if (props.brands) {
-      const { productBrandId } = product.value;
-      const brand = props.brands.find((brand) => brand.id === productBrandId);
-      setBrandsDropdownSelectedItem(brand, true);
-    }
-    if (props.deliveryClasses) {
-      const { deliveryTimeCategoryId } = product.value;
-      const deliveryClass = props.deliveryClasses.find(
-        (deliveryClass) => deliveryClass.id === deliveryTimeCategoryId
-      );
-      setDeliveryClassesDropdownSelectedItem(deliveryClass, true);
-    }
-    if (props.categories) {
-      const categoriesIds: any[] = [];
-      const { productCategories } = product.value;
-      props.categories.forEach((category) => {
-        if (productCategories.includes(category.id)) {
-          categoriesIds.push(category.id);
-        }
-      });
-      outterCategoriesIds.value = categoriesIds;
-      selectedItemsIds.value = categoriesIds;
-      findSelectedItems(categoriesIds);
-      const items = props.categories.filter((category) =>
-        productCategories.includes(category.id)
-      );
-      selectedCategories.value = items;
-    }
+    initProductBrands(product.value?.productBrandId, true);
+    initDeliveryClasses(product.value.deliveryTimeCategoryId, true);
+    initProductCategories(product.value.productCategories);
+    initializeComponentsData({
+      name: "productDetails",
+      content: {
+        productBrandId: product.value.productBrandId,
+        deliveryTimeCategoryId: product.value.deliveryTimeCategoryId,
+        productCategories: product.value.productCategories
+      }
+    });
+  }
+});
+
+watch(() => product.value, (newValue, oldValue) => {
+  if (newValue) {
+    initProductBrands(newValue?.productBrandId, true);
+    initDeliveryClasses(newValue?.deliveryTimeCategoryId, true);
+    initProductCategories(newValue?.productCategories);
+    initializeComponentsData({
+      name: "productDetails",
+      content: {
+        productBrandId: newValue.productBrandId,
+        deliveryTimeCategoryId: newValue.deliveryTimeCategoryId,
+        productCategories: newValue.productCategories
+      }
+    });
+  }
+});
+
+watch(() => dataChange.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "product-details",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "product-details",
+      remove: true
+    });
   }
 });
 </script>

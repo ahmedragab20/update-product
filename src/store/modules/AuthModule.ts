@@ -3,9 +3,8 @@ import JwtService from "@/core/services/JwtService";
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import type { JwtHeader, JwtPayload, User } from "@/types";
 import Api from "@/utils/ApiHelper";
-import { useCookies } from "@vueuse/integrations/useCookies";
 import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators";
-const cookies = useCookies(["token"]);
+import store from "@/store";
 
 interface userInfo {
   first_name: string;
@@ -19,18 +18,18 @@ interface userInfo {
   otp: string;
   deviceId: string;
 }
+
 @Module
 export default class AuthModule extends VuexModule {
   errors: any;
-  token = cookies.get<string>("token");
-  refreshToken = cookies.get<string>("refreshToken");
-  deviceId = cookies.get<string>("deviceId");
+  token: string;
+  refreshToken = localStorage.getItem("refreshToken");
+  deviceId = localStorage.getItem("deviceId");
   tokenExpiresIn = 0;
   user = {} as User;
   isAuthenticated = false;
-  jwtHeader = {} as JwtHeader;
-  jwtPayload = {} as JwtPayload;
-  RegisterResponse = null;
+  componentKey: number = 0;
+  updatedDataAlert: boolean = false;
 
   /**
    * Get current user object
@@ -45,15 +44,11 @@ export default class AuthModule extends VuexModule {
    * @returns boolean
    */
   get isUserAuthenticated(): boolean {
-    return !!(this.user && this.token);
-  }
+    const falsieValues = [undefined, "undefined", null];
+    const tokenUndefined = !!this.token && falsieValues.includes(this.token) || !this.token;
+    const userUnDefined = !this.user || this.user && !this.user.id;
 
-  /**
-   * Get authentification errors
-   * @returns array
-   */
-  get getErrors() {
-    return this.errors;
+    return !tokenUndefined && !userUnDefined;
   }
 
   @Mutation
@@ -67,7 +62,6 @@ export default class AuthModule extends VuexModule {
     this.refreshToken = refreshToken;
     this.token = token;
     this.isAuthenticated = true;
-    console.log(this);
   }
 
   @Mutation
@@ -80,8 +74,8 @@ export default class AuthModule extends VuexModule {
     this.isAuthenticated = false;
     this.user = {} as User;
     this.errors = [];
-    cookies.remove("token");
-    cookies.remove("refreshToken");
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     // JwtService.destroyToken();
   }
 
@@ -90,44 +84,71 @@ export default class AuthModule extends VuexModule {
   [Mutations.SET_USER](user) {
     this.user = user;
   }
+
+  @Mutation
+  ["SET_TOKEN"](token: string) {
+    ApiService.vueInstance.axios.defaults.headers.common[
+      "Authorization"
+      ] = `Bearer ${token}`;
+    this.token = token;
+  }
+
+  @Mutation
+  ["RERENDER_APP"](value: boolean) {
+    let updateCount = 0;
+    if (value && !updateCount) {
+      updateCount++;
+      this.componentKey++;
+      this.updatedDataAlert = true;
+    }
+
+    setTimeout(() => {
+      this.updatedDataAlert = false;
+    }, 50000);
+  }
+
   @Action
-  [Actions.USER]() {
+  async [Actions.USER]() {
     const payload = {
       method: "get",
-      url: Actions.USER,
+      url: Actions.USER
     };
     // customsHeaders: { Authorization: `Bearer ${cookies.get("token")}` },
-    Api(payload).then((res) => {
-      console.log({ user: res });
-
+    return await Api(payload).then((res) => {
       this.context.commit(Mutations.SET_USER, res?.data.data);
+
+      return res;
+    }).catch(e => {
+      console.error(e);
+      return false;
     });
   }
 
   @Action({ rawError: true })
-  [Actions.REGISTER](userInfo: userInfo) {
+  async [Actions.REGISTER](userInfo: userInfo) {
     const data = {
       method: "post",
       url: Actions.REGISTER,
-      payload: userInfo,
+      payload: userInfo
     };
 
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       Api(data)
         .then((res) => {
           const info = res?.data.data;
           const cookiesOptions = {
             expires: new Date(Date.now() + info.tokenExpiresIn),
-            maxAge: info.tokenExpiresIn,
+            maxAge: info.tokenExpiresIn
           };
-          cookies.set("token", info.token, cookiesOptions);
-          cookies.set("refreshToken", info.refreshToken, cookiesOptions);
-          cookies.set("deviceId", userInfo.deviceId, cookiesOptions);
+          this.context.commit("SET_TOKEN", info.token);
+          localStorage.setItem("token", info.token);
+          localStorage.setItem("refreshToken", info.refreshToken);
+          localStorage.setItem("deviceId", userInfo.deviceId);
 
           const loginInfo = {
             deviceId: userInfo.deviceId,
             refreshToken: info.refreshToken,
-            token: info.token,
+            token: info.token
           };
           ApiService.setHeader();
           this.context.commit(Mutations.SET_AUTH, loginInfo);
@@ -140,29 +161,29 @@ export default class AuthModule extends VuexModule {
   }
 
   @Action
-  [Actions.LOGIN](credentials: any) {
+  async [Actions.LOGIN](credentials: any) {
     const payload = {
       method: "post",
       url: Actions.LOGIN,
-      payload: credentials,
+      payload: credentials
     };
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       Api(payload)
         .then((res) => {
-          const info = res?.data.data;
-          const cookiesOptions = {
-            expires: new Date(Date.now() + info.tokenExpiresIn),
-            maxAge: info.tokenExpiresIn,
-          };
-          cookies.set("token", info.token, cookiesOptions);
-          cookies.set("refreshToken", info.refreshToken, cookiesOptions);
-          cookies.set("deviceId", credentials.deviceId, cookiesOptions);
-
+          const info = res.data.data;
           const loginInfo = {
             deviceId: credentials.deviceId,
             refreshToken: info.refreshToken,
-            token: info.token,
+            token: info.token
           };
+          const cookiesOptions = {
+            expires: new Date(Date.now() + info.tokenExpiresIn),
+            maxAge: info.tokenExpiresIn
+          };
+          this.context.commit("SET_TOKEN", info.token);
+          localStorage.setItem("token", info.token);
+          localStorage.setItem("refreshToken", info.refreshToken);
+          localStorage.setItem("deviceId", credentials.deviceId);
           ApiService.setHeader();
           this.context.commit(Mutations.SET_AUTH, loginInfo);
           resolve(info);
@@ -179,8 +200,8 @@ export default class AuthModule extends VuexModule {
   }
 
   @Action
-  [Actions.FORGOT_PASSWORD](payload) {
-    return ApiService.post("forgot_password", payload)
+  async [Actions.FORGOT_PASSWORD](payload) {
+    return await ApiService.post("forgot_password", payload)
       .then(() => {
         this.context.commit(Mutations.SET_ERROR, {});
       })
@@ -190,10 +211,10 @@ export default class AuthModule extends VuexModule {
   }
 
   @Action
-  [Actions.VERIFY_AUTH](payload) {
+  async [Actions.VERIFY_AUTH](payload) {
     if (JwtService.getToken()) {
-      ApiService.setHeader();
-      ApiService.post("verify_token", payload)
+      await ApiService.setHeader();
+      await ApiService.post("verify_token", payload)
         .then(({ data }) => {
           this.context.commit(Mutations.SET_AUTH, data);
         })
@@ -204,5 +225,18 @@ export default class AuthModule extends VuexModule {
     } else {
       this.context.commit(Mutations.PURGE_AUTH);
     }
+  }
+
+  @Action
+  async ["AUTH_REQUESTS"]() {
+    await store.dispatch(Actions.USER).then((res) => {
+      if (res) {
+        store.dispatch(Actions.SETTINGS);
+        store.dispatch(Actions.MARKET);
+        store.dispatch(Actions.GET_SHOPS);
+        store.dispatch(Actions.CATEGORIES);
+        store.dispatch(Actions.GET_PRODUCT_BRANDS);
+      }
+    });
   }
 }

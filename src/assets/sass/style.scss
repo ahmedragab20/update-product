@@ -15,7 +15,7 @@ $mode: default;
 // Layout
 @import "layout/layout";
 @import "./core/layout/docs/layout";
- 
+
 .card .card-header {
   min-height: 40px !important;
   padding-top: 10px;
@@ -25,12 +25,14 @@ $mode: default;
   max-width: 600px;
   max-height: 600px;
 }
+
 @media (max-width: 768px) {
   .image-viewer {
     max-width: 480px;
     max-height: 480px;
   }
 }
+
 @media (max-width: 480px) {
   .image-viewer {
     max-width: 90vw;
@@ -42,6 +44,7 @@ $mode: default;
   scrollbar-color: rgb(161, 161, 161) transparent;
   scrollbar-width: thin;
 }
+
 .scroller::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -53,3 +56,59 @@ $mode: default;
   background: rgb(161, 161, 161);
   border-radius: 8px;
 }
+
+
+.gradient-border {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    content: "";
+    top: calc(-1 * 2px);
+    left: calc(-1 * 2px);
+    z-index: -1;
+    width: calc(100% + 2px * 2);
+    height: calc(100% + 2px * 2);
+    background: linear-gradient(
+                    60deg,
+                    hsl(224, 85%, 66%),
+                    hsl(269, 85%, 66%),
+                    hsl(314, 85%, 66%),
+                    hsl(359, 85%, 66%),
+                    hsl(44, 85%, 66%),
+                    hsl(89, 85%, 66%),
+                    hsl(134, 85%, 66%),
+                    hsl(179, 85%, 66%)
+    );
+    background-size: 300% 300%;
+    background-position: 0 50%;
+    border-radius: 12px;
+    animation: moveGradient 4s alternate infinite;
+  }
+}
+
+.white-shadow {
+  box-shadow: 0 0 10px 10px #fff;
+  animation: fade-in-out .4s alternate infinite;
+}
+
+.blur {
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+@keyframes moveGradient {
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fade-in-out {
+  0% {
+    box-shadow: 0 0 0px 0px #fff;
+  }
+  100% {
+    box-shadow: 0 0 10px 10px #fff;
+  }
+}
+

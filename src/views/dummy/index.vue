@@ -55,7 +55,7 @@
         White
       </a>
       <a href="#" class="btn btn-success me-2 mb-2"
-        ><i class="fas fa-envelope-open-text fs-4 me-2"></i> Caption</a
+      ><i class="fas fa-envelope-open-text fs-4 me-2"></i> Caption</a
       >
       <a href="#" class="btn btn-flex btn-primary px-6 me-2 mb-2">
         <span class="svg-icon svg-icon-2x">
@@ -98,7 +98,7 @@
         <div class="d-flex flex-column text-light pe-0 pe-sm-10">
           <h4 class="mb-2 text-light">This is an alert</h4>
           <span
-            >The alert component can be used to highlight certain parts of your
+          >The alert component can be used to highlight certain parts of your
             page for higher content visibility.</span
           >
         </div>
@@ -163,6 +163,31 @@
       <GoogleMaps @currentLocation="currentLocationF" height="100vh" />
     </div>
     <SearchMultiSelect />
+    <div class="mt-5 min-vh-100 d-flex justify-content-center align-items-center flex-column">
+      <div style="width: 120px; margin-bottom: 20px">
+        <img :src="mediaURL" class="img-thumbnail" alt="...">
+      </div>
+      <input
+        ref="fileUpload"
+        accept=".png, .jpg, .jpeg"
+        hidden
+        type="file"
+        @change="uploaderHandler($event)"
+      />
+      <div v-if="response" class="my-2 mx-auto" style="width: 300px">
+        <pre>
+          key:
+          {{ response.data.data }}
+        </pre>
+      </div>
+      <button :disabled="uploading" @click="$refs.fileUpload.click()" type="button"
+              class="btn btn-warning text-black rounded-3">
+        <span v-if="!uploading">
+          UPLOAD A FILE
+        </span>
+        <span v-else class="spinner-border spinner-border-sm"></span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -171,16 +196,16 @@ import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import "@vueup/vue-quill/dist/vue-quill.bubble.css";
 import Editor from "@/components/Reusable/Editor.vue";
 import InputField from "@/components/Reusable/InputField.vue";
-import TextEditor from "@/components/Reusable/TextEditor.vue";
-import QuillTextEditor from "@/components/Reusable/QuillTextEditor.vue";
 import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 import GoogleMaps from "@/components/Reusable/GoogleMaps.vue";
 import { QuillEditor } from "@vueup/vue-quill";
 import SelectStatus from "@/views/apps/e-commerce/EditProduct/-SelectStatus.vue";
-import { reactive, ref } from "@vue/reactivity";
 import SearchMultiSelect from "@/views/dummy/-SearchMultiSelect.vue";
+import { reactive, ref } from "@vue/reactivity";
 import { onMounted } from "vue";
 import { watch } from "@vue/runtime-core";
+import { upload } from "@/composables/uploader";
+
 
 interface Lang {
   id?: number;
@@ -193,12 +218,12 @@ interface Lang {
 const data = reactive({
   ar: {
     product_name: "",
-    product_description: "",
+    product_description: ""
   },
   en: {
     product_name: "",
-    product_description: "",
-  },
+    product_description: ""
+  }
 });
 
 const items = reactive<Lang[]>([
@@ -207,15 +232,15 @@ const items = reactive<Lang[]>([
     code: "en",
     dir: "ltr",
     label: "english",
-    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png",
+    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png"
   },
   {
     id: 2,
     code: "ar",
     dir: "rtl",
     label: "العربية",
-    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png",
-  },
+    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png"
+  }
 ]);
 const inputTextSelectedLang = ref({});
 
@@ -227,30 +252,22 @@ const inputTextSelectedLangHandler = (payload) => {
 const inputText = ref({});
 const inputText2 = ref({});
 const submitInputTextField = () => {
-  // { "1": "12354545333", "2": "123456445459" }
-  // {
-  //   "langId": "string",
-  //   "name": 0,
-  // }
   let items: any = [];
   let items2: any = [];
 
   Object.keys(inputText.value).forEach((el, i, array) => {
-    // el -> 1, 2
     items.push({
       langId: el,
-      name: inputText.value[el],
+      name: inputText.value[el]
     });
   });
   Object.keys(inputText2.value).forEach((el, i, array) => {
-    // el -> 1, 2
     items2.push({
       langId: el,
       name: inputText2.value[el],
-      description: inputText.value[el],
+      description: inputText.value[el]
     });
   });
-  // ["1", "2"]
 
   console.log(items2, items);
 };
@@ -274,8 +291,8 @@ const editorOptions = ref({
     [{ font: [] }],
     [{ align: [] }],
 
-    ["clean"], // remove formatting button
-  ],
+    ["clean"] // remove formatting button
+  ]
 });
 
 const log = (): void => console.log(product.value);
@@ -304,6 +321,19 @@ const quillEditorContentAr = (callback: string) => {
 const currentLocationF = (payload) => {
   console.log(payload);
 };
+const mediaURL = ref("https://images.unsplash.com/photo-1671690872526-f8057e9ac97d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80");
+const response = ref();
+const uploading = ref(false);
+const uploaderHandler = (e) => {
+  uploading.value = true;
+  mediaURL.value = URL.createObjectURL(e.target.files[0]);
+
+  upload(e).then(res => {
+    response.value = res;
+  }).finally(() => {
+    uploading.value = false;
+  });
+};
 onMounted(() => {
   if (items && items.length > 0) {
     inputTextSelectedLangHandler(items[0]);
@@ -325,6 +355,7 @@ watch(
 .ql-editor {
   text-align: justify;
 }
+
 .ql-toolbar .ql-snow {
   display: flex;
   justify-content: space-between;

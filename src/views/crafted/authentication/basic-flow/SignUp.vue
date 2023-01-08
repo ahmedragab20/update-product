@@ -43,8 +43,8 @@
         <!--begin::Col-->
         <div class="col-xl-6">
           <label class="form-label fw-bolder text-dark fs-6">{{
-            $t("firstName")
-          }}</label>
+              $t("firstName")
+            }}</label>
           <Field
             class="form-control form-control-lg form-control-solid"
             type="text"
@@ -63,8 +63,8 @@
         <!--begin::Col-->
         <div class="col-xl-6">
           <label class="form-label fw-bolder text-dark fs-6">{{
-            $t("lastName")
-          }}</label>
+              $t("lastName")
+            }}</label>
           <Field
             class="form-control form-control-lg form-control-solid"
             type="text"
@@ -85,8 +85,8 @@
       <!--begin::Input group-->
       <div class="fv-row mb-7">
         <label class="form-label fw-bolder text-dark fs-6">{{
-          $t("email")
-        }}</label>
+            $t("email")
+          }}</label>
         <Field
           class="form-control form-control-lg form-control-solid"
           type="email"
@@ -109,8 +109,8 @@
       <!--begin::Input group-->
       <div class="fv-row mb-7">
         <label class="form-label fw-bolder text-dark fs-6">{{
-          $t("phone")
-        }}</label>
+            $t("phone")
+          }}</label>
         <div class="phone-number-input gap-3 d-flex">
           <div class="select-country-container">
             <Field v-slot="{ field }" name="countryId">
@@ -205,8 +205,8 @@
       <!--begin::Input group-->
       <div class="fv-row mb-5">
         <label class="form-label fw-bolder text-dark fs-6">{{
-          $t("passwordConfirmation")
-        }}</label>
+            $t("passwordConfirmation")
+          }}</label>
         <Field
           class="form-control form-control-lg form-control-solid"
           type="password"
@@ -268,7 +268,7 @@ export default defineComponent({
     Field,
     Form,
     ErrorMessage,
-    CountrySelector,
+    CountrySelector
   },
   setup() {
     const store = useStore();
@@ -291,7 +291,7 @@ export default defineComponent({
       password_confirmation: Yup.string()
         .required()
         .oneOf([Yup.ref("password"), null], "Passwords must match")
-        .label("Password Confirmation"),
+        .label("Password Confirmation")
     });
 
     onMounted(() => {
@@ -310,7 +310,7 @@ export default defineComponent({
       const payload = {
         method: "post",
         url: "/Autentication/is-valid-email",
-        payload: { email },
+        payload: { email }
       };
 
       const check = await Api(payload);
@@ -328,8 +328,8 @@ export default defineComponent({
         url: "/Autentication/is-valid-phone",
         payload: {
           phoneNumber: phone,
-          phoneCountryCode: countryCode.value,
-        },
+          phoneCountryCode: countryCode.value
+        }
       };
 
       const check = await Api(payload);
@@ -344,16 +344,16 @@ export default defineComponent({
       if (!!phoneError.value || !!emailError.value) {
         return false;
       }
-      const deviceId = cookies.get<string>("deviceId") ?? uuid.v4();
+      const deviceId = localStorage.getItem("deviceId") ?? uuid.v4();
 
       const payload = {
         ...values,
         phoneCountryCode: countryCode.value,
         otp: "0000",
-        deviceId,
+        deviceId
       };
 
-      store.dispatch(Actions.LOGOUT);
+      await store.dispatch(Actions.LOGOUT);
 
       // eslint-disable-next-line
       submitButton.value!.disabled = true;
@@ -372,9 +372,9 @@ export default defineComponent({
           buttonsStyling: false,
           confirmButtonText: "Ok, got it!",
           customClass: {
-            confirmButton: "btn fw-bold btn-light-primary",
-          },
-        }).then(function () {
+            confirmButton: "btn fw-bold btn-light-primary"
+          }
+        }).then(function() {
           if (store.getters.isUserAuthenticated) {
             store.dispatch(Actions.SETTINGS);
             store.dispatch(Actions.USER);
@@ -396,8 +396,8 @@ export default defineComponent({
           buttonsStyling: false,
           confirmButtonText: "Try again!",
           customClass: {
-            confirmButton: "btn fw-bold btn-light-danger",
-          },
+            confirmButton: "btn fw-bold btn-light-danger"
+          }
         });
       }
 
@@ -415,8 +415,8 @@ export default defineComponent({
       emailError,
       phoneError,
       setSelectedCountry,
-      countryCode,
+      countryCode
     };
-  },
+  }
 });
 </script>

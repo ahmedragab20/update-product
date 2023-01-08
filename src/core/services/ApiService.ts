@@ -1,15 +1,19 @@
 import { useCookies } from "@vueuse/integrations/useCookies";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import Swal from "sweetalert2/dist/sweetalert2.js";
 import { App } from "vue";
 import VueAxios from "vue-axios";
-import { useStore } from "vuex";
+import * as enums from "@/store/enums/StoreEnums";
+
 const cookies = useCookies(["token"]);
-const store = useStore();
+import router from "@/router";
+import store from "@/store";
+import { Mutations } from "@/store/enums/StoreEnums";
+import { swalAlert } from "@/utils/helpers";
 
 /**
  * @description service to call HTTP request via Axios
  */
+const enumsActions = Object.keys(enums.Actions);
 
 class ApiService {
   /**
@@ -37,16 +41,17 @@ class ApiService {
     /** JETORDER APP ID  */
     ApiService.vueInstance.axios.defaults.headers.common[
       "x-applicationid"
-    ] = `Jet Order App API N/A`;
+      ] = `Jet Order App API N/A`;
     /** APP LANGUAGE */
     ApiService.vueInstance.axios.defaults.headers.common[
       "x-language"
-    ] = `en-us`;
+      ] = `en-us`;
 
     ApiService.vueInstance.axios.defaults.headers.common["x-countryid"] = 1;
+
     ApiService.vueInstance.axios.defaults.headers.common[
       "Authorization"
-    ] = `Bearer ${cookies.get("token") || ""}`;
+      ] = `Bearer ${store.state.AuthModule.token || localStorage.getItem("token")}`;
   }
 
   /**
@@ -124,51 +129,92 @@ class ApiService {
   public static delete(resource: string): Promise<AxiosResponse> {
     return ApiService.vueInstance.axios.delete(resource);
   }
+
 }
 
+const downApis = new Map();
+const resolvedApis = new Map();
+let lastRefresh: number;
+let localToken: string;
+let is401 = false;
+
+axios.interceptors.request.use(async (config) => {
+  if (config.url.includes("/Autentication/refresh-token") && !lastRefresh) {
+    lastRefresh = new Date().getTime();
+  } else if (config.url.includes("/Autentication/refresh-token") && new Date().getTime() - lastRefresh < 50636) {
+    return;
+  } else if (is401 && !localToken) {
+    return;
+  } else if (downApis.size > 0 && is401) {
+    return;
+  } else if (is401) {
+    return;
+  }
+
+  store.commit("RERENDER_APP", false);
+  return config;
+});
 axios.interceptors.response.use(
   (response) => {
+    resolvedApis.set(response.config.url, response.config);
     return response;
   },
   async (error) => {
-    if (error.response.status == 401) {
-      try {
-        const info = {
-          token: cookies?.get<string>("refreshToken"),
-          deviceId: cookies?.get<string>("deviceId"),
-        };
-        if (cookies?.get<string>("refreshToken").length > 0) {
-          await axios.post("/Autentication/refresh-token", info).then((res) => {
-            const { data } = res;
-            if (data.succeeded) {
-              cookies.set("token", data.token);
-              window.location.href = "/";
-            } else {
-              cookies.remove("token");
-              cookies.remove("isMarketActive");
-              window.location.href = "/sign-in";
+    if (error.config?.url) {
+      downApis.set(error.config?.url, error.config);
+    }
+    if (error.response.status === 401 && !localToken) {
+      is401 = true;
+      await refreshToken().then((res) => {
+        if (res) {
+          Array.from(downApis, ([key, value]) => {
+            return value;
+          }).forEach((api) => {
+            if (!resolvedApis.has(api.url)) {
+              const ActionName = enumsActions.find((el, index, arr) => enums.Actions[el] === api.url);
+              api.headers.Authorization = `Bearer ${localToken || store.state.AuthModule.token || localStorage.getItem("token˝")}`;
+
+              if (ActionName && ActionName === "USER") {
+                store.dispatch("AUTH_REQUESTS");
+              } else if (api.method !== "get") {
+                axios(api);
+              }
             }
           });
         }
-      } catch (error) {
-        Swal.fire({
-          title: "Session Expired",
-          text: "You have to login again",
-          icon: "error",
-          buttonsStyling: false,
-          allowOutsideClick: false,
-          confirmButtonText: "Ok, got it!",
-          customClass: {
-            confirmButton: "btn btn-primary",
-          },
-        }).then(() => {
-          cookies.remove("token");
-          window.location.href = "/sign-in";
-        });
-      }
+      });
     }
     return Promise.reject(error);
   }
 );
+const refreshToken = async function() {
+  try {
+    const info = {
+      token: localStorage.getItem("refreshToken"),
+      deviceId: localStorage.getItem("deviceId")
+    };
+
+    return await axios.post("/Autentication/refresh-token", info).then((res) => {
+      const { data } = res;
+      if (!data.succeeded) {
+        store.commit(Mutations.PURGE_AUTH);
+        location.reload();
+        return false;
+      } else {
+        if (!localToken) localToken = data.data.token;
+        store.commit("SET_TOKEN", data.data.token);
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("refreshToken", data.data.refreshToken);
+        store.commit("RERENDER_APP", true);
+        is401 = false;
+        return true;
+      }
+    });
+
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
 
 export default ApiService;

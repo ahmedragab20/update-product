@@ -44,6 +44,7 @@
         title="Product Variation"
         top="3vh"
         :width="dialogWidth"
+        custom-class="rounded-3"
       >
         <template #default>
           <div class="p-3 overflow-auto" style="height: 61.5vh">
@@ -72,7 +73,7 @@
               {{ updateProductVariationRequestMSG.error }}
             </small>
           </div>
-          <div class="dialog-footer d-flex gap-3">
+          <div v-if="!updateProductVariationRequestMSG.success" class="dialog-footer d-flex gap-3">
             <button
               @click="dialogShown = false"
               type="button"
@@ -251,7 +252,6 @@ const updateProductVariation = () => {
 
   Api(reqData)
     .then((response: any) => {
-      console.log(response);
       if (!!response.data?.data) {
         updateProductVariationRequestMSG.value.success = `we're done🙌🥰`;
         updateProductVariationRequestMSG.value.error = "";

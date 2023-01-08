@@ -1,5 +1,8 @@
 <template>
-  <div class="card card-flush py-4">
+  <div
+    class="card card-flush py-4"
+    :class="{'gradient-border' : updateProductState.changedSections.includes('inventory')}"
+  >
     <div class="card-header py-0 border-0">
       <div class="card-title">
         <h2>Inventory</h2>
@@ -96,12 +99,10 @@
           />
         </div>
         <SaveChangeBtn
-          class="mt-4"
           :btnSubmit="submitSkusAndBarcodes"
           :elChanged="inventoryChanged"
           :elLoading="inventoryLoading"
-          :no-cancel="true"
-          :fullWidth="true"
+          :btn-reverse-submit="reverseSKUsAndBarcodes"
         />
       </section>
       <div class="card-content mt-6">
@@ -112,8 +113,9 @@
               class="btn btn-light-primary btn-sm"
               data-bs-toggle="modal"
               data-bs-target="#add-shop-inventory-modal"
-              >+ Add to shop</a
             >
+              + Add to shop
+            </a>
           </div>
         </div>
         <BootstrapModal
@@ -200,7 +202,7 @@
                   </div>
                   <div class="form-group my-1 w-50 p-2">
                     <label for="maxQuantityPerOrder" class="h4"
-                      >Max Quantity Per Order</label
+                    >Max Quantity Per Order</label
                     >
                     <input
                       type="number"
@@ -317,25 +319,43 @@ import InventoryTable from "./-InventoryTable.vue";
 import Dropdown from "@/components/Reusable/Dropdown.vue";
 import SaveChangeBtn from "./-SaveChangeBtn";
 import { reactive, ref } from "@vue/reactivity";
-import { onMounted } from "vue";
+import { onBeforeMount, onMounted, watch } from "vue";
 import { computed } from "@vue/runtime-core";
 import { useStore } from "vuex";
+import { Product } from "@/types";
 
 const props = defineProps(["product"]);
 const store = useStore();
+
+const updateProductState = computed(() => store.state.UpdateProduct);
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
+
 const inventoryChanged = ref<boolean | string>(false);
 const inventoryLoading = ref(false);
 const shops = computed(() => store.state.MarketModule.market?.shops);
 const productShops = ref<any[]>([]);
 const inventory = reactive<any>({
   sku: "",
-  barcode: "",
+  barcode: ""
 });
 let inventorySkusTags = ref<any[]>([]);
 let inventoryBarcodeTags = ref<any[]>([]);
 const inventorySkusPushTagHandler = (text: string) => {
-  if (inventory.sku && !inventorySkusTags.value.includes(text))
+  if (inventory.sku && !inventorySkusTags.value.includes(text)) {
     inventorySkusTags.value.push(text);
+  }
   inventory.sku = "";
   inventoryChanged.value = true;
 };
@@ -347,8 +367,9 @@ const inventoryRemoveSkusTagHandler = (text: string) => {
 };
 
 const inventoryBarcodePushTagHandler = (text: string) => {
-  if (inventory.barcode && !inventoryBarcodeTags.value.includes(text))
+  if (inventory.barcode && !inventoryBarcodeTags.value.includes(text)) {
     inventoryBarcodeTags.value.push(text);
+  }
   inventory.barcode = "";
   inventoryChanged.value = true;
 };
@@ -368,7 +389,7 @@ const shopForm = ref({
   isSoldOutOnJetOrder: false,
   isPublishedOnShopLink: false,
   isPublishedOnJetOrderApplication: false,
-  preparingTimeInMinutes: "",
+  preparingTimeInMinutes: ""
 });
 const shopLoading = ref(false);
 const addingShopMessage = ref("");
@@ -395,17 +416,17 @@ const submitShopForm = async () => {
     shopLoading.value = true;
     const payload = {
       id: props.product.id,
-      productShopOrderingDataDTO: shopForm.value,
+      productShopOrderingDataDTO: shopForm.value
     };
     const reqData = {
       method: "post",
       url: "/ProductCommands/add-shop-to-product",
-      payload,
+      payload
     };
 
     const { data } = await Api(reqData);
     if (data?.succeeded) {
-      fetchShops();
+      await fetchShops();
       addingShopMessage.value = "Shop Added Successfully 😄🙌";
     } else {
       addingShopMessage.value = `${data.message} 🤕`;
@@ -425,13 +446,13 @@ const submitSkusAndBarcodes = async () => {
   const payload = {
     id: props.product?.id,
     skus: inventorySkusTags.value,
-    barcodes: inventoryBarcodeTags.value,
+    barcodes: inventoryBarcodeTags.value
   };
 
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-inventory-SKU-Barcode",
-    payload,
+    payload
   };
 
   try {
@@ -440,9 +461,17 @@ const submitSkusAndBarcodes = async () => {
       inventoryChanged.value = "done";
       reqErrorMessage.value = "";
       successMessage.value = "Inventory Updated Successfully 😄🙌";
+
+      initializeComponentsData({
+        name: "inventory",
+        content: {
+          skUs: payload.skus.toString(),
+          barcodes: payload.barcodes.toString()
+        }
+      });
     } else {
       successMessage.value = "";
-      reqErrorMessage.value = `${data?.message} 🤕`;
+      reqErrorMessage.value = `${data.message} 🤕`;
     }
   } catch (error) {
     console.error(error);
@@ -450,17 +479,22 @@ const submitSkusAndBarcodes = async () => {
     inventoryLoading.value = false;
   }
 };
-
-const fetchShops = () => {
+const reverseSKUsAndBarcodes = () => {
+  const source = updateProductState.value.inventory;
+  initData(source);
+  inventoryChanged.value = false;
+  reqErrorMessage.value = "";
+};
+const fetchShops = async () => {
   const reqData = {
     method: "get",
     url: "/ProductQueries/get-product-shops-data",
     payload: {
-      id: props.product?.id,
-    },
+      id: props.product?.id
+    }
   };
 
-  Api(reqData)
+  await Api(reqData)
     .then((res) => {
       const { data } = res;
       if (data?.succeeded) {
@@ -472,12 +506,47 @@ const fetchShops = () => {
     });
 };
 
-onMounted(() => {
-  fetchShops();
+const initData = (source: any) => {
+  const skuSourceType = typeof source.skUs;
+  const barcodesSourceType = typeof source.barcodes;
 
+
+  inventorySkusTags.value = skuSourceType === "string" ? source.skUs?.split(",") : source.skUs;
+  inventoryBarcodeTags.value = barcodesSourceType === "string" ? source.barcodes?.split(",") : source.barcodes;
+
+  initializeComponentsData({
+    name: "inventory",
+    content: {
+      skUs: source.skUs.toString(),
+      barcodes: source.barcodes.toString()
+    }
+  });
+};
+
+onBeforeMount(async () => {
+  await fetchShops();
+});
+
+onMounted(() => {
   if (props.product) {
-    inventorySkusTags.value = props.product.skUs;
-    inventoryBarcodeTags.value = props.product.barcodes;
+    initData(props.product);
+  }
+});
+
+watch(() => props.product, newValue => {
+  initData(newValue);
+});
+watch(() => inventoryChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "inventory",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "inventory",
+      remove: true
+    });
   }
 });
 </script>

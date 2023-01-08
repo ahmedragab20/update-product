@@ -1,5 +1,12 @@
 <template>
   <div id="kt_content" class="content d-flex flex-column flex-column-fluid">
+    <transition appear name="first_time_overlay">
+      <div
+        v-if="firstVisit"
+        class="position-absolute top-0 start-0 w-100 h-100 blur"
+        style="z-index: 99; background: rgba(0,0,0,0.6)"
+      ></div>
+    </transition>
     <!--begin::Container-->
     <div id="kt_content_container" class="container-xxl">
       <!--begin::Form-->
@@ -7,7 +14,6 @@
         v-if="pageMounted"
         id="kt_ecommerce_add_product_form"
         class="form d-flex flex-column flex-lg-row fv-plugins-bootstrap5 fv-plugins-framework"
-        data-kt-redirect="/metronic8/demo7/../demo7/apps/ecommerce/catalog/products.html"
         @submit.prevent
       >
         <div class="row w-100">
@@ -21,35 +27,49 @@
               />
               <!--end::Thumbnail settings-->
               <!-- Code -->
-              <div class="card card-flush mb-4">
+              <div
+                class="card card-flush mb-4"
+                :class="{'gradient-border' : updateProductState.changedSections.includes('code')}"
+              >
                 <div class="card-header pt-4">
                   <div class="card-title flex-column">
                     <h2>Code</h2>
-                    <small
-                    >it's optional but if you will add one. then it must be
-                      unique</small
-                    >
+                    <small>
+                      it's optional but if you will add one. then it must be
+                      unique
+                    </small>
                   </div>
                 </div>
                 <div class="card-body">
-                  <input
-                    v-model="form.code"
-                    class="form-control"
-                    placeholder="unique code"
-                    type="text"
-                    @input="codeChanged = true"
+                  <div class="mb-3">
+                    <input
+                      v-model="form.code"
+                      class="form-control"
+                      placeholder="unique code"
+                      type="text"
+                      @input="codeChanged = true"
+                    />
+                  </div>
+                  <div v-if="codeErrorMessage" class="mb-3">
+                    <span class="badge badge-sm badge-light-danger">
+                      🙃 {{ codeErrorMessage }}
+                    </span>
+                  </div>
+                  <SaveChangeBtn
+                    :btnReverseSubmit="reverseCodeChanges"
+                    :btnSubmit="saveCodeChange"
+                    :elChanged="codeChanged"
+                    :elLoading="codeLoading"
+                    :payload="form.code"
+                    :no-cancel="true"
                   />
                 </div>
-                <SaveChangeBtn
-                  :btnReverseSubmit="reverseCodeChanges"
-                  :btnSubmit="saveCodeChange"
-                  :elChanged="codeChanged"
-                  :elLoading="codeLoading"
-                  :payload="form.code"
-                />
               </div>
               <!-- Slug -->
-              <div class="card card-flush mb-4">
+              <div
+                class="card card-flush mb-4"
+                :class="{'gradient-border' : updateProductState.changedSections.includes('slug')}"
+              >
                 <div class="card-header pt-4">
                   <div class="card-title flex-column">
                     <h2>Slug</h2>
@@ -60,21 +80,31 @@
                   </div>
                 </div>
                 <div class="card-body">
-                  <input
-                    v-model="form.slug"
-                    class="form-control"
-                    placeholder="unique slug"
-                    type="text"
-                    @input="slugChanged = true"
-                  />
+                  <div class="mb-3">
+                    <input
+                      v-model="form.slug"
+                      class="form-control"
+                      placeholder="unique slug"
+                      type="text"
+                      @input="slugChanged = true"
+                    />
+                  </div>
+                  <div v-if="slugErrorMessage" class="mb-3">
+
+                    <span class="badge badge-sm badge-light-danger">
+                      😕 {{ slugErrorMessage }}
+                    </span>
+                  </div>
+                  <div>
+                    <SaveChangeBtn
+                      :btnReverseSubmit="reverseSlugChanges"
+                      :btnSubmit="saveSlugChange"
+                      :elChanged="slugChanged"
+                      :elLoading="slugLoading"
+                      :payload="form.slug"
+                    />
+                  </div>
                 </div>
-                <SaveChangeBtn
-                  :btnReverseSubmit="reverseSlugChanges"
-                  :btnSubmit="saveSlugChange"
-                  :elChanged="slugChanged"
-                  :elLoading="slugLoading"
-                  :payload="form.slug"
-                />
               </div>
               <!--begin::Category & tags-->
               <ProductDetails
@@ -92,6 +122,10 @@
           <div class="col-xl-8">
             <!--begin::Main column-->
             <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
+              <div v-if="firstVisit" style="z-index: 100;">
+                <span @click="setFirstLook" class="badge badge-white white-shadow"
+                      style="cursor: pointer">How to use?</span>
+              </div>
               <!--begin:::Tabs-->
               <ul
                 class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-bold mb-n2"
@@ -143,7 +177,6 @@
               <!--begin::Tab content-->
               <div>
                 <!--begin::Tab pane-->
-
                 <general-tab
                   v-if="+currentTab === 1"
                   :product="product"
@@ -186,6 +219,44 @@
     </div>
     <!--end::Container-->
   </div>
+
+  <!-- confirmation dialog -->
+  <ConfirmationDialog v-model="leaveConfirmationDialog" width="320px">
+    <template #content>
+      <div class="d-flex justify-content-center align-items-center flex-column">
+        <div style="width: 220px; height: 220px">
+          <img src="@/assets/cute-cat.webp" alt="" width="130" class="w-100 h-100" style="object-fit: contain">
+        </div>
+        <p class="text-danger fw-bold">
+          You have {{ updateProductState.changedSections.length }}
+          {{ updateProductState.changedSections.length > 1 ? "sections" : "section" }} that need to be saved
+        </p>
+      </div>
+    </template>
+    <template #dialogFooter>
+      <div class="d-flex flex-wrap">
+        <button
+          @click="onLeaveRouteHandler(nextRoute, true), toggleLeaveConfirmationDialog()"
+          type="button"
+          class="btn btn-text-danger w-50"
+        >
+          Discard
+        </button>
+        <button @click="toggleLeaveConfirmationDialog" type="button" class="btn btn-light-info w-50">
+          Back to save
+        </button>
+      </div>
+    </template>
+  </ConfirmationDialog>
+  <!-- Add details modal -->
+  <el-dialog v-model="firstVisitHelpDialog" title="How to use the page!">
+    <template #default>
+      <h3 class="text-center">we'll have some details right over here soon!</h3>
+    </template>
+    <template #footer>
+      footer
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -198,12 +269,13 @@ import VariationsTab from "@/views/apps/e-commerce/EditProduct/-VariationsTab.vu
 import OrderingFormTab from "@/views/apps/e-commerce/EditProduct/-OrderingFormTab.vue";
 import SaveChangeBtn from "@/views/apps/e-commerce/EditProduct/-SaveChangeBtn.vue";
 import ProductType from "@/views/apps/e-commerce/EditProduct/-ProductType.vue";
+import ConfirmationDialog from "@/components/Reusable/ConfirmationDialog.vue";
 import { Actions } from "@/store/enums/StoreEnums";
 import { useStore } from "vuex";
 import { ref } from "@vue/reactivity";
 import { watchEffect } from "@vue/runtime-core";
 import { computed, onBeforeMount, onMounted, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { NavigationGuardNext, onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from "vue-router";
 
 const store = useStore();
 const router = useRouter();
@@ -215,6 +287,8 @@ const breadcrumb = {
   title: "Edit Product",
   pageBreadcrumbPath: ["eCommerce", "Catalog"]
 };
+
+const updateProductState = computed(() => store.state.UpdateProduct);
 
 const product = computed(() => store.state.UpdateProduct.product);
 const categories = computed(() => store.state.LookupQueries.categories);
@@ -228,22 +302,64 @@ const tabsHandler = async (tabIndex: number) => {
 };
 const currentTab = computed(() => route.query["tab"]);
 
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
+
+const firstVisit = ref<boolean>(false);
+const storedFirstLook = ref(JSON.parse(localStorage.getItem("first-look-update-product")));
+const firstVisitHelpDialog = ref(false);
+const firstVisitHandler = () => {
+  if (storedFirstLook.value) {
+    firstVisit.value = false;
+  } else {
+    firstVisit.value = true;
+    document.body.style.overflow = "hidden";
+  }
+};
+
+const setFirstLook = () => {
+  toggleFirstVisitHelpDialog();
+  localStorage.setItem("first-look-update-product", "true");
+};
+
+const toggleFirstVisitHelpDialog = () => {
+  firstVisitHelpDialog.value = !firstVisitHelpDialog.value;
+};
+
+watch(() => firstVisitHelpDialog.value, (newValue, oldValue) => {
+  if (!newValue) {
+    firstVisit.value = false;
+    document.body.style.removeProperty("overflow");
+  }
+});
+
 const form = ref({
   id: product.value.id,
   code: "",
   slug: ""
 });
 
-const codeBaseData = ref();
-const slugBaseData = ref();
 const codeChanged = ref<boolean | string>(false);
-const codeLoading = ref<boolean | string>(false);
-
+const codeLoading = ref<boolean>(false);
+const codeErrorMessage = ref("");
 const slugChanged = ref<boolean | string>(false);
-const slugLoading = ref<boolean | string>(false);
+const slugLoading = ref<boolean>(false);
+const slugErrorMessage = ref("");
 
 const reverseCodeChanges = () => {
-  form.value.code = codeBaseData.value;
+  form.value.code = updateProductState.value.code;
+  codeErrorMessage.value = "";
   codeChanged.value = false;
 };
 
@@ -257,17 +373,25 @@ const saveCodeChange = async (code: string) => {
     codeLoading.value = true;
     const { data }: any = await Api(reqData);
 
-    if (data.data === true) codeChanged.value = "done";
+    if (data.data === true) {
+      codeChanged.value = "done";
+      initializeComponentsData({
+        name: "code",
+        content: code
+      });
+      updateChangedSections({
+        sectionId: "code",
+        remove: true
+      });
+      codeErrorMessage.value = "";
+    } else {
+      codeErrorMessage.value = data.message;
+    }
   } catch (error) {
     console.error(error);
   } finally {
     codeLoading.value = false;
   }
-};
-
-const reverseSlugChanges = () => {
-  form.value.slug = slugBaseData.value;
-  slugChanged.value = false;
 };
 
 const saveSlugChange = async (slug: string) => {
@@ -280,7 +404,20 @@ const saveSlugChange = async (slug: string) => {
     slugLoading.value = true;
     const { data }: any = await Api(reqData);
 
-    if (data.data === true) slugChanged.value = "done";
+    if (data.data === true) {
+      initializeComponentsData({
+        name: "slug",
+        content: slug
+      });
+      updateChangedSections({
+        sectionId: "slug",
+        remove: true
+      });
+      slugChanged.value = "done";
+      slugErrorMessage.value = "";
+    } else {
+      slugErrorMessage.value = data.message;
+    }
   } catch (error) {
     console.error(error);
   } finally {
@@ -288,11 +425,45 @@ const saveSlugChange = async (slug: string) => {
   }
 };
 
+const reverseSlugChanges = () => {
+  form.value.slug = updateProductState.value.slug;
+  slugErrorMessage.value = "";
+  slugChanged.value = false;
+};
+
+
+watch(() => codeChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "code",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "code",
+      remove: true
+    });
+  }
+});
+watch(() => slugChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "slug",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "slug",
+      remove: true
+    });
+  }
+});
+
 const fetchProduct = async (id) => {
   await store.dispatch("getProduct", id);
 };
-onBeforeMount(() => {
-  fetchProduct(27);
+onBeforeMount(async () => {
+  await fetchProduct(27);
 });
 watchEffect(() => {
   if (product.value && Object.keys(product.value).length > 0)
@@ -301,14 +472,20 @@ watchEffect(() => {
     product.value &&
     Object.keys(product.value).length > 0 &&
     !form.value.code &&
-    !codeBaseData.value &&
-    !form.value.slug &&
-    !slugBaseData.value
+    !form.value.slug
   ) {
-    codeBaseData.value = product.value.code;
     form.value.code = product.value.code;
-    slugBaseData.value = product.value.slug;
     form.value.slug = product.value.slug;
+    initializeComponentsData({
+      name: "code",
+      content: product.value.code
+    });
+
+    initializeComponentsData({
+      name: "slug",
+      content: product.value.slug
+    });
+    firstVisitHandler();
   }
 });
 onMounted(() => {
@@ -320,17 +497,95 @@ onMounted(() => {
   store.dispatch(Actions.SET_BREADCRUMB_ACTION, breadcrumb);
   if (product.value && Object.keys(product.value).length > 0) {
     pageMounted.value = true;
-    codeBaseData.value = product.value.code;
     form.value.code = product.value.code;
-    slugBaseData.value = product.value.slug;
     form.value.slug = product.value.slug;
+    initializeComponentsData({
+      name: "code",
+      content: product.value.code
+    });
+
+    initializeComponentsData({
+      name: "slug",
+      content: product.value.slug
+    });
+    firstVisitHandler();
   }
 });
 
 watch(currentTab, (newV) => {
-  console.log(newV);
   fetchProduct(27);
+});
+
+const leaveConfirmationDialog = ref<boolean>(false);
+
+const toggleLeaveConfirmationDialog = () => {
+  leaveConfirmationDialog.value = !leaveConfirmationDialog.value;
+};
+
+// we're going to have to separate functions to reset the changes one's going to be for the globals and another on for the other section
+const reverseGlobals = () => {
+  reverseCodeChanges();
+  reverseSlugChanges();
+};
+const reverseChanges = (includingGlobals?: boolean) => {
+  if (includingGlobals) {
+    reverseGlobals();
+  }
+};
+
+const leavingToUrl = ref<string>("");
+
+const onLeaveRouteHandler = (next: NavigationGuardNext, hardNext?: boolean) => {
+  const globalSections: string[] = updateProductState.value["globalSections"];
+  const changedSections: string[] = updateProductState.value.changedSections;
+  const sectionsWithoutGlobals: string[] = changedSections.filter((el) => !globalSections.includes(el));
+  const sectionsContainGlobals = changedSections.filter((el) => globalSections.includes(el))?.length > 0;
+  const onRouteLeave = leavingToUrl.value;
+  const theresChangedSections = !onRouteLeave && sectionsWithoutGlobals && sectionsWithoutGlobals.length > 0 || onRouteLeave && changedSections && changedSections.length > 0;
+  const popupToggle = theresChangedSections && !hardNext;
+
+  if (popupToggle) {
+    toggleLeaveConfirmationDialog();
+  } else {
+    if (sectionsContainGlobals && !onRouteLeave) {
+      sectionsWithoutGlobals.forEach(el => {
+        updateChangedSections({
+          sectionId: el,
+          remove: true
+        });
+      });
+    } else {
+      updateChangedSections({ sectionId: undefined, remove: false });
+      reverseChanges();
+    }
+
+    next();
+  }
+};
+
+let nextRoute = () => {
+};
+
+onBeforeRouteUpdate((to, from, next) => {
+  leavingToUrl.value = "";
+  onLeaveRouteHandler(next);
+  nextRoute = next;
+});
+onBeforeRouteLeave((to, from, next) => {
+  leavingToUrl.value = to.path;
+  onLeaveRouteHandler(next);
+  nextRoute = next;
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.first_time_overlay-enter-from,
+.first_time_overlay-leave-to {
+  opacity: 0;
+}
+
+.first_time_overlay-enter-active,
+.first_time_overlay-leave-active {
+  transition: opacity 0.8s ease-in-out;
+}
+</style>

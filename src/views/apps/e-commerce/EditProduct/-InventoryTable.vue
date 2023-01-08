@@ -2,68 +2,68 @@
   <div v-if="shops" class="overflow-auto">
     <table class="table gs-3 gy-3 gx-5">
       <thead>
-        <tr
-          class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
-        >
-          <th class="text-truncate">Shop name</th>
-          <th class="text-truncate">Address</th>
-          <th class="text-truncate">Actions</th>
-        </tr>
+      <tr
+        class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
+      >
+        <th class="text-truncate">Shop name</th>
+        <th class="text-truncate">Address</th>
+        <th class="text-truncate">Actions</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="(shop, $index) in shops" :key="shop.shopId">
-          <td class="text-truncate">
-            <div class="td-holder">
-              <div
-                v-if="shop.shopId && filterShop(shop.shopId)"
-                class="d-flex gap-3 align-items-center"
-              >
-                <div style="width: 30px; height: 30px">
-                  <img
-                    :src="filterShop(shop.shopId).logoPath"
-                    class="rounded-circle w-100 h-100"
-                    style="object-fit: cover"
-                  />
-                </div>
-                <div>
-                  {{ filterShop(shop.shopId).name }}
-                </div>
-              </div>
-            </div>
-          </td>
-          <td class="text-truncate">
+      <tr v-for="(shop, $index) in shops" :key="shop.shopId">
+        <td class="text-truncate">
+          <div class="td-holder">
             <div
               v-if="shop.shopId && filterShop(shop.shopId)"
-              class="td-holder"
+              class="d-flex gap-3 align-items-center"
             >
-              {{ filterShop(shop.shopId).address }}
+              <div style="width: 30px; height: 30px">
+                <img
+                  :src="filterShop(shop.shopId).logoPath"
+                  class="rounded-circle w-100 h-100"
+                  style="object-fit: cover"
+                />
+              </div>
+              <div>
+                {{ filterShop(shop.shopId).name }}
+              </div>
             </div>
-          </td>
-          <td class="text-truncate">
-            <div class="td-holder">
-              <button
-                class="btn btn-text-warning btn-sm me-2"
-                data-bs-target="#edit-shop-inventory-modal"
-                data-bs-toggle="modal"
-                @click.prevent="editModal(shop)"
-              >
-                Edit
-              </button>
-              <button
-                @click="
+          </div>
+        </td>
+        <td class="text-truncate">
+          <div
+            v-if="shop.shopId && filterShop(shop.shopId)"
+            class="td-holder"
+          >
+            {{ filterShop(shop.shopId).address }}
+          </div>
+        </td>
+        <td class="text-truncate">
+          <div class="td-holder">
+            <button
+              class="btn btn-text-warning btn-sm me-2"
+              data-bs-target="#edit-shop-inventory-modal"
+              data-bs-toggle="modal"
+              @click.prevent="editModal(shop)"
+            >
+              Edit
+            </button>
+            <button
+              @click="
                   removeShopConfirmation({
                     id: shop.productId,
                     shopId: shop.shopId,
                   })
                 "
-                class="btn btn-text-danger btn-sm"
-                type="button"
-              >
-                Remove
-              </button>
-            </div>
-          </td>
-        </tr>
+              class="btn btn-text-danger btn-sm"
+              type="button"
+            >
+              Remove
+            </button>
+          </div>
+        </td>
+      </tr>
       </tbody>
     </table>
     <!-- Modal -->
@@ -274,12 +274,12 @@ import { onUpdated } from "@vue/runtime-core";
 const props = defineProps({
   shops: {
     type: Array,
-    required: true,
+    required: true
   },
   fetchShops: {
     type: Function,
-    required: true,
-  },
+    required: true
+  }
 });
 
 const store = useStore();
@@ -308,7 +308,7 @@ const shopForm = ref({
   isSoldOutOnJetOrder: false,
   isPublishedOnShopLink: false,
   isPublishedOnJetOrderApplication: false,
-  preparingTimeInMinutes: null,
+  preparingTimeInMinutes: null
 });
 const shopLoading = ref(false);
 const addingShopMessage = ref("");
@@ -330,17 +330,16 @@ const isShopFormValid = computed(() => {
 });
 
 const submitShopForm = async () => {
-  console.log("submitShopForm");
   try {
     shopLoading.value = true;
     const payload = {
       id: clickedShop.value?.productId,
-      productShopOrderingDataDTO: shopForm.value,
+      productShopOrderingDataDTO: shopForm.value
     };
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-shop",
-      payload,
+      payload
     };
 
     const { data } = await Api(reqData);
@@ -389,9 +388,9 @@ const editModal = (shop) => {
 const swalWithBootstrapButtons = Swal.mixin({
   customClass: {
     confirmButton: "btn btn-danger",
-    cancelButton: "btn btn-text-success",
+    cancelButton: "btn btn-text-success"
   },
-  buttonsStyling: false,
+  buttonsStyling: false
 });
 const removeShopConfirmation = async (payload) => {
   swalWithBootstrapButtons
@@ -402,7 +401,7 @@ const removeShopConfirmation = async (payload) => {
       showCancelButton: true,
       confirmButtonText: "Yes, Remove it!",
       cancelButtonText: "No, cancel!",
-      reverseButtons: true,
+      reverseButtons: true
     })
     .then((result) => {
       if (result.isConfirmed) {
@@ -411,11 +410,7 @@ const removeShopConfirmation = async (payload) => {
           "Your shop has deleted.",
           "success"
         );
-        console.log(
-          "%cRemove Shop",
-          "color: pink; font-weight: bold; font-weight: 1.1rem",
-          payload
-        );
+
         removeShop(payload);
       } else if (
         /* Read more about handling dismissals below */
@@ -434,7 +429,7 @@ const removeShop = async (payload) => {
     const reqData = {
       method: "post",
       url: "/ProductCommands/remove-product-shop",
-      payload,
+      payload
     };
     const { data } = await Api(reqData);
     if (data?.succeeded) {

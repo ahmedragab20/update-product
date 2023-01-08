@@ -228,7 +228,7 @@
             <div v-if="selectedFileLocation" class="mt-4">
               <section v-if="selectedFileLocation.code === 'ExternalHosting'">
                 <label for="fileExternalLink" class="form-label my-3"
-                  >Link URL</label
+                >Link URL</label
                 >
                 <input
                   type="text"
@@ -450,8 +450,8 @@ const props = defineProps({
   product: {
     type: Object,
     default: {},
-    required: true,
-  },
+    required: true
+  }
 });
 
 const store = useStore();
@@ -505,8 +505,8 @@ const editorOptions = ref({
     ["bold", "italic", "underline", "strike"], // toggled buttons
     ["blockquote"],
     [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-    [{ font: [] }],
-  ],
+    [{ font: [] }]
+  ]
 });
 const fileLocations = computed(
   () => store.state.LookupQueries.digitalProductFileLocation
@@ -540,7 +540,7 @@ const onUpload = async (event) => {
     const reqData = {
       method: "post",
       url: "/ManageCommands/upload-file",
-      payload: fd,
+      payload: fd
     };
 
     const { data }: any = await Api(reqData);
@@ -575,7 +575,6 @@ watch(fileDetailsDialog, (newValue) => {
 const removeFile = (id) => {
   try {
     filesBackup.value = JSON.parse(JSON.stringify(files.value));
-    console.log(filesBackup.value, "filesBackup.value 1");
     files.value = files.value.filter((i: any) => i.id !== id);
     submitData(true, true);
   } catch (error) {
@@ -612,7 +611,7 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
     let fileData;
     let payload: any = {
       downloadableDigitalProducts: [],
-      digitalProductDeliveryWays: selectedDeliveryWaysIds.value,
+      digitalProductDeliveryWays: selectedDeliveryWaysIds.value
     };
 
     if (!isEdit) {
@@ -622,25 +621,22 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
         fileLocationURL: fileExternalLink.value,
         resources: resourcesFinal,
         fileSize: fileSize.value,
-        fileType: fileType.value,
+        fileType: fileType.value
       };
 
       Object.keys(resources.value).forEach((key: string) => {
         resourcesFinal.push({
           languageId: key,
           title: resources.value[key],
-          description: fileDescription.value[key],
+          description: fileDescription.value[key]
         });
       });
 
       payload.downloadableDigitalProducts = [...files.value, fileData];
 
       files.value.push(fileData);
-
-      console.log(`%cAdding new one ⚒️`, "color: orange; font-weight: bold");
     } else {
       payload.downloadableDigitalProducts = files.value;
-      console.log(`%cEditing existed one 🌸`, "color: pink; font-weight: bold");
     }
 
     payload["id"] = props.product?.id;
@@ -648,10 +644,8 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
     const reqData = {
       url: "/ProductCommands/update-product-downloadable-digital-products",
       method: "post",
-      payload,
+      payload
     };
-
-    console.log(payload);
 
     const { data }: any = await Api(reqData);
     if (data.succeeded) {
@@ -679,7 +673,6 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
       requestErrorMsg.value = data.message;
       files.value = filesBackup.value;
     }
-    console.log(data);
   } catch (error) {
     console.error(error);
     requestErrorMsg.value = "something went wrong!";
@@ -690,7 +683,6 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
 };
 
 const downloadFile = (url) => {
-  console.log(url);
   const a = document.createElement("a");
   a.href = url;
   a.download = url.split("/").pop();

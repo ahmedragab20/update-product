@@ -2,13 +2,43 @@
   <div>
     <div class="d-flex flex-column gap-7 gap-xl-10">
       <!--begin::General resources-->
-      <div class="card card-flush py-4">
+      <div class="card card-flush py-4"
+           :class="{'gradient-border' : updateProductState.changedSections.includes('resources')}">
         <!--begin::Card header-->
         <div class="card-header">
-          <div class="card-title">
+          <div class="card-title d-flex justify-content-between align-items-center flex-wrap w-100">
             <h2>General</h2>
+            <div @click="resourcesHowTo = true">
+              <span class="badge badge-light-dark cursor-pointer user-select-none">
+                <i class="bi bi-info-circle-fill text-sm text-dark me-1"></i>
+                what this
+              </span>
+            </div>
           </div>
         </div>
+        <el-dialog
+          v-model="resourcesHowTo"
+          title="What is General Section?"
+          :width="screenDimensions().availWidth > 481 ? '420px' : '100%'"
+          custom-class="rounded-3"
+        >
+          <template #default>
+            <div>
+              <div class="d-flex justify-content-center align-items-center">
+                <img
+                  src="https://cdn.dribbble.com/users/2187949/screenshots/15382644/media/33bba895502f9bc3754573891dfd1b1d.jpg"
+                  width="240"
+                  alt=""
+                >
+              </div>
+              <p class="text-center mx-auto mt-5">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias at dignissimos obcaecati provident quasi
+                quo.
+                soluta tenetur vero? A atque autem commodi doloribus ea eius nihil porro tempora tempore vel!
+              </p>
+            </div>
+          </template>
+        </el-dialog>
         <!--end::Card header-->
         <!--begin::Card body-->
         <product-resources :langs="langs" :product="props.product" />
@@ -16,7 +46,7 @@
       </div>
       <!--end::General resources-->
       <!--begin::Media-->
-      <div class="card card-flush py-4">
+      <div class="card card-flush py-4 position-relative">
         <!--begin::Card header-->
         <Media
           v-if="props.product"
@@ -39,7 +69,7 @@
               </div>
             </div>
           </div>
-          
+
           <!--end::Label-->
           <div class="card-body mt-0 py-0">
             <div class="d-flex justify-content-end gap-2">
@@ -123,7 +153,7 @@ import DiscountTable from "./-DiscountTable.vue";
 import Tax from "./-Tax.vue";
 import Inventory from "./-Inventory.vue";
 import AddDiscountModal from "./-AddDiscountModal.vue";
-import { dateFormat, swalAlert } from "@/utils/helpers";
+import { dateFormat, swalAlert, screenDimensions } from "@/utils/helpers";
 import Media from "./-Media.vue";
 import { useStore } from "vuex";
 import CountableProduct from "@/views/apps/e-commerce/EditProduct/-CountableProduct.vue";
@@ -155,9 +185,12 @@ const currencies = computed(() => {
   );
 });
 
+const updateProductState = computed(() => store.state.UpdateProduct);
+
+const resourcesHowTo = ref<boolean>(false);
+
 /* DISCOUNT LOGIC */
 // const productDiscounts = ref<any[]>([]);
-
 const activeDiscounts = ref<any[]>([]);
 const deactivatedDiscounts = ref<any[]>([]);
 const discountTable = ref([
@@ -255,8 +288,6 @@ const deactivateDiscount = async (discount) => {
 };
 
 const addNewDiscount = (discount: object) => {
-  console.log({ discount });
-
   activeDiscounts.value = [discount, ...activeDiscounts.value];
 };
 

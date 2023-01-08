@@ -215,12 +215,6 @@ const submitForm = () => {
     }
 
     sortForms();
-  } else {
-    console.log(
-      "%cformData is empty",
-      "color: red; font-weight: bold; font-size: 1.5rem",
-      activeForms.value
-    );
   }
 };
 const addNewFormDiv = () => {
@@ -231,7 +225,7 @@ const removeForm = (id: string) => {
   activeForms.value = activeForms.value.filter(
     (i: any) => i.connectionId !== id
   );
-  submitAllForms()
+  submitAllForms();
 };
 const setDisplayConditions = (id: string) => {
   const activeFormsClone = JSON.parse(JSON.stringify(activeForms.value));
@@ -256,13 +250,12 @@ const submitAllForms = async () => {
       url: "/ProductCommands/update-product-ordering-form",
       payload: {
         id: product.value.id,
-        formControls: activeForms.value,
-      },
+        formControls: activeForms.value
+      }
     };
 
-    console.log(reqData);
     const { data }: any = await Api(reqData);
-    console.log(data);
+
   } catch (error) {
     console.error(error);
   } finally {
@@ -279,18 +272,15 @@ const getOrderingForms = async () => {
       method: "get",
       url: "/ProductQueries/get-product-ordering-form",
       payload: {
-        id: product.value.id,
-      },
+        id: product.value.id
+      }
     };
 
     const { data }: any = await Api(reqData);
     if (data.succeeded) {
-      console.log("done", data);
       const formControls: any[] = data.data.formControls;
-      console.log(formControls);
       activeFormDivs.value = formControls.map((i) => i.connectionId);
       activeForms.value = formControls;
-      console.log(activeFormDivs.value, activeForms.value);
     }
   } catch (error) {
     console.error(error);
@@ -321,15 +311,18 @@ onMounted(() => {
 
   .context {
     max-width: 70%;
+
     small {
       margin-top: -7px;
     }
   }
 }
+
 .replaced-card-style {
   transform: scale(0.95);
   transition: all 0.2s ease-in-out;
 }
+
 .moving-card-style {
   transform: scale(1.05);
   transition: all 0.2s ease-in-out;

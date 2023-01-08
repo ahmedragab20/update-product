@@ -187,7 +187,7 @@ import BootstrapModal from "@/components/Reusable/BootstrapModal.vue";
 import Dropdown from "@/components/Reusable/Dropdown.vue";
 import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 
-import { ref, computed, onBeforeMount, watch } from "vue";
+import { ref, computed, onBeforeMount, watch, onMounted } from "vue";
 import { useStore } from "vuex";
 
 import Api from "@/utils/ApiHelper";
@@ -380,14 +380,20 @@ const discountSaveChangesHandler = async () => {
     isDiscountLoading.value = false;
   }
 };
-setSelectedDiscountCurrency(props.currencies[0]);
 watch(
   () => props.currencies,
   () => {
-    setSelectedDiscountCurrency(props.currencies[0]);
+    if (props.currencies && props.currencies.length > 0) {
+      setSelectedDiscountCurrency(props.currencies[0]);
+    }
   }
 );
 onBeforeMount(() => {
   getDiscountTypes();
+});
+onMounted(() => {
+  if (props.currencies && props.currencies.length > 0) {
+    setSelectedDiscountCurrency(props.currencies[0]);
+  }
 });
 </script>

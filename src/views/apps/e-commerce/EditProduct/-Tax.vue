@@ -1,5 +1,8 @@
 <template>
-  <div class="card card-flush py-4">
+  <div
+    class="card card-flush py-4"
+    :class="{'gradient-border' : updateProductState.changedSections.includes('tax')}"
+  >
     <div class="card-header border-0">
       <div class="card-title">
         <h2>TAX</h2>
@@ -61,7 +64,7 @@
             class="form-control form-control-solid"
             max="100"
             min="0"
-            @input="taxStatus = true"
+            @input="taxChanged = true"
           />
           <!--end::Select2-->
           <!--begin::Description-->
@@ -71,13 +74,17 @@
         </div>
         <!--end:: tax class-->
       </div>
+      <div>
+        <small v-if="errorMessage" class="fw-bold badge badge-light-danger">
+          😧 {{ errorMessage }}
+        </small>
+      </div>
       <div class="w-100">
         <SaveChangeBtn
           :btnReverseSubmit="reverseTaxChange"
           :btnSubmit="saveTax"
-          :elChanged="taxStatus"
+          :elChanged="taxChanged"
           :elLoading="isTaxStatusLoading"
-          :fullWidth="true"
           :no-cancel="true"
         />
       </div>
@@ -89,14 +96,29 @@
 import Api from "@/utils/ApiHelper";
 import Dropdown from "@/components/Reusable/Dropdown.vue";
 import SaveChangeBtn from "./-SaveChangeBtn.vue";
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { computed } from "@vue/runtime-core";
 import { useStore } from "vuex";
+import { Product } from "@/types";
 
 const props = defineProps(["product"]);
 
 const store = useStore();
 
+const updateProductState = computed(() => store.state.UpdateProduct);
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
 /* Tax class logic */
 const taxClassItems = computed(
   (): any[] => store.state.LookupQueries.productTaxClasses
@@ -110,7 +132,7 @@ const taxClassSelectedItemHandler = (
 ) => {
   taxClassSelectedOption.value = selectedItem;
   if (!isGlobal) {
-    taxStatus.value = true;
+    taxChanged.value = true;
   }
 };
 /* tax amount logic */
@@ -119,29 +141,39 @@ const isTaxAmount = computed(
 );
 const taxAmount = ref<any>();
 
-const taxStatus = ref<boolean | string>(false);
+const taxChanged = ref<boolean | string>(false);
 const isTaxStatusLoading = ref(false);
-
+const errorMessage = ref("");
 const saveTax = async () => {
   try {
     isTaxStatusLoading.value = true;
     const payload = {
       id: props.product.id,
       taxClassId: taxClassSelectedOption.value.id,
-      taxAmountPercentage: isTaxAmount ? taxAmount.value : 0,
+      taxAmountPercentage: isTaxAmount ? taxAmount.value : 0
     };
 
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-tax",
-      payload,
+      payload
     };
 
     const { data } = await Api(reqData);
 
-    console.log({ data });
-
-    if (data?.succeeded) taxStatus.value = "done";
+    if (data.succeeded) {
+      taxChanged.value = "done";
+      initializeComponentsData({
+        name: "tax",
+        content: {
+          taxClassId: payload.taxClassId,
+          taxAmount: payload.taxAmountPercentage
+        }
+      });
+      errorMessage.value = "";
+    } else {
+      errorMessage.value = data?.message;
+    }
   } catch (error) {
     console.error(error);
   } finally {
@@ -149,21 +181,57 @@ const saveTax = async () => {
   }
 };
 const reverseTaxChange = () => {
-  taxAmount.value = "";
-  taxStatus.value = false;
+  const source = updateProductState.value.tax;
+  initData(source);
+  taxChanged.value = false;
+  errorMessage.value = "";
+};
+
+const initData = (source: Product) => {
+  const tax = taxClassItems.value.find(
+    (item: any) => item.id === source.taxClassId
+  );
+
+  if (tax) {
+    taxClassSelectedItemHandler(tax, true);
+  }
+
+  if (source.taxAmounPercentage) {
+    taxAmount.value = source.taxAmounPercentage;
+  }
+
+  initializeComponentsData({
+    name: "tax",
+    content: {
+      taxClassId: source.taxClassId,
+      taxAmount: source.taxAmounPercentage
+    }
+  });
 };
 
 onMounted(() => {
   if (props.product?.taxClassId && taxClassItems.value?.length > 0) {
-    const tax = taxClassItems.value.find(
-      (item: any) => item.id === props.product.taxClassId
-    );
+    initData(props.product);
+  }
+});
 
-    if (tax) {
-      taxClassSelectedItemHandler(tax, true);
-    }
+watch(() => props.product, newV => {
+  if (taxClassItems.value?.length > 0) {
+    initData(newV);
+  }
+});
 
-    taxAmount.value = props.product?.taxAmounPercentage;
+watch(() => taxChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "tax",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "tax",
+      remove: true
+    });
   }
 });
 </script>

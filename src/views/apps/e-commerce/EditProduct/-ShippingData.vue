@@ -1,5 +1,8 @@
 <template>
-  <div class="card card-flush">
+  <div
+    class="card card-flush"
+    :class="{'gradient-border' : updateProductState.changedSections.includes('shipping-data')}"
+  >
     <div class="card-header">
       <div class="card-title">Shipping Data</div>
     </div>
@@ -17,7 +20,7 @@
           <label
             class="form-check-label"
             for="kt_ecommerce_add_product_shipping_checkbox"
-            >This is a physical product</label
+          >This is a physical product</label
           >
         </div>
         <!--end::Input-->
@@ -259,8 +262,7 @@
           :elChanged="shippingDataChanged"
           :elLoading="isShippingDataLoading"
           :btnSubmit="saveShippingData"
-          :fullWidth="true"
-          :noCancel="true"
+          :btn-reverse-submit="reverseShippingData"
         />
       </div>
     </div>
@@ -268,22 +270,37 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useStore } from "vuex";
 import Api from "@/utils/ApiHelper";
 import Dropdown from "@/components/Reusable/Dropdown.vue";
 import SaveChangeBtn from "./-SaveChangeBtn.vue";
+import { Product } from "@/types";
 
 const store = useStore();
 const props = defineProps(["product"]);
+const updateProductState = computed(() => store.state.UpdateProduct);
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
 
 const inputs = ref({
-  weightInKG: "",
-  widthInCM: "",
-  heightInCM: "",
-  lengthInCM: "",
+  weightInKG: null,
+  widthInCM: null,
+  heightInCM: null,
+  lengthInCM: null
 });
-let shippingDataChanged = ref(false);
+let shippingDataChanged = ref<boolean | string>(false);
 let isShippingDataLoading = ref(false);
 let errorMessage = ref("");
 const shippingReqData = ref({
@@ -295,8 +312,8 @@ const shippingReqData = ref({
     lengthInCM: "",
     vehicleTypes: [],
     vehicleSpecialRequirments: [],
-    deliveryTimeCategoryId: 0,
-  },
+    deliveryTimeCategoryId: 0
+  }
 });
 
 //* <MultiSelect "dropdown"> *//
@@ -368,7 +385,6 @@ const saveShippingData = async () => {
     isShippingDataLoading.value = true;
 
     // Payload Data
-
     shippingReqData.value.productShippingData.heightInCM =
       inputs.value.heightInCM;
     shippingReqData.value.productShippingData.lengthInCM =
@@ -393,12 +409,26 @@ const saveShippingData = async () => {
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-shipping-data",
-      payload,
+      payload
     };
     const { data } = await Api(reqData);
 
-    if (data?.succeeded) shippingDataChanged.value = "done";
-    else errorMessage.value = data.message;
+    if (data?.succeeded) {
+      shippingDataChanged.value = "done";
+      const content = {
+        ...inputs.value,
+        vehicleTypes: payload.productShippingData.vehicleTypes.toString(),
+        vehicleSpecialRequirments: payload.productShippingData.vehicleSpecialRequirments.toString(),
+        deliveryTimeCategoryId: payload.productShippingData.deliveryTimeCategoryId
+      };
+
+      initializeComponentsData({
+        name: "shippingData",
+        content
+      });
+
+      errorMessage.value = "";
+    } else errorMessage.value = data.message;
   } catch (error) {
     console.error(error);
   } finally {
@@ -406,26 +436,70 @@ const saveShippingData = async () => {
   }
 };
 
+const reverseShippingData = () => {
+  const source = updateProductState.value.shippingData;
+  shippingDataChanged.value = false;
+  initData(source);
+  errorMessage.value = "";
+};
+
+const initData = (source: any) => {
+  inputs.value = {
+    weightInKG: source.weightInKG,
+    widthInCM: source.widthInCM,
+    heightInCM: source.heightInCM,
+    lengthInCM: source.lengthInCM
+  };
+
+  const vehicleTypesSourceType: string = typeof source.vehicleTypes;
+  const requirementsSourceType: string = typeof source.vehicleSpecialRequirments;
+
+  let vehicleTypes: any[] = vehicleTypesSourceType === "string" ? source.vehicleTypes?.split(",") : source.vehicleTypes;
+  let vehicleSpecialRequirments: any[] = requirementsSourceType === "string" ? source.vehicleSpecialRequirments?.split(",") : source.vehicleSpecialRequirments;
+
+
+  vehicleTypesItems(vehicleTypes, true);
+  vehicleSpecialRequirementsItems(vehicleSpecialRequirments, true);
+  
+  const deliveryTimeCategory = deliveryTypeCategories.value?.find(
+    (el) => el.id === source.deliveryTimeCategoryId
+  );
+  if (deliveryTimeCategory) {
+    dropdownSelectedDeliveryTimeCategory(deliveryTimeCategory, true);
+  }
+
+  const content = {
+    ...inputs.value,
+    vehicleTypes: source.vehicleTypes.toString(),
+    vehicleSpecialRequirments: source.vehicleSpecialRequirments.toString(),
+    deliveryTimeCategoryId: source.deliveryTimeCategoryId
+  };
+
+  initializeComponentsData({
+    name: "shippingData",
+    content
+  });
+};
+
 onMounted(() => {
   if (props.product) {
-    inputs.value = {
-      weightInKG: props.product.weightInKG,
-      widthInCM: props.product.widthInCM,
-      heightInCM: props.product.heightInCM,
-      lengthInCM: props.product.lengthInCM,
-    };
-
-    vehicleTypesItems(props.product.vehicleTypes, true);
-    vehicleSpecialRequirementsItems(
-      props.product.vehicleSpecialRequirments,
-      true
-    );
-    const deliveryTimeCategory = deliveryTypeCategories.value?.find(
-      (el) => el.id === props.product.deliveryTimeCategoryId
-    );
-    if (deliveryTimeCategory) {
-      dropdownSelectedDeliveryTimeCategory(deliveryTimeCategory, true);
-    }
+    initData(props.product);
+  }
+});
+watch(() => props.product, newV => {
+  initData(newV);
+});
+watch(() => shippingDataChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "shipping-data",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "shipping-data",
+      remove: true
+    });
   }
 });
 </script>

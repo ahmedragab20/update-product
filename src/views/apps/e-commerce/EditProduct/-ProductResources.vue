@@ -13,23 +13,22 @@
         </template>
         <template #fields>
           <keep-alive>
-            <div v-for="field in props.langs" :key="field.id" dir="auto">
+            <div v-for="(field, fieldIndex) in props.langs" :key="field.id" dir="auto">
               <div :dir="field.label === 'العربية' ? 'rtl' : 'auto'">
                 <InputField
                   v-if="selectedLang && field.id === selectedLang.id"
                   v-model="product[`name-${selectedLang.id}`]"
-                  :isRequired="true"
-                  :label="
-                    field.label === 'العربية' ? 'أسم المنتج' : 'Product name'
-                  "
+                  label="Product name"
                   styles="text-capitalize my-8"
                   @input="editor_info"
                 />
                 <div v-for="(n, $index) in 3" :key="$index" class="my-3">
+                  <div v-if="selectedLang && field.id === selectedLang.id">
+                    <label for="" class="form-label" v-text="getEditorLabel()[fieldIndex].labels[$index].text" />
+                  </div>
                   <QuillEditor
                     v-if="selectedLang && field.id === selectedLang.id"
                     v-model:content="product[activeResourceEditor(n)]"
-                    :placeholder="editors[$index]"
                     :toolbar="editorOptions.toolbar"
                     contentType="html"
                     @input="editor_info(n)"
@@ -51,8 +50,6 @@
         :btnSubmit="saveEditorChange"
         :elChanged="editorChanged"
         :elLoading="editorLoading"
-        :fullWidth="true"
-        :no-cancel="true"
         :payload="product"
       />
     </div>
@@ -63,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from "vue";
+import { ref, reactive, watch, onMounted, computed } from "vue";
 import Api from "@/utils/ApiHelper";
 
 import Editor from "@/components/Reusable/Editor.vue";
@@ -73,6 +70,10 @@ import SaveChangeBtn from "./-SaveChangeBtn.vue";
 import { QuillEditor } from "@vueup/vue-quill";
 
 import { Language, Product } from "@/types";
+import { useStore } from "vuex";
+import { uuid } from "vue-uuid";
+
+const store = useStore();
 
 interface Props {
   langs: Language[];
@@ -80,47 +81,41 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
+const productResources = ref([]);
 const product = ref({});
 const productData = ref({});
+
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
 
 let selectedLang = ref();
 const editorChanged = ref<any>(false);
 const editorLoading = ref(false);
-const editors = reactive([
-  "short description",
-  "long description",
-  "purchase note",
-]);
+
 const editor_info = (length: number): void => {
   editorChanged.value = true;
 };
 
 const editorOptions = ref({
   toolbar: [
-    ["bold", "italic", "underline", "strike"], // toggled buttons
-    ["blockquote", "code-block"],
-
-    [{ header: 1 }, { header: 2 }], // custom button values
-    [{ list: "ordered" }, { list: "bullet" }],
-    [{ script: "sub" }, { script: "super" }], // superscript/subscript
-    [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-    [{ direction: "rtl" }], // text direction
-
-    [{ size: ["small", false, "large", "huge"] }], // custom dropdown
-    [{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-    [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-    [{ font: [] }],
-    [{ align: [] }],
-
-    ["clean"], // remove formatting button
-  ],
+    ["bold", "italic", "underline", "strike"]
+  ]
 });
 
 const setSelectedLang = (payload: any): void => {
   selectedLang.value = payload;
-  
+
   setEditorContent();
 };
 
@@ -131,74 +126,26 @@ const activeResourceEditor = (index: number) => {
       editorChanged.value
         ? product.value[`shortDescription-${lang.id}`]
         : (product.value[`shortDescription-${lang.id}`] =
-            productData.value[`shortDescription-${lang.id}`]);
+          productData.value[`shortDescription-${lang.id}`]);
     } else if (index === 2) {
       editorChanged.value
         ? product.value[`longDescription-${lang.id}`]
         : (product.value[`longDescription-${lang.id}`] =
-            productData.value[`longDescription-${lang.id}`]);
+          productData.value[`longDescription-${lang.id}`]);
     } else if (index === 3) {
       editorChanged.value
         ? product.value[`purchaseNote-${lang.id}`]
         : (product.value[`purchaseNote-${lang.id}`] =
-            productData.value[`purchaseNote-${lang.id}`]);
+          productData.value[`purchaseNote-${lang.id}`]);
     }
   });
   if (index === 1) return `shortDescription-${selectedLang.value.id}`;
   else if (index === 2) return `longDescription-${selectedLang.value.id}`;
   else if (index === 3) return `purchaseNote-${selectedLang.value.id}`;
 };
-const editorErrorMsg = ref<string>("");
-
-const saveEditorChange = async (content: any) => {
-  editorLoading.value = true;
-
-  let resourcesArr: any[] = [];
-
-  props.langs?.forEach((lang: any) => {
-    resourcesArr.push({
-      languageId: lang.id,
-      name: product.value[`name-${lang.id}`],
-      longDescription: content[`longDescription-${lang.id}`],
-      purchaseNote: content[`purchaseNote-${lang.id}`],
-      shortDescription: content[`shortDescription-${lang.id}`],
-    });
-  });
-
-  const payload = {
-    id: props.product.id,
-    resources: resourcesArr,
-  };
-  const reqData = {
-    method: "post",
-    url: "/ProductCommands/update-product-resources",
-    payload,
-  };
-  try {
-    const { data }: any = await Api(reqData);
-
-    if (!data.succeeded) editorErrorMsg.value = data.message;
-    else editorChanged.value = "done";
-  } catch (error) {
-    console.error(error);
-  } finally {
-    editorLoading.value = false;
-  }
-};
-
-const reverseEditorChanges = () => {
-  product.value = {};
-  const editorContext = document.querySelectorAll(".ql-editor");
-
-  editorContext.forEach((el) => {
-    el.textContent = "";
-  });
-
-  editorChanged.value = false;
-};
 
 const setEditorContent = () => {
-  props.product?.resources?.forEach((resource: any) => {
+  productResources.value?.forEach((resource: any) => {
     if (resource.name) {
       product.value[`name-${resource.languageId}`] = resource.name;
     }
@@ -218,9 +165,81 @@ const setEditorContent = () => {
   if (Object.keys(productData.value).length > 0) {
     product.value = {
       ...product.value,
-      ...productData.value,
+      ...productData.value
     };
   }
+};
+const getEditorLabel = () => {
+  return props.langs?.map((el, i) => {
+    return {
+      id: el.id,
+      labels: [
+        {
+          id: uuid.v4(),
+          text: "Long Description"
+        },
+        {
+          id: uuid.v4(),
+          text: "Short Description"
+        },
+        {
+          id: uuid.v4(),
+          text: "Purchase Note"
+        }
+      ]
+    };
+  });
+};
+const editorErrorMsg = ref<string>("");
+
+const saveEditorChange = async (content: any) => {
+  editorLoading.value = true;
+
+  let resourcesArr: any[] = [];
+
+  props.langs?.forEach((lang: any) => {
+    resourcesArr.push({
+      languageId: lang.id,
+      name: product.value[`name-${lang.id}`],
+      longDescription: content[`longDescription-${lang.id}`],
+      purchaseNote: content[`purchaseNote-${lang.id}`],
+      shortDescription: content[`shortDescription-${lang.id}`]
+    });
+  });
+
+  const payload = {
+    id: props.product.id,
+    resources: resourcesArr
+  };
+  const reqData = {
+    method: "post",
+    url: "/ProductCommands/update-product-resources",
+    payload
+  };
+  try {
+    const { data }: any = await Api(reqData);
+
+    if (!data.succeeded) editorErrorMsg.value = data.message;
+    else {
+      editorChanged.value = "done";
+      productResources.value = payload.resources;
+      initializeComponentsData({
+        name: "resources",
+        content: payload.resources
+      });
+      editorErrorMsg.value = "";
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    editorLoading.value = false;
+  }
+};
+
+const reverseEditorChanges = () => {
+  setEditorContent();
+  editorChanged.value = false;
+  editorErrorMsg.value = "";
 };
 
 watch(
@@ -230,7 +249,7 @@ watch(
       const editorTargets = [
         "shortDescription",
         "longDescription",
-        "purchaseNote",
+        "purchaseNote"
       ];
       newValue.resources.forEach((el: any) => {
         editorTargets.forEach((target) => {
@@ -239,15 +258,15 @@ watch(
           }
         });
       });
+      productResources.value = newValue.resources;
+      initializeComponentsData({
+        name: "resources",
+        content: props.product?.resources
+      });
     }
   }
 );
 
-onMounted(() => {
-  if (props.langs && props.langs.length > 0) {
-    setSelectedLang(props.langs[0]);
-  }
-});
 watch(
   () => props.langs,
   (newV) => {
@@ -256,4 +275,31 @@ watch(
     }
   }
 );
+
+watch(() => editorChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "resources",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "resources",
+      remove: true
+    });
+  }
+});
+
+onMounted(() => {
+  if (props.product && props.product.resources) {
+    initializeComponentsData({
+      name: "resources",
+      content: props.product.resources
+    });
+    productResources.value = props.product.resources;
+  }
+  if (props.langs && props.langs.length > 0) {
+    setSelectedLang(props.langs[0]);
+  }
+});
 </script>

@@ -76,31 +76,31 @@
         class="table table-row-dashed table-row-gray-300 gy-5"
       >
         <thead>
-          <tr class="fw-bolder fs-5 text-gray-800">
-            <th class="w-75">Details</th>
-            <th>Actions</th>
-          </tr>
+        <tr class="fw-bolder fs-5 text-gray-800">
+          <th class="w-75">Details</th>
+          <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-          <tr v-for="(text, index) in detailsTable" :key="index">
-            <td>
-              <div v-html="text.details" />
-            </td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <button
-                  type="button"
-                  class="btn bg-light-info text-info btn-sm rounded-3 bi bi-pen"
-                  @click="updateClickedIndex(index), setEditModalData(text)"
-                />
-                <button
-                  type="button"
-                  class="btn bg-light-danger btn-sm rounded-3 text-danger bi bi-trash3"
-                  @click="updateClickedIndex(index), toggleConfirmationDialog()"
-                />
-              </div>
-            </td>
-          </tr>
+        <tr v-for="(text, index) in detailsTable" :key="index">
+          <td>
+            <div v-html="text.details" />
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <button
+                type="button"
+                class="btn bg-light-info text-info btn-sm rounded-3 bi bi-pen"
+                @click="updateClickedIndex(index), setEditModalData(text)"
+              />
+              <button
+                type="button"
+                class="btn bg-light-danger btn-sm rounded-3 text-danger bi bi-trash3"
+                @click="updateClickedIndex(index), toggleConfirmationDialog()"
+              />
+            </div>
+          </td>
+        </tr>
         </tbody>
       </table>
       <div v-else class="fw-boldest text-muted text-center my-5 h3">
@@ -115,7 +115,7 @@
         :btnSubmit="updateCountableProduct"
         :elChanged="showSaveChanges"
         :elLoading="savingData"
-        :full-width="true"
+        :no-cancel="true"
       />
 
       <!-- Add details modal -->
@@ -242,8 +242,8 @@ const editorOptions = ref({
     [{ font: [] }],
     [{ align: [] }],
 
-    ["clean"], // remove formatting button
-  ],
+    ["clean"] // remove formatting button
+  ]
 });
 const errorMsg = ref("");
 
@@ -255,7 +255,7 @@ const commitDetails = () => {
     if (!index && index !== 0) {
       detailsTable.value.push({
         id: null,
-        details: details.value,
+        details: details.value
       });
     } else {
       editDetails(index);
@@ -320,12 +320,12 @@ const updateCountableProduct = async () => {
     const payload = {
       id: props.product?.id,
       countableDigitalProducts: [...detailsTable.value],
-      digitalProductDeliveryWays: [...selectedDeliveryWaysIds.value],
+      digitalProductDeliveryWays: [...selectedDeliveryWaysIds.value]
     };
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-countable-digital-products",
-      payload,
+      payload
     };
     const { data }: any = await Api(reqData);
     if (data.succeeded) {

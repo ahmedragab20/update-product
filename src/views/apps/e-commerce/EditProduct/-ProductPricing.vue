@@ -1,5 +1,6 @@
 <template>
-  <div class="card card-flush py-4">
+  <div class="card card-flush py-4"
+       :class="{'gradient-border' : updateProductState.changedSections.includes('prices')}">
     <!--begin::Card header-->
     <div class="card-header">
       <div class="card-title">
@@ -38,7 +39,7 @@
             name="price"
             placeholder="Product base price"
             type="number"
-            @input="pricingStatus = true"
+            @input="pricingChanged = true"
           />
           <!--end::Input-->
           <!--begin::Description-->
@@ -57,7 +58,7 @@
             name="price"
             placeholder="Product cost price"
             type="number"
-            @input="pricingStatus = true"
+            @input="pricingChanged = true"
           />
           <!--end::Input-->
           <!--begin::Description-->
@@ -76,9 +77,8 @@
       <SaveChangeBtn
         :btn-reverse-submit="reversePricingChanges"
         :btnSubmit="pricingSaveChangesHandler"
-        :elChanged="pricingStatus"
+        :elChanged="pricingChanged"
         :elLoading="isPricingLoading"
-        :fullWidth="true"
       />
     </div>
     <!--end::Input group-->
@@ -93,12 +93,31 @@ import { ref, watch, onMounted } from "vue";
 
 import Api from "@/utils/ApiHelper";
 import { Currency, Product } from "@/types";
+import { computed } from "@vue/runtime-core";
+import { useStore } from "vuex";
+
 interface Props {
   product: Product;
   currencies: Array<Currency>;
 }
 
 const props = defineProps<Props>();
+const store = useStore();
+
+const updateProductState = computed(() => store.state.UpdateProduct);
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
 
 const selectedCurrency = ref();
 const prices = ref({});
@@ -106,7 +125,7 @@ const setSelectedCurrency = (payload) => {
   selectedCurrency.value = payload;
 };
 const isPricingLoading = ref(false);
-const pricingStatus = ref<boolean | string>(false);
+const pricingChanged = ref<boolean | string>(false);
 const pricingErrorMsg = ref("");
 
 const pricingSaveChangesHandler = async () => {
@@ -120,7 +139,7 @@ const pricingSaveChangesHandler = async () => {
         finalPrices.set(currency.id, {
           currencyId: currency.id,
           price: prices.value[`price-${currency.id}`],
-          costPrice: prices.value[`costPrice-${currency.id}`],
+          costPrice: prices.value[`costPrice-${currency.id}`]
         });
       }
     });
@@ -132,20 +151,28 @@ const pricingSaveChangesHandler = async () => {
 
   const payload = {
     id: props.product.id,
-    prices: finalPricesArr,
+    prices: finalPricesArr
   };
 
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-pricing",
-    payload,
+    payload
   };
 
   try {
     const { data }: any = await Api(reqData);
 
-    if (data?.succeeded) pricingStatus.value = "done";
-    else pricingErrorMsg.value = data.message;
+    if (data?.succeeded) {
+      pricingChanged.value = "done";
+      initializeComponentsData({
+        name: "prices",
+        content: payload.prices
+      });
+      pricingErrorMsg.value = "";
+    } else {
+      pricingErrorMsg.value = data.message;
+    }
   } catch (error) {
     console.error(error);
   } finally {
@@ -156,24 +183,27 @@ const pricingSaveChangesHandler = async () => {
 };
 
 const reversePricingChanges = () => {
-  prices.value = {
-    currencyId: "",
-    price: "",
-    costPrice: "",
-  };
-
-  pricingStatus.value = false;
+  updateProductState.value.prices.forEach((price: any) => {
+    prices.value[`price-${price.currencyId}`] = price.price;
+    prices.value[`costPrice-${price.currencyId}`] = price.costPrice;
+  });
+  pricingChanged.value = false;
+  pricingErrorMsg.value = "";
 };
 
 onMounted(() => {
-  if (props.currencies && props.currencies.length > 0) {
-    setSelectedCurrency(props.currencies[0]);
-  }
   if (props.product.prices && props.product.prices.length > 0) {
     props.product.prices.forEach((price: any) => {
       prices.value[`price-${price.currencyId}`] = price.price;
       prices.value[`costPrice-${price.currencyId}`] = price.costPrice;
     });
+    initializeComponentsData({
+      name: "prices",
+      content: props.product.prices
+    });
+  }
+  if (props.currencies && props.currencies.length > 0) {
+    setSelectedCurrency(props.currencies[0]);
   }
 });
 watch(
@@ -192,7 +222,25 @@ watch(
         prices.value[`price-${price.currencyId}`] = price.price;
         prices.value[`costPrice-${price.currencyId}`] = price.costPrice;
       });
+
+      initializeComponentsData({
+        name: "prices",
+        content: props.product.prices
+      });
     }
   }
 );
+watch(() => pricingChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "prices",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "prices",
+      remove: true
+    });
+  }
+});
 </script>

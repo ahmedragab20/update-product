@@ -110,27 +110,30 @@ import { useStore } from "vuex";
 const props = defineProps({
   activeValueType: {
     type: String,
-    default: "label",
+    default: "label"
   },
   setSelectedOptionLabelLang: {
     type: Function,
-    default: (): void => {},
+    default: (): void => {
+    }
   },
   langs: {
-    type: null,
+    type: null
   },
   selectedOptionLabelLang: {
     type: Object,
-    default: {},
+    default: {}
   },
   addOption: {
     type: Function,
-    default: (): void => {},
+    default: (): void => {
+    }
   },
   imageViewerModalHandler: {
     type: Function,
-    default: (): void => {},
-  },
+    default: (): void => {
+    }
+  }
 });
 const store = useStore();
 const optionValue = ref({}); // the data binder for options input fields
@@ -150,7 +153,7 @@ const predefineColors = ref([
   "hsva(120, 40, 94, 0.5)",
   "hsl(181, 100%, 37%)",
   "hsla(209, 100%, 56%, 0.73)",
-  "#c7158577",
+  "#c7158577"
 ]);
 
 const setLabel = () => {
@@ -161,7 +164,7 @@ const setLabel = () => {
         resources.push({
           languageId: el,
           label: optionLabels.value[el],
-          description: "",
+          description: ""
         });
       }
     });
@@ -200,7 +203,7 @@ const onUpload = async () => {
     const reqData = {
       method: "post",
       url: "/ManageCommands/upload-file",
-      payload: fd,
+      payload: fd
     };
 
     const { data } = await Api(reqData);
@@ -208,7 +211,6 @@ const onUpload = async () => {
       reqDone.value = true;
       optionValue.value["type"] = url;
       optionValue.value["imageKey"] = data.data;
-      console.log(optionValue.value, "options.value");
     } else reqDone.value = "failed";
   } catch (error) {
     console.error(error);

@@ -90,8 +90,6 @@ const getProducts = async (param) => {
     products.value = items;
   } catch (error) {
     console.error(error);
-  } finally {
-    console.log("finally");
   }
 };
 

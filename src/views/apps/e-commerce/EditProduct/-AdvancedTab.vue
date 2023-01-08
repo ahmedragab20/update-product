@@ -9,7 +9,10 @@
       />
       <!-- Shipping data -->
       <ShippingData :product="product" />
-      <div class="card card-flush">
+      <div
+        class="card card-flush"
+        :class="{'gradient-border' : updateProductState.changedSections.includes('appearance-data')}"
+      >
         <div class="card-header">
           <div class="card-title">Appearance Data</div>
         </div>
@@ -136,7 +139,7 @@
             </div>
           </div>
         </div>
-        <div class="card-body py-0">
+        <div class="card-body pt-0">
           <div
             v-if="appearanceErrorMsg"
             class="card-body text-danger px-0 d-flex align-items-center gap-2"
@@ -145,11 +148,10 @@
             {{ appearanceErrorMsg }}
           </div>
           <SaveChangeBtn
-            :btnSubmit="saveApearanceDataChanges"
+            :btnSubmit="saveAppearanceDataChanges"
             :elChanged="appearanceDataChanged"
             :elLoading="appearanceDataLoading"
-            :fullWidth="true"
-            :noCancel="true"
+            :btn-reverse-submit="reverseAppearanceData"
           />
         </div>
       </div>
@@ -358,7 +360,10 @@
         </div>
       </div>
       <!-- Points system -->
-      <div class="card card-flush">
+      <div
+        class="card card-flush"
+        :class="{'gradient-border' : updateProductState.changedSections.includes('points-system')}"
+      >
         <div class="card-header">
           <div class="card-title">Points System</div>
         </div>
@@ -402,20 +407,27 @@
               @input="pointsSystemChanged = true"
             />
           </div>
+          <div class="my-3">
+            <small v-if="pointSystemErrorMessage" class="fw-bold badge badge-light-danger">
+              🥲 {{ pointSystemErrorMessage }}
+            </small>
+          </div>
           <div class="card-body py-0 px-0">
             <SaveChangeBtn
               :btnReverseSubmit="reversePointsSystem"
               :btnSubmit="savePointsSystem"
               :elChanged="pointsSystemChanged"
               :elLoading="pointsSystemLoading"
-              :fullWidth="true"
               :no-cancel="true"
             />
           </div>
         </div>
       </div>
       <!-- meta tags -->
-      <div class="card card-flush">
+      <div
+        class="card card-flush"
+        :class="{'gradient-border' : updateProductState.changedSections.includes('meta-options')}"
+      >
         <div class="card-header">
           <div class="card-title">Meta Options</div>
         </div>
@@ -427,7 +439,7 @@
               class="form-control"
               placeholder="Type A Meta Title"
               type="text"
-              @input="metaTagsChanged = true"
+              @input="metaOptionsChanged = true"
             />
             <small class="text-muted fw-bold ps-1">
               Set a meta tag title. Recommended to be simple and precise
@@ -445,18 +457,17 @@
                       v-model:content="productMetaTags['description']"
                       :toolbar="editorOptions.toolbar"
                       contentType="html"
-                      placeholder="Meta Tag Description"
                       quill-discription
-                      @input="metaTagsChanged = true"
+                      @input="metaOptionsChanged = true"
                     />
                   </div>
                 </keep-alive>
               </template>
             </Editor>
-            <small class="text-muted fw-bold ps-1"
-            >Set a meta tag description to the product for increased SEO
-              ranking.</small
-            >
+            <small class="text-muted fw-bold ps-1">
+              Set a meta tag description to the product for increased SEO
+              ranking.
+            </small>
           </div>
           <form class="my-4" @submit.prevent="metaPushTagHandler(tag)">
             <label class="mb-3 form-label">Meta Tag Keywords</label>
@@ -465,7 +476,6 @@
               class="form-control mb-4"
               placeholder="type a tag"
               type="text"
-              @input="metaTagsChanged = true"
               @keyup.enter.prevent="metaPushTagHandler(tag)"
             />
             <div
@@ -494,9 +504,8 @@
           <SaveChangeBtn
             :btnReverseSubmit="reverseMetaChanges"
             :btnSubmit="saveMetaChanges"
-            :elChanged="metaTagsChanged"
+            :elChanged="metaOptionsChanged"
             :elLoading="metaTagsLoading"
-            :fullWidth="true"
           />
         </div>
       </div>
@@ -505,7 +514,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeMount, onMounted, reactive, ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 import Api from "@/utils/ApiHelper";
 import BootstrapModal from "@/components/Reusable/BootstrapModal.vue";
 import Dropdown from "@/components/Reusable/Dropdown.vue";
@@ -516,8 +525,10 @@ import ProductModifiers from "./-ProductModifiers.vue";
 import ShippingData from "./-ShippingData.vue";
 import UpSelling from "./-UpSelling.vue";
 
-import { watch, watchEffect } from "@vue/runtime-core";
+import { computed, watch, watchEffect } from "@vue/runtime-core";
 import { swalAlert } from "@/utils/helpers";
+import { useStore } from "vuex";
+import { Product } from "@/types";
 
 const props = defineProps({
   product: {
@@ -527,8 +538,26 @@ const props = defineProps({
   currentTab: Number
 });
 
+const store = useStore();
+
+const updateProductState = computed(() => store.state.UpdateProduct);
+const updateChangedSections = ({ sectionId, remove }) => {
+  store.commit("ADD_CHANGED_SECTIONS", {
+    sectionId,
+    remove
+  });
+};
+
+const initializeComponentsData = ({ name, content }) => {
+  store.commit("INITIALIZE_DATA", {
+    name,
+    content
+  });
+};
+
+
 /* APPEARANCE DATA LOGIC BLOCK */
-const appearanceDataLoading = ref<string | boolean>(false);
+const appearanceDataLoading = ref<boolean>(false);
 const appearanceDataChanged = ref<string | boolean>(false);
 /* Product Labels */
 //* <MultiSelect "dropdown"> local store
@@ -560,9 +589,7 @@ const selectedProductTagIds = ref<any[]>([]); //-> the selected items' IDs
 const selectedProductTagItems = ref<any[]>([]); //-> the final result of the selected items (what you gonna use in the template)
 
 const findSelectedProductTags = (ids: Array<any> = []) => {
-  selectedProductTagItems.value = productTags.value?.filter((item) =>
-    ids.includes(item.id)
-  );
+  selectedProductTagItems.value = productTags.value.filter((item) => ids.includes(item.id));
 };
 // where you receive the data from the dropdown component
 const dropdownSelectedProductTags = (
@@ -573,12 +600,13 @@ const dropdownSelectedProductTags = (
     appearanceDataChanged.value = true;
   }
   selectedProductTagIds.value = selectedItemsCallback;
-  findSelectedProductTags(selectedProductTagIds.value);
+  // debugger
+  findSelectedProductTags(selectedItemsCallback);
 };
 
 // Save Appearance data changes
 const appearanceErrorMsg = ref("");
-const saveApearanceDataChanges = async () => {
+const saveAppearanceDataChanges = async () => {
   try {
     appearanceDataLoading.value = true;
     const labels = selectedProductLabelItems.value.map((el): [string] => el.id);
@@ -599,13 +627,34 @@ const saveApearanceDataChanges = async () => {
     };
     const { data }: any = await Api(reqData);
 
-    if (data?.succeeded) appearanceDataChanged.value = "done";
-    else appearanceErrorMsg.value = data?.message;
+    if (data?.succeeded) {
+      appearanceDataChanged.value = "done";
+      appearanceErrorMsg.value = "";
+
+      initializeComponentsData({
+        name: "appearanceData",
+        content: {
+          tagProducts: payload.productAppearanceData.tags.toString(),
+          labelProducts: payload.productAppearanceData.labels.toString()
+        }
+      });
+    } else {
+      appearanceErrorMsg.value = data?.message;
+    }
   } catch (error) {
     console.error(error);
   } finally {
     appearanceDataLoading.value = false;
   }
+};
+
+const reverseAppearanceData = () => {
+  const source = updateProductState.value.appearanceData;
+
+  dropdownSelectedProductTags(source.tagProducts?.split(","), true);
+  dropdownSelectedProductLabels(source.labelProducts?.split(","), true);
+  appearanceDataChanged.value = false;
+  appearanceErrorMsg.value = "";
 };
 
 /* UPSELLING AND CROSS-SELLING LOGIC BLOCK */
@@ -798,9 +847,9 @@ const pointsSystem = ref({
   term: null
 });
 
-const pointsSystemChanged = ref<any>(false);
-const pointsSystemLoading = ref<any>(false);
-
+const pointsSystemChanged = ref<boolean | string>(false);
+const pointsSystemLoading = ref<boolean>(false);
+const pointSystemErrorMessage = ref<string>("");
 // save points system change
 const savePointsSystem = async () => {
   try {
@@ -821,10 +870,20 @@ const savePointsSystem = async () => {
 
     const { data }: any = await Api(reqData);
 
-    console.log({ data });
+    if (data?.succeeded) {
+      pointsSystemChanged.value = "done";
+      pointSystemErrorMessage.value = "";
 
-    if (data?.succeeded) pointsSystemChanged.value = "done";
-    else console.log(data?.message);
+      initializeComponentsData({
+        name: "pointsSystem",
+        content: {
+          pointsClassId: payload.pointsSystemClassId,
+          pointsClassValue: payload.pointsSystemValue
+        }
+      });
+    } else {
+      pointSystemErrorMessage.value = data.message;
+    }
   } catch (error) {
     console.error(error);
   } finally {
@@ -832,14 +891,33 @@ const savePointsSystem = async () => {
   }
 };
 const reversePointsSystem = async () => {
-  pointsSystem.value.term = null;
+  const source = updateProductState.value.pointsSystem;
   pointsSystemChanged.value = false;
+  pointSystemErrorMessage.value = "";
+
+  initPointSystem(source);
+};
+
+const initPointSystem = (source: any) => {
+  if (source.pointsClassId === "2") {
+    pointsSystem.value.customSettings = "1";
+  } else {
+    pointsSystem.value.customSettings = "0";
+  }
+  pointsSystem.value.term = source.pointsClassValue;
+  initializeComponentsData({
+    name: "pointsSystem",
+    content: {
+      pointsClassId: source.pointsClassId,
+      pointsClassValue: source.pointsClassValue
+    }
+  });
 };
 
 /* End Points System logic */
 
 /* ADD META TAG LOGIC BLOCK */
-const metaTagsChanged = ref<any>(false);
+const metaOptionsChanged = ref<any>(false);
 const metaTagsLoading = ref<any>(false);
 const metaTagsMsg = ref<string>("");
 
@@ -851,23 +929,7 @@ const productMetaTags = ref<any>({
 });
 const editorOptions = ref({
   toolbar: [
-    ["bold", "italic", "underline", "strike"], // toggled buttons
-    ["blockquote", "code-block"],
-
-    [{ header: 1 }, { header: 2 }], // custom button values
-    [{ list: "ordered" }, { list: "bullet" }],
-    [{ script: "sub" }, { script: "super" }], // superscript/subscript
-    [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-    [{ direction: "rtl" }], // text direction
-
-    [{ size: ["small", false, "large", "huge"] }], // custom dropdown
-    [{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-    [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-    [{ font: [] }],
-    [{ align: [] }],
-
-    ["clean"] // remove formatting button
+    ["bold", "italic", "underline", "strike"] // toggled buttons
   ]
 });
 
@@ -876,18 +938,15 @@ const tag = ref<any>("");
 const metaTags = ref<any[]>([]);
 
 const metaPushTagHandler = (text: string) => {
-  console.log(text, metaTags.value);
-
   if (text && metaTags.value && !metaTags.value.includes(text)) {
-    console.log(`I'm existed`);
-
     metaTags.value.push(text);
+    metaOptionsChanged.value = true;
   }
   tag.value = "";
 };
 const metaRemoveTagHandler = (text: string) => {
   metaTags.value = metaTags.value.filter((item) => item !== text);
-  metaTagsChanged.value = true;
+  metaOptionsChanged.value = true;
 };
 
 const saveMetaChanges = async () => {
@@ -910,8 +969,19 @@ const saveMetaChanges = async () => {
     };
 
     const { data }: any = await Api(reqData);
-    if (data.succeeded) metaTagsChanged.value = "done";
-    else metaTagsMsg.value = data.message;
+    if (data.succeeded) {
+      metaOptionsChanged.value = "done";
+      metaTagsMsg.value = "";
+
+      initializeComponentsData({
+        name: "metaOptions",
+        content: {
+          description: payload.metaData.description,
+          title: payload.metaData.title,
+          keywords: payload.metaData.keywords
+        }
+      });
+    } else metaTagsMsg.value = data.message;
   } catch (error) {
     console.error(error);
   } finally {
@@ -920,16 +990,35 @@ const saveMetaChanges = async () => {
 };
 
 const reverseMetaChanges = () => {
-  productMetaTags.value.title = "";
-  productMetaTags.value.description = "";
+  const source = updateProductState.value.metaOptions;
 
-  const editorContext = document.querySelectorAll(".ql-editor");
+  initMetaOptions(source);
 
-  editorContext.forEach((el) => {
-    el.textContent = "";
+  metaOptionsChanged.value = false;
+  metaTagsMsg.value = "";
+};
+
+const initMetaOptions = (source) => {
+  productMetaTags.value.description =
+    source.description || `<p><br /></p>`;
+  productMetaTags.value.title = source.title;
+
+  if (![null, undefined, ""].includes(source.keywords)) {
+    productMetaTags.value.keywords =
+      source.keywords?.split(",");
+    metaTags.value = source.keywords?.split(",") || [];
+  } else {
+    metaTags.value = [];
+  }
+
+  initializeComponentsData({
+    name: "metaOptions",
+    content: {
+      description: source.description,
+      title: source.title,
+      keywords: source.keywords
+    }
   });
-
-  metaTagsChanged.value = false;
 };
 
 /* Fetch data */
@@ -942,7 +1031,7 @@ const fetchProductLabels = async () => {
     const { data }: any = await Api(reqData);
     if (data?.succeeded) {
       productLabels.value = data.data;
-    } else console.log(data.message);
+    } else console.error(data.message);
   } catch (error) {
     console.error(error);
   }
@@ -956,7 +1045,7 @@ const fetchProductTags = async () => {
     const { data }: any = await Api(reqData);
     if (data?.succeeded) {
       productTags.value = data.data;
-    } else console.log(data.message);
+    } else console.error(data.message);
   } catch (error) {
     console.error(error);
   }
@@ -974,7 +1063,7 @@ const fetchAllModifiers = async () => {
     if (data?.succeeded) {
       allModifiers.value = data.data;
     } else {
-      console.log(data.message);
+      console.error(data.message);
     }
   } catch (error) {
     console.error(error);
@@ -995,17 +1084,24 @@ const fetchProductModifiers = async () => {
     const { data }: any = await Api(reqData);
     if (data?.succeeded) {
       productModifiers.value = data.data;
-      console.log({
-        productModifiers: productModifiers.value
-      });
     } else {
-      console.log(data.message);
+      console.error(data.message);
     }
   } catch (error) {
     console.error(error);
   }
 };
 
+const initData = (source) => {
+  // up&cross selling products
+  upSellingProducts.value = source?.upsellProducts;
+  crossSellingProducts.value = source?.crosssellProducts;
+  // meta data (options)
+  if (source.productMetaData) {
+    initMetaOptions(source.productMetaData);
+  }
+  initPointSystem(source);
+};
 onBeforeMount(async () => {
   await fetchProductLabels();
   await fetchProductTags();
@@ -1014,45 +1110,76 @@ onBeforeMount(async () => {
 });
 onMounted(() => {
   if (props.product) {
-    if (props.product.labelProducts && props.product.tagProducts) {
-      dropdownSelectedProductTags(props.product.tagProducts, true);
-      dropdownSelectedProductLabels(props.product.labelProducts, true);
-    }
-
-    upSellingProducts.value = props.product?.upsellProducts;
-    crossSellingProducts.value = props.product?.crosssellProducts;
+    initData(props.product);
+    initializeComponentsData({
+      name: "appearanceData",
+      content: {
+        tagProducts: props.product.tagProducts?.toString(),
+        labelProducts: props.product.labelProducts?.toString()
+      }
+    });
   }
 });
-watchEffect(() => {
-  if (!selectedProductLabelItems.value || !selectedProductTagItems.value) {
+watch(() => props.product, (newValue) => {
+  if (newValue) {
+    initData(newValue);
+    initializeComponentsData({
+      name: "appearanceData",
+      content: {
+        tagProducts: newValue.tagProducts?.toString(),
+        labelProducts: newValue.labelProducts?.toString()
+      }
+    });
+  }
+});
+watch(() => productTags.value, newValue => {
+  if (newValue) {
     dropdownSelectedProductTags(props.product.tagProducts, true);
+  }
+});
+watch(() => productLabels.value, newValue => {
+  // product labels
+  if (newValue) {
     dropdownSelectedProductLabels(props.product.labelProducts, true);
   }
-  if (
-    (selectedProductTagIds.value.length > 0 &&
-      selectedProductTagItems.value.length === 0) ||
-    !selectedProductTagItems.value
-  ) {
-    dropdownSelectedProductTags(props.product.tagProducts, true);
+});
+watch(() => appearanceDataChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "appearance-data",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "appearance-data",
+      remove: true
+    });
   }
-  if (props.product.productMetaData) {
-    productMetaTags.value.description =
-      props.product.productMetaData.description || `<p><br /></p>`;
-    productMetaTags.value.title = props.product.productMetaData.title;
-
-    if (![null, undefined, ""].includes(props.product.productMetaData.keywords)) {
-      console.log(`yes I'm right over here`);
-
-      productMetaTags.value.keywords =
-        props.product.productMetaData.keywords?.split(",");
-      metaTags.value = props.product.productMetaData.keywords?.split(",") || [];
-    }
+});
+watch(() => pointsSystemChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "points-system",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "points-system",
+      remove: true
+    });
   }
-  if (props.product.pointsClassId && props.product.pointsClassValue) {
-    if (props.product.pointsClassId === "2") {
-      pointsSystem.value.customSettings = "1";
-      pointsSystem.value.term = props.product.pointsClassValue;
-    }
+});
+watch(() => metaOptionsChanged.value, (newV, oldValue) => {
+  if (newV && !oldValue || newV && oldValue === "done") {
+    updateChangedSections({
+      sectionId: "meta-options",
+      remove: false
+    });
+  } else {
+    updateChangedSections({
+      sectionId: "meta-options",
+      remove: true
+    });
   }
 });
 </script>
