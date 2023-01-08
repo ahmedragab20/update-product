@@ -418,7 +418,6 @@
               :btnSubmit="savePointsSystem"
               :elChanged="pointsSystemChanged"
               :elLoading="pointsSystemLoading"
-              :no-cancel="true"
             />
           </div>
         </div>
