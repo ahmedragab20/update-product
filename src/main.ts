@@ -32,7 +32,7 @@ initVeeValidate();
 app
   .use(store)
   .use(router)
-  .use(ElementPlus)
+  .use(ElementPlus, null)
   .use(i18n)
   .use(startupCalls)
   .use(VueGoogleMaps, {
