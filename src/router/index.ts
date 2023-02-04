@@ -1,6 +1,12 @@
 import Dummy from "@/views/dummy/index.vue";
 import { useCookies } from "@vueuse/integrations/useCookies";
-import { createRouter, createWebHistory, RouteRecordRaw, RouterView } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  RouteLocationNormalized,
+  RouteRecordRaw,
+  RouterView,
+} from "vue-router";
 import { h } from "vue";
 import { Products } from "./products";
 import { LoyaltyRoutes } from "./loyalty";
@@ -23,46 +29,44 @@ const routes: Array<RouteRecordRaw> = [
         path: "/dashboard/clients-group",
         name: "clients-group",
         component: () =>
-          import("@/views/clients/clients-group/pages/index.vue")
+          import("@/views/clients/clients-group/pages/index.vue"),
       },
 
       {
         path: "/dashboard/clients",
         name: "clients",
-        component: () =>
-          import("@/views/clients/clients/pages/index.vue")
+        component: () => import("@/views/clients/clients/pages/index.vue"),
       },
       {
         path: "/clients/client-details/:id",
         name: "client-details",
         props: true,
         component: () =>
-          import("@/views/clients/clients/pages/client-details-page.vue")
+          import("@/views/clients/clients/pages/client-details-page.vue"),
       },
       {
         path: "/dashboard/clients",
         name: "clients",
-        component: () =>
-          import("@/views/clients/clients/pages/index.vue")
+        component: () => import("@/views/clients/clients/pages/index.vue"),
       },
       {
         path: "/products",
         component: () =>
           import("@/views/products/product-modifier/pages/index.vue"),
-        children: Products
+        children: Products,
       },
 
       {
         path: "/dashboard",
         name: "dashboard",
         component: () => import("@/views/Dashboard.vue"),
-        meta: { requireAuth: true }
+        meta: { requireAuth: true },
       },
 
       {
         path: "/products",
         component: () => import("@/views/products/index.vue"),
-        children: Products
+        children: Products,
       },
 
       {
@@ -70,48 +74,42 @@ const routes: Array<RouteRecordRaw> = [
         name: "Loyalty",
         component: { render: () => h(RouterView) },
         children: LoyaltyRoutes,
-        meta: { requireAuth: true }
+        meta: { requireAuth: true },
       },
       {
         path: "",
         name: "accounts",
         component: { render: () => h(RouterView) },
         children: AccountsRoutes,
-        meta: { requireAuth: true }
+        meta: { requireAuth: true },
       },
       {
         path: "/wallet",
         name: "wallet",
         component: { render: () => h(RouterView) },
         children: WalletRoutes,
-        meta: { requireAuth: true }
+        meta: { requireAuth: true },
       },
       {
         path: "/order",
         name: "order",
         component: { render: () => h(RouterView) },
         children: OrderRoutes,
-        meta: { requireAuth: true }
+        meta: { requireAuth: true },
       },
 
       {
         path: "/builder",
         name: "builder",
-        component: () => import("@/views/Builder.vue")
+        component: () => import("@/views/Builder.vue"),
       },
       {
         path: "/shops",
         name: "shops",
         component: { render: () => h(RouterView) },
         children: Shops,
-        meta: { requireAuth: true }
+        meta: { requireAuth: true },
       },
-      // {
-      //   path: "/market/shops",
-      //   name: "shops",
-      //   component: () => import("@/views/shops/index.vue"),
-      //   children: Shops,
-      // },
       {
         path: "/crafted/pages/profile",
         name: "profile",
@@ -121,49 +119,49 @@ const routes: Array<RouteRecordRaw> = [
             path: "overview",
             name: "profile-overview",
             component: () =>
-              import("@/views/crafted/pages/profile/Overview.vue")
+              import("@/views/crafted/pages/profile/Overview.vue"),
           },
           {
             path: "projects",
             name: "profile-projects",
             component: () =>
-              import("@/views/crafted/pages/profile/Projects.vue")
+              import("@/views/crafted/pages/profile/Projects.vue"),
           },
           {
             path: "campaigns",
             name: "profile-campaigns",
             component: () =>
-              import("@/views/crafted/pages/profile/Campaigns.vue")
+              import("@/views/crafted/pages/profile/Campaigns.vue"),
           },
           {
             path: "documents",
             name: "profile-documents",
             component: () =>
-              import("@/views/crafted/pages/profile/Documents.vue")
+              import("@/views/crafted/pages/profile/Documents.vue"),
           },
           {
             path: "connections",
             name: "profile-connections",
             component: () =>
-              import("@/views/crafted/pages/profile/Connections.vue")
+              import("@/views/crafted/pages/profile/Connections.vue"),
           },
           {
             path: "activity",
             name: "profile-activity",
             component: () =>
-              import("@/views/crafted/pages/profile/Activity.vue")
-          }
-        ]
+              import("@/views/crafted/pages/profile/Activity.vue"),
+          },
+        ],
       },
       {
         path: "/crafted/pages/wizards/horizontal",
         name: "horizontal-wizard",
-        component: () => import("@/views/crafted/pages/wizards/Horizontal.vue")
+        component: () => import("@/views/crafted/pages/wizards/Horizontal.vue"),
       },
       {
         path: "/crafted/pages/wizards/vertical",
         name: "vertical-wizard",
-        component: () => import("@/views/crafted/pages/wizards/Vertical.vue")
+        component: () => import("@/views/crafted/pages/wizards/Vertical.vue"),
       },
       {
         path: "/crafted/account",
@@ -173,178 +171,178 @@ const routes: Array<RouteRecordRaw> = [
           {
             path: "overview",
             name: "account-overview",
-            component: () => import("@/views/crafted/account/Overview.vue")
+            component: () => import("@/views/crafted/account/Overview.vue"),
           },
           {
             path: "settings",
             name: "account-settings",
-            component: () => import("@/views/crafted/account/Settings.vue")
-          }
-        ]
+            component: () => import("@/views/crafted/account/Settings.vue"),
+          },
+        ],
       },
       {
         path: "/apps/ecommerce/catalog/edit-product",
         name: "apps-ecommerce-catalog-edit-product",
         component: () =>
-          import("@/views/apps/e-commerce/EditProduct/index.vue")
+          import("@/views/apps/e-commerce/EditProduct/index.vue"),
       },
       {
         path: "/apps/ecommerce/catalog/listing-products",
         name: "apps-ecommerce-catalog-listing-products",
         component: () =>
-          import("@/views/apps/e-commerce/ListingProducts/index.vue")
+          import("@/views/apps/e-commerce/ListingProducts/index.vue"),
       },
       {
         path: "/apps/customers/getting-started",
         name: "apps-customers-getting-started",
-        component: () => import("@/views/apps/customers/GettingStarted.vue")
+        component: () => import("@/views/apps/customers/GettingStarted.vue"),
       },
       {
         path: "/apps/customers/customers-listing",
         name: "apps-customers-listing",
-        component: () => import("@/views/apps/customers/CustomersListing.vue")
+        component: () => import("@/views/apps/customers/CustomersListing.vue"),
       },
       {
         path: "/apps/customers/customer-details",
         name: "apps-customers-details",
-        component: () => import("@/views/apps/customers/CustomerDetails.vue")
+        component: () => import("@/views/apps/customers/CustomerDetails.vue"),
       },
       {
         path: "/apps/subscriptions/getting-started",
         name: "apps-subscriptions-getting-started",
         component: () =>
-          import("@/views/apps/subscriptions/GettingStarted.vue")
+          import("@/views/apps/subscriptions/GettingStarted.vue"),
       },
       {
         path: "/apps/subscriptions/subscription-list",
         name: "apps-subscriptions-subscription-list",
         component: () =>
-          import("@/views/apps/subscriptions/SubscriptionList.vue")
+          import("@/views/apps/subscriptions/SubscriptionList.vue"),
       },
       {
         path: "/apps/subscriptions/add-subscription",
         name: "apps-subscriptions-add-subscription",
         component: () =>
-          import("@/views/apps/subscriptions/AddSubscription.vue")
+          import("@/views/apps/subscriptions/AddSubscription.vue"),
       },
       {
         path: "/apps/subscriptions/view-subscription",
         name: "apps-subscriptions-view-subscription",
         component: () =>
-          import("@/views/apps/subscriptions/ViewSubscription.vue")
+          import("@/views/apps/subscriptions/ViewSubscription.vue"),
       },
       {
         path: "/apps/calendar",
         name: "apps-calendar",
-        component: () => import("@/views/apps/Calendar.vue")
+        component: () => import("@/views/apps/Calendar.vue"),
       },
       {
         path: "/apps/chat/private-chat",
         name: "apps-private-chat",
-        component: () => import("@/views/apps/chat/Chat.vue")
+        component: () => import("@/views/apps/chat/Chat.vue"),
       },
       {
         path: "/apps/chat/group-chat",
         name: "apps-group-chat",
-        component: () => import("@/views/apps/chat/Chat.vue")
+        component: () => import("@/views/apps/chat/Chat.vue"),
       },
       {
         path: "/apps/chat/drawer-chat",
         name: "apps-drawer-chat",
-        component: () => import("@/views/apps/chat/DrawerChat.vue")
+        component: () => import("@/views/apps/chat/DrawerChat.vue"),
       },
       {
         path: "/crafted/modals/general/invite-friends",
         name: "modals-general-invite-friends",
         component: () =>
-          import("@/views/crafted/modals/general/InviteFriends.vue")
+          import("@/views/crafted/modals/general/InviteFriends.vue"),
       },
       {
         path: "/crafted/modals/general/view-user",
         name: "modals-general-view-user",
-        component: () => import("@/views/crafted/modals/general/ViewUsers.vue")
+        component: () => import("@/views/crafted/modals/general/ViewUsers.vue"),
       },
       {
         path: "/crafted/modals/general/upgrade-plan",
         name: "modals-general-upgrade-plan",
         component: () =>
-          import("@/views/crafted/modals/general/UpgradePlan.vue")
+          import("@/views/crafted/modals/general/UpgradePlan.vue"),
       },
       {
         path: "/crafted/modals/general/share-and-earn",
         name: "modals-general-share-and-earn",
         component: () =>
-          import("@/views/crafted/modals/general/ShareAndEarn.vue")
+          import("@/views/crafted/modals/general/ShareAndEarn.vue"),
       },
       {
         path: "/crafted/modals/forms/new-target",
         name: "modals-forms-new-target",
-        component: () => import("@/views/crafted/modals/forms/NewTarget.vue")
+        component: () => import("@/views/crafted/modals/forms/NewTarget.vue"),
       },
       {
         path: "/crafted/modals/forms/new-card",
         name: "modals-forms-new-card",
-        component: () => import("@/views/crafted/modals/forms/NewCard.vue")
+        component: () => import("@/views/crafted/modals/forms/NewCard.vue"),
       },
       {
         path: "/crafted/modals/forms/new-address",
         name: "modals-forms-new-address",
-        component: () => import("@/views/crafted/modals/forms/NewAddress.vue")
+        component: () => import("@/views/crafted/modals/forms/NewAddress.vue"),
       },
       {
         path: "/crafted/modals/forms/create-api-key",
         name: "modals-forms-create-api-key",
         component: () =>
-          import("@/views/crafted/modals/forms/CreateApiKey.vue")
+          import("@/views/crafted/modals/forms/CreateApiKey.vue"),
       },
       {
         path: "/crafted/modals/wizards/two-factor-auth",
         name: "modals-wizards-two-factor-auth",
         component: () =>
-          import("@/views/crafted/modals/wizards/TwoFactorAuth.vue")
+          import("@/views/crafted/modals/wizards/TwoFactorAuth.vue"),
       },
       {
         path: "/crafted/modals/wizards/create-app",
         name: "modals-wizards-create-app",
-        component: () => import("@/views/crafted/modals/wizards/CreateApp.vue")
+        component: () => import("@/views/crafted/modals/wizards/CreateApp.vue"),
       },
       {
         path: "/crafted/modals/wizards/create-account",
         name: "modals-wizards-create-account",
         component: () =>
-          import("@/views/crafted/modals/wizards/CreateAccount.vue")
+          import("@/views/crafted/modals/wizards/CreateAccount.vue"),
       },
       {
         path: "/crafted/widgets/lists",
         name: "widgets-list",
-        component: () => import("@/views/crafted/widgets/Lists.vue")
+        component: () => import("@/views/crafted/widgets/Lists.vue"),
       },
       {
         path: "/crafted/widgets/statistics",
         name: "widgets-statistics",
-        component: () => import("@/views/crafted/widgets/Statistics.vue")
+        component: () => import("@/views/crafted/widgets/Statistics.vue"),
       },
       {
         path: "/crafted/widgets/charts",
         name: "widgets-charts",
-        component: () => import("@/views/crafted/widgets/Charts.vue")
+        component: () => import("@/views/crafted/widgets/Charts.vue"),
       },
       {
         path: "/crafted/widgets/mixed",
         name: "widgets-mixed",
-        component: () => import("@/views/crafted/widgets/Mixed.vue")
+        component: () => import("@/views/crafted/widgets/Mixed.vue"),
       },
       {
         path: "/crafted/widgets/tables",
         name: "widgets-tables",
-        component: () => import("@/views/crafted/widgets/Tables.vue")
+        component: () => import("@/views/crafted/widgets/Tables.vue"),
       },
       {
         path: "/crafted/widgets/feeds",
         name: "widgets-feeds",
-        component: () => import("@/views/crafted/widgets/Feeds.vue")
-      }
-    ]
+        component: () => import("@/views/crafted/widgets/Feeds.vue"),
+      },
+    ],
   },
 
   {
@@ -355,85 +353,88 @@ const routes: Array<RouteRecordRaw> = [
         path: "/sign-in",
         name: "sign-in",
         component: () =>
-          import("@/views/crafted/authentication/basic-flow/SignIn.vue")
+          import("@/views/crafted/authentication/basic-flow/SignIn.vue"),
       },
       {
         path: "/sign-up",
         name: "sign-up",
         component: () =>
-          import("@/views/crafted/authentication/basic-flow/SignUp.vue")
+          import("@/views/crafted/authentication/basic-flow/SignUp.vue"),
       },
       {
         path: "/password-reset",
         name: "password-reset",
         component: () =>
-          import("@/views/crafted/authentication/basic-flow/PasswordReset.vue")
-      }
-    ]
+          import("@/views/crafted/authentication/basic-flow/PasswordReset.vue"),
+      },
+    ],
   },
 
   {
     path: "/dummy",
     name: "dummy",
-    component: () => Dummy
+    component: () => Dummy,
+  },
+  {
+    path: "/maz-ui",
+    name: "maz-ui",
+    component: () => import("@/views/dummy/maz-ui.vue"),
   },
   {
     path: "/setup",
     name: "setup",
-    component: () => import("@/views/crafted/authentication/Setup.vue")
+    component: () => import("@/views/crafted/authentication/Setup.vue"),
   },
   {
     // the 404 route, when none of the above matches
     path: "/404",
     name: "404",
-    component: () => import("@/views/crafted/authentication/Error404.vue")
+    component: () => import("@/views/crafted/authentication/Error404.vue"),
   },
   {
     path: "/500",
     name: "500",
-    component: () => import("@/views/crafted/authentication/Error500.vue")
+    component: () => import("@/views/crafted/authentication/Error500.vue"),
   },
   {
     path: "/:pathMatch(.*)*",
-    redirect: "/404"
-  }
+    redirect: "/404",
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 });
 
-const routeGard = (to, store) => {
+const routeGard = ({ to, from, next }, store: any) => {
   const storedToken = localStorage.getItem("token");
-
   const isLoggedIn = store.getters.isUserAuthenticated || storedToken;
 
-  const xIsMarketActiveFalse = store.state.ResponseHeaders && store.state.ResponseHeaders["x-is-market-active"] === "False";
-  let isMarketActive;
-
-  // set is Market Active
-  isMarketActive = xIsMarketActiveFalse ? false : true;
-
   if (
-    (to.name === "sign-in" ||
-      to.name === "sign-up" ||
-      (to.name === "setup" && isMarketActive)) &&
-    isLoggedIn
+    (to.name === "sign-in" && isLoggedIn) ||
+    (to.name === "sign-up" && isLoggedIn)
   ) {
+    console.log(`%c✨`, "color: pink; font-weight: bold; font-size: 1rem");
     return router.push("/dashboard");
-  } else if (to.name === "setup" && isMarketActive && !isLoggedIn || to.name !== "sign-in" && to.name !== "sign-up" && !isLoggedIn) {
+  } else if (
+    (to.name === "setup" && !isLoggedIn) ||
+    (to.name !== "sign-in" && to.name !== "sign-up" && !isLoggedIn)
+  ) {
     console.log(`%c🥲`, "color: pink; font-weight: bold; font-size: 1rem");
     store.commit(Mutations.PURGE_AUTH);
     return router.push("/sign-in");
   } else {
-    console.log(`%cGood Luck👋🏻`, "color: pink; font-weight: bold; font-size: 1rem");
-    return;
+    console.log(
+      `%cGood Luck👋🏻`,
+      "color: pink; font-weight: bold; font-size: 1rem"
+    );
+    return next();
   }
 };
 
-router.beforeEach((to) => {
-  return routeGard(to, store);
+router.beforeEach((to, from, next) => {
+  return routeGard({ to, from, next }, store);
 });
 
 export default router;

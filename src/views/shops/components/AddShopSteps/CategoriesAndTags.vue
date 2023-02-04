@@ -7,7 +7,7 @@
       <h2 class="fw-bolder text-dark">
         {{ $t("catAndTags") }}
       </h2>
-      <!--end::Title-->
+   
 
     </div>
     <!--end::Heading-->
@@ -95,9 +95,9 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect";
 import { ErrorMessage, Field } from "vee-validate";
-import type { Currency, Language } from "@/types";
+
 import store from "@/store";
-import { onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 
 interface Categories {
   id: string;
@@ -110,17 +110,18 @@ interface Tags {
 }
 
 const lookupQueries = store.state.LookupQueries;
+const categories = computed(() => {
+  return store.getters.getShopCategories.data 
+});
 
-const categories = ref<Categories[] | null>();
 const tags = ref<Tags[] | null>();
 
 const onCategoryChange = (catId: string) => {
-  let tag = categories.value?.find((x) => x.id === catId);
+  console.log(categories)
+  let tag = categories?.value?.find((x) => x.id === catId);
   tags.value = tag?.tags;
 };
-onMounted(() => {
-  categories.value = lookupQueries?.shopCategories?.data;
-});
+
 </script>
 
 <style lang="scss">

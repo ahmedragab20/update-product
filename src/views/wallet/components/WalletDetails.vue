@@ -126,12 +126,35 @@
 
 <script lang="ts" setup>
 import { useStore } from "vuex";
-import { defineProps, computed } from "vue";
-import { Actions } from "@/store/enums/StoreEnums";
+import { defineProps, ref } from "vue";
+import { Actions, Mutations } from "@/store/enums/StoreEnums";
 const store = useStore();
-const props = defineProps({
-  id: String,
-});
 
-const form = computed(() => store.state.WalletModule.WalletDetails);
+
+
+  interface props {
+    id: String,
+  shopId: String,
+}
+interface shopDetailsType {
+  name: String;
+  availableBalance: String;
+  freezedBalance: String;
+  currency: String;
+}
+const form = ref<shopDetailsType>({
+  name: '',
+  availableBalance: '',
+  freezedBalance: '',
+  currency: '',
+});
+const props = defineProps<props>();
+function getWallet(id: string) {
+  store.dispatch(Actions.GET_WALLET_BY_ID, id).then((data: shopDetailsType) => {
+
+    form.value = data;
+    store.commit(Mutations.SET_WALLET_DETAILS, data);
+  });
+}
+getWallet(props.shopId);
 </script>

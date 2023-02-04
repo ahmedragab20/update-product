@@ -37,8 +37,8 @@
       <div class="fv-row mb-10">
         <!--begin::Label-->
         <label class="form-label fs-6 fw-bolder text-dark">{{
-            $t("email")
-          }}</label>
+          $t("email")
+        }}</label>
         <!--end::Label-->
 
         <!--begin::Input-->
@@ -64,8 +64,8 @@
         <div class="d-flex flex-stack mb-2">
           <!--begin::Label-->
           <label class="form-label fw-bolder text-dark fs-6 mb-0">{{
-              $t("password")
-            }}</label>
+            $t("password")
+          }}</label>
           <!--end::Label-->
 
           <!--begin::Link-->
@@ -96,7 +96,11 @@
       <!--begin::Actions-->
       <div class="text-center">
         <div class="mb-3">
-          <span class="badge badge-lg badge-light-danger" v-if="!!errorMessage" v-text="errorMessage" />
+          <span
+            class="badge badge-lg badge-light-danger"
+            v-if="!!errorMessage"
+            v-text="errorMessage"
+          />
         </div>
         <!--begin::Submit button-->
         <button
@@ -129,29 +133,26 @@ import { ErrorMessage, Field, Form } from "vee-validate";
 import { uuid } from "vue-uuid";
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { useStore } from "vuex";
-import { useRouter } from "vue-router";
-import { useCookies } from "@vueuse/integrations/useCookies";
-import Swal from "sweetalert2/dist/sweetalert2.min.js";
 import * as Yup from "yup";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "sign-in",
   components: {
     Field,
     Form,
-    ErrorMessage
+    ErrorMessage,
   },
   setup() {
     const store = useStore();
     const router = useRouter();
-    const cookies = useCookies();
     const errorMessage = ref<string>("");
 
     const submitButton = ref<HTMLButtonElement | null>(null);
     //Create form validation object
     const login = Yup.object().shape({
       email: Yup.string().email().required().label("Email"),
-      password: Yup.string().min(4).required().label("Password")
+      password: Yup.string().min(4).required().label("Password"),
     });
 
     //Form submit function
@@ -165,35 +166,42 @@ export default defineComponent({
       const deviceId = localStorage.getItem("deviceId") ?? uuid.v4();
       const payload = {
         ...values,
-        deviceId
+        deviceId,
       };
 
       try {
-        await store.dispatch(Actions.LOGIN, payload).then((res) => {
-          errorMessage.value = "";
-
-          store.dispatch(Actions.SETTINGS);
-          store.dispatch(Actions.USER);
-          store.dispatch(Actions.MARKET);
-          location.reload();
-        }).catch(e => {
-          errorMessage.value = `Your email or password isn't correct! 🤷🏻‍♂️`;
-        });
+        await store
+          .dispatch(Actions.LOGIN, payload)
+          .then((res) => {
+            if (res) {
+              errorMessage.value = "";
+              store.dispatch(Actions.SETTINGS);
+              store.dispatch(Actions.USER);
+              store.dispatch(Actions.MARKET);
+              router.push("/dashboard");
+            } else {
+              errorMessage.value = `Your email or password isn't correct! 🤷🏻‍♂️`;
+            }
+          })
+          .catch((e) => {
+            errorMessage.value = `Your email or password isn't correct! 🤷🏻‍♂️`;
+          });
       } catch (error) {
         console.log(error);
+      } finally {
+        //Deactivate indicator
+        submitButton.value?.removeAttribute("data-kt-indicator");
+        // eslint-disable-next-line
+        submitButton.value!.disabled = false;
       }
-      //Deactivate indicator
-      submitButton.value?.removeAttribute("data-kt-indicator");
-      // eslint-disable-next-line
-      submitButton.value!.disabled = false;
     };
 
     return {
       onSubmitLogin,
       login,
       submitButton,
-      errorMessage
+      errorMessage,
     };
-  }
+  },
 });
 </script>

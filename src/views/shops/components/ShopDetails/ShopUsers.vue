@@ -8,6 +8,7 @@
               <div class="card-header d-flex align-items-center">
                 <div class="card-title">
                   <h2>{{ $t("shopUsers") }}</h2>
+        
                 </div>
                 <el-select
                   v-model="localPagination.pageSize"
@@ -55,7 +56,7 @@
                         <span
                           class="mx-2 text-danger"
                           v-if="
-                            usersResult.some((p) => p == item.id)
+                            form.users.some((p) => p == item.id)
                           "
                           >{{ $t("alreadySelected") }}</span
                         >
@@ -194,10 +195,13 @@ interface shopUsers {
   id: string;
   users: Array<users>;
 }
+
+interface props { 
+  id:string,
+
+}
 // get id as a prop
-let props = defineProps({
-  id: String,
-});
+const props = defineProps<props>();
 
 // define refs
 let userId= ref();
@@ -220,7 +224,7 @@ const saveChanges = async (values: any) => {
     
   let data={
     id:shopUsers.value.id,
-    userIds:usersResult.value
+    userIds: form.value.users.map(el=>el.toString())
   }
 console.log("data",data)
   store.dispatch(Actions.UPDATE_SHOP_USERS, data).then(() => {

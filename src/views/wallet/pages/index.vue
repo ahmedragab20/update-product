@@ -3,28 +3,19 @@
   <div class="card mb-7">
     <!--begin::Card body-->
     <div class="card-body">
-      <!--begin::Compact form-->
-      <div class="d-flex align-items-center">
-        <!--begin::Input group-->
-        <div class="position-relative w-md-400px me-md-2">
+      <!--begin::Search-->
+        <div class="d-flex align-items-center position-relative my-1">
+          <span class="svg-icon svg-icon-1 position-absolute ms-6">
+            <inline-svg src="/media/icons/duotune/general/gen021.svg" />
+          </span>
           <input
             type="text"
-            class="form-control form-control-solid ps-10"
-            name="search"
-            :placeholder="$t('search')"
             v-model="search"
+            class="form-control form-control-solid w-250px ps-15"
+            :placeholder="$t('search')"
           />
         </div>
-        <!--end::Input group-->
-        <!--begin:Action-->
-        <div class="d-flex align-items-center">
-          <button type="button" class="btn btn-primary me-5" @click="fetchData">
-            {{ $t("search") }}
-          </button>
-        </div>
-        <!--end:Action-->
-      </div>
-      <!--end::Compact form-->
+       
     </div>
     <!--end::Card body-->
   </div>
@@ -32,10 +23,9 @@
 
   <!-- Page Title-->
 
-
   <!--begin::Card body-->
   <div class="row g-4">
-    <div class="col-12 col-md-6" v-for="wallet in WalletList" :key="wallet.id">
+    <div class="col-12 col-md-6" v-for="wallet in filteredArray" :key="wallet.id">
       <div class="card">
         <!--begin::Card header-->
         <div class="card-header card-header-stretch pb-0">
@@ -127,10 +117,13 @@
                   <!--end::Info-->
                   <!--begin::Actions-->
                   <div class="d-flex align-items-center py-2">
-                    <a role="button" @click="ShareDate(wallet)">
+                    <a role="button" >
                       <router-link
                         class="menu-link px-3 d-flex justify-content-between align-items-center btn btn-sm btn-light btn-light-primary"
-                        :to="`/wallet/wallet-details/${wallet.id}`"
+                        :to="{
+                          name: 'wallet-details',
+                          params: { id: wallet.id, shopId: wallet.shopId },
+                        }"
                       >
                         {{ $t("details") }}
                       </router-link>
@@ -156,40 +149,42 @@
 
 <script lang="ts" setup>
 import { useStore } from "vuex";
-import { ref, computed,onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { Wallet } from "@/types";
 import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
 import i18n from "@/core/plugins/i18n";
 const store = useStore();
-const filterDto = computed(() => store.state.AllAccounts.filterDto);
+
 // REF
 
-const search = ref("");
+const search = ref<string>("");
 onMounted(() => {
-  setCurrentPageBreadcrumbs(i18n.global.t("wallet"), [
-    i18n.global.t("Apps"),
-
-  ]);
+  setCurrentPageBreadcrumbs(i18n.global.t("wallet"), [i18n.global.t("Apps")]);
 });
 // Computed
 const WalletList = computed(
   () => store.state.WalletModule.WalletList as Array<Wallet>
 );
 
-const ShareDate = (item) => {
-  store.commit(Mutations.SET_WALLET_DETAILS, item);
-};
 
 const fetchData = () => {
   store.dispatch(Actions.GET_WALLET_LIST, {
     query: search.value,
   });
 };
-store.dispatch(Actions.GET_ACCOUNTS, {
-  ...filterDto.value,
-});
 
 fetchData();
+
+// const searchItem = () => {
+//   store.commit(Mutations.SEARCH_WALLET, search.value);
+// };
+const filteredArray = computed(
+  () => {
+    return WalletList.value.filter((item) => {
+        return item.name.toLowerCase().includes(search.value.toLowerCase());
+      });
+  }
+);
 </script>

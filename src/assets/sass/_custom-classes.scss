@@ -1,0 +1,281 @@
+@import "./_custom-colors-classes";
+
+.card .card-header {
+  min-height: 40px !important;
+  padding-top: 10px;
+}
+
+.image-viewer {
+  max-width: 600px;
+  max-height: 600px;
+}
+
+@media (max-width: 768px) {
+  .image-viewer {
+    max-width: 480px;
+    max-height: 480px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-viewer {
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+}
+
+.scroller {
+  scrollbar-color: rgb(161, 161, 161) transparent;
+  scrollbar-width: thin;
+}
+
+.scroller::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background: rgb(161, 161, 161);
+  border-radius: 8px;
+}
+
+.gradient-border {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    content: "";
+    top: calc(-1 * 2px);
+    left: calc(-1 * 2px);
+    z-index: -1;
+    width: calc(100% + 2px * 2);
+    height: calc(100% + 2px * 2);
+    background: linear-gradient(
+                    60deg,
+                    hsl(224, 85%, 66%),
+                    hsl(269, 85%, 66%),
+                    hsl(314, 85%, 66%),
+                    hsl(359, 85%, 66%),
+                    hsl(44, 85%, 66%),
+                    hsl(89, 85%, 66%),
+                    hsl(134, 85%, 66%),
+                    hsl(179, 85%, 66%)
+    );
+    background-size: 300% 300%;
+    background-position: 0 50%;
+    border-radius: 12px;
+    animation: moveGradient 4s alternate infinite;
+  }
+}
+
+.white-shadow {
+  box-shadow: 0 0 10px 10px #fff;
+  animation: fade-in-out 0.4s alternate infinite;
+}
+
+.blur {
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+@keyframes moveGradient {
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fade-in-out {
+  0% {
+    box-shadow: 0 0 0px 0px #fff;
+  }
+  100% {
+    box-shadow: 0 0 10px 10px #fff;
+  }
+}
+
+.rounded-end-down {
+  border-radius: 0rem $rounded-sm $rounded-sm $rounded-sm;
+}
+
+.rounded-start-down {
+  border-radius: $rounded-sm 0rem $rounded-sm $rounded-sm;
+}
+
+.rounded-start-top {
+  border-radius: $rounded-sm $rounded-sm 0rem $rounded-sm;
+}
+
+.rounded-t {
+  border-radius: $rounded-sm $rounded-sm 0 0;
+}
+
+.rounded-b {
+  border-radius: 0 0 $rounded-sm $rounded-sm;
+}
+
+// Bootstrap Loading Skeleton
+%loading-skeleton {
+  color: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  //background-color: #eee;
+  //border-color: #eee;
+
+  &::placeholder {
+    color: transparent;
+  }
+}
+
+@keyframes loading-skeleton {
+  from {
+    opacity: .4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loading-skeleton {
+  pointer-events: none;
+  animation: loading-skeleton 1s infinite alternate;
+
+  img {
+    filter: grayscale(100) contrast(0%) brightness(1.8);
+  }
+
+  h1, h2, h3, h4, h5, h6,
+  p, li,
+  .btn,
+  label,
+  .form-control,
+  .placeholder-div {
+    @extend %loading-skeleton;
+  }
+}
+
+.text-base {
+  font-size: 1rem;
+}
+
+.border-b-muted {
+  border-bottom: 1px solid #E2E2E5;
+}
+
+.border-r-muted {
+  border-right: 1px solid #E2E2E5;
+}
+
+.border-l-muted {
+  border-left: 1px solid #E2E2E5;
+}
+
+.pt-10vh {
+  padding-top: 10vh;
+}
+
+.font-14px {
+  font-size: 14px;
+}
+
+.font-24px {
+  font-size: 24px;
+}
+
+.font-32px {
+  font-size: 32px;
+}
+
+.hw-6px {
+  height: 6px;
+  width: 6px;
+}
+
+.hw-16px {
+  height: 16px;
+  width: 16px;
+}
+
+.hw-24px {
+  height: 24px;
+  width: 24px;
+}
+
+.h-10vh {
+  height: 10vh;
+}
+
+.h-8vh {
+  height: 8vh;
+}
+
+.h-63px {
+  height: 63px;
+}
+
+.h-114px {
+  height: 114px;
+}
+
+.transition-03s {
+  transition: all 0.3s ease;
+}
+
+.ql-toolbar {
+  background: #fff;
+}
+
+.img-contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.img-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bg-dark-lite {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.border-natural-5 {
+  border-color: #C8C8CD !important;
+}
+
+.img-loader {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 245, 248, 0.47);
+}
+
+.faded-dark-bg {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.faded-white-bg {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.show-on-hover {
+  opacity: 0;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.rounded-sm {
+  border-radius: $rounded-sm;
+}
+
+.dialog-width {
+  @media (min-width: 850px) {
+    width: 760px !important;
+  }
+  @media (max-width: 849px) {
+    width: 95% !important;
+  }
+}

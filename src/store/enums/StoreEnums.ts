@@ -182,7 +182,7 @@ enum Actions {
    // Clinet Group
    ADD_CLIENT_GROUP="/ClientCommands/create-client-group",
    GET_CLIENT_GROUP="/ClientQueries/search-client-group",
-   GET_CLIENT_GROUP_BY_ID="GET_CLIENT_GROUP_BY_ID",
+   GET_CLIENT_GROUP_BY_ID="",
    UPDATE_CLIENT_GROUP="/ClientCommands/update-client-group",
    DELETE_CLIENT_GROUP="/ClientCommands/remove-client-group",
    //Client

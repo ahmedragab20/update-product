@@ -1,28 +1,55 @@
 <template>
-  <div @click.self="modalHandler" class="modal-background">
-    <div class="modal-content-holder">
-      <slot />
+  <transition appear name="dialog">
+    <div
+      v-if="modalValue"
+      class="modal-background position-fixed top-0 w-100 h-100 vh-100 vw-100 overflow-hidden p-5 start-0 bg-dark-lite blur d-flex justify-content-center align-items-center"
+      style="z-index: 1000"
+      @click.self="close"
+    >
+      <div :class="[boxClasses, boxWidthClass]">
+        <slot />
+      </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, onDeactivated, computed } from "@vue/runtime-core";
-  import { useStore } from "vuex";
+interface Props {
+  boxClasses?: string;
+  boxWidthClass?: string;
+  modalValue: any;
+  close?: () => void;
+}
 
-  const store = useStore();
-
-  const modalHandler = computed(() => store.commit("MODAL_HANDLER"));
+const props = withDefaults(defineProps<Props>(), {
+  boxClasses: "bg-light p-3 rounded-3 shadow",
+  boxWidthClass: "modal-width",
+  modalValue: false,
+  close: () => {},
+});
 </script>
 
 <style lang="scss" scoped>
-  .modal-background {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.modal-width {
+  width: 95%;
+
+  @media (min-width: 481px) {
+    width: 420px;
   }
+  @media (min-width: 769px) {
+    width: 550px;
+  }
+}
+</style>
+<style scoped>
+.dialog-enter-from,
+.dialog-leave-to {
+  opacity: 0;
+  transform: scale(0.96) translateY(100px);
+}
+
+.dialog-enter-active,
+.dialog-leave-active {
+  transition: all 0.3s ease;
+}
 </style>

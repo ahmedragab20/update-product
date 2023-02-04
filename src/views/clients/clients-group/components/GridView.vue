@@ -84,7 +84,7 @@
 
               <!--begin::Menu item-->
               <div class="menu-item px-3">
-                <!-- <a
+                <a
                   type="button"
                   data-bs-toggle="modal"
                   data-bs-target="#kt_modal_update_client"
@@ -95,7 +95,7 @@
                   <span class="svg-icon svg-icon-3">
                     <inline-svg src="/media/icons/duotune/art/art005.svg" />
                   </span>
-                </a> -->
+                </a>
               </div>
               <div class="menu-item px-3">
                 <a
@@ -156,24 +156,24 @@
 
 <script setup lang="ts">
 import { useStore } from "vuex";
-import { ClientGroup } from "@/api/data/ClientGroup";
+import { ClientGroupType } from "@/types";
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { ref, defineProps, computed, defineEmits } from "vue";
 import { Pagination } from "@/interfaces/pagination";
 import Swal from "sweetalert2";
-const store = useStore();
+interface Props {
+  items: Array<ClientGroupType>;
+}
 
+const store = useStore();
+const props = defineProps<Props>();
 const pagination = computed(
   () => store.state.ClientGroup.pagination as Pagination
 );
-let props = defineProps({
-  items: Array as ClientGroup[],
-});
+
 // const items = computed(() => store.state.ClientGroup.ClientGroups);
 function updatePagination(event) {
-  console.log("event", event);
   store.commit(Mutations.UPDATE_PAGINATION_CLIENT_GROUP, event);
-  // emit("update-pagination", event);
 }
 
 let emit = defineEmits([
@@ -181,7 +181,7 @@ let emit = defineEmits([
   "update-pagination",
   "delete-client-group",
 ]);
-function deleteGroup(id) {
+function deleteGroup(id: string) {
   Swal.fire({
     title: "Are you sure?",
     text: "Are you sure you want to delete Client Group !",
@@ -202,12 +202,9 @@ function deleteGroup(id) {
     console.log(props.items);
   });
 }
-const updateClientGroup = (id) => {
+const updateClientGroup = (id: string) => {
   emit("updateClientGroup", id);
 };
-function eventFire(n) {
-  emit("update-pagination", n);
-}
 </script>
 
 <style>

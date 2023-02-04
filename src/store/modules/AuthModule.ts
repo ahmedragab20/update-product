@@ -19,6 +19,11 @@ interface userInfo {
   deviceId: string;
 }
 
+interface RerenderApp {
+  value: boolean;
+  source?: string;
+}
+
 @Module
 export default class AuthModule extends VuexModule {
   errors: any;
@@ -45,8 +50,9 @@ export default class AuthModule extends VuexModule {
    */
   get isUserAuthenticated(): boolean {
     const falsieValues = [undefined, "undefined", null];
-    const tokenUndefined = !!this.token && falsieValues.includes(this.token) || !this.token;
-    const userUnDefined = !this.user || this.user && !this.user.id;
+    const tokenUndefined =
+      (!!this.token && falsieValues.includes(this.token)) || !this.token;
+    const userUnDefined = !this.user || (this.user && !this.user.id);
 
     return !tokenUndefined && !userUnDefined;
   }
@@ -89,39 +95,46 @@ export default class AuthModule extends VuexModule {
   ["SET_TOKEN"](token: string) {
     ApiService.vueInstance.axios.defaults.headers.common[
       "Authorization"
-      ] = `Bearer ${token}`;
+    ] = `Bearer ${token}`;
     this.token = token;
   }
 
   @Mutation
-  ["RERENDER_APP"](value: boolean) {
+  ["RERENDER_APP"](payload: RerenderApp) {
     let updateCount = 0;
-    if (value && !updateCount) {
+    if (payload.value && !updateCount) {
       updateCount++;
       this.componentKey++;
-      this.updatedDataAlert = true;
+
+      if (!payload.source || (payload.source && payload.source === "auth")) {
+        this.updatedDataAlert = true;
+
+        return;
+      }
     }
 
     setTimeout(() => {
       this.updatedDataAlert = false;
-    }, 50000);
+    }, 10000);
   }
 
   @Action
   async [Actions.USER]() {
     const payload = {
       method: "get",
-      url: Actions.USER
+      url: Actions.USER,
     };
     // customsHeaders: { Authorization: `Bearer ${cookies.get("token")}` },
-    return await Api(payload).then((res) => {
-      this.context.commit(Mutations.SET_USER, res?.data.data);
+    return await Api(payload)
+      .then((res) => {
+        this.context.commit(Mutations.SET_USER, res?.data.data);
 
-      return res;
-    }).catch(e => {
-      console.error(e);
-      return false;
-    });
+        return res;
+      })
+      .catch((e) => {
+        console.error(e);
+        return false;
+      });
   }
 
   @Action({ rawError: true })
@@ -129,17 +142,13 @@ export default class AuthModule extends VuexModule {
     const data = {
       method: "post",
       url: Actions.REGISTER,
-      payload: userInfo
+      payload: userInfo,
     };
 
     return await new Promise((resolve, reject) => {
       Api(data)
         .then((res) => {
           const info = res?.data.data;
-          const cookiesOptions = {
-            expires: new Date(Date.now() + info.tokenExpiresIn),
-            maxAge: info.tokenExpiresIn
-          };
           this.context.commit("SET_TOKEN", info.token);
           localStorage.setItem("token", info.token);
           localStorage.setItem("refreshToken", info.refreshToken);
@@ -148,7 +157,7 @@ export default class AuthModule extends VuexModule {
           const loginInfo = {
             deviceId: userInfo.deviceId,
             refreshToken: info.refreshToken,
-            token: info.token
+            token: info.token,
           };
           ApiService.setHeader();
           this.context.commit(Mutations.SET_AUTH, loginInfo);
@@ -162,36 +171,32 @@ export default class AuthModule extends VuexModule {
 
   @Action
   async [Actions.LOGIN](credentials: any) {
-    const payload = {
-      method: "post",
-      url: Actions.LOGIN,
-      payload: credentials
-    };
-    return await new Promise((resolve, reject) => {
-      Api(payload)
-        .then((res) => {
-          const info = res.data.data;
-          const loginInfo = {
-            deviceId: credentials.deviceId,
-            refreshToken: info.refreshToken,
-            token: info.token
-          };
-          const cookiesOptions = {
-            expires: new Date(Date.now() + info.tokenExpiresIn),
-            maxAge: info.tokenExpiresIn
-          };
-          this.context.commit("SET_TOKEN", info.token);
-          localStorage.setItem("token", info.token);
-          localStorage.setItem("refreshToken", info.refreshToken);
-          localStorage.setItem("deviceId", credentials.deviceId);
-          ApiService.setHeader();
-          this.context.commit(Mutations.SET_AUTH, loginInfo);
-          resolve(info);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
+    try {
+      const reqData = {
+        method: "post",
+        url: Actions.LOGIN,
+        payload: credentials,
+      };
+
+      const response = await Api(reqData);
+      const info = response.data.data;
+      const loginInfo = {
+        deviceId: credentials.deviceId,
+        refreshToken: info.refreshToken,
+        token: info.token,
+      };
+      this.context.commit("SET_TOKEN", info.token);
+      localStorage.setItem("token", info.token);
+      localStorage.setItem("refreshToken", info.refreshToken);
+      localStorage.setItem("deviceId", credentials.deviceId);
+      ApiService.setHeader();
+      this.context.commit(Mutations.SET_AUTH, loginInfo);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   }
 
   @Action

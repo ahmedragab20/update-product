@@ -19,6 +19,7 @@
           <div class="card-body text-center pt-0">
             <!--begin::Image input-->
 
+
             <!--begin::Row-->
            
                 <Field
@@ -29,7 +30,7 @@
                   placeholder=""
                   value=""
                 >
-              
+  
                   <div
                     v-bind="field"
                     class="image-input image-input-outline"
@@ -130,6 +131,7 @@
                             parseInt(selectedItem?.id)
                           "
                         >
+                      
                           <label class="form-label required mb-3">{{ $t("name") }}</label>
                           <Field
                             v-model="ShopDetails.resources[i].name"
@@ -1450,22 +1452,23 @@
                 v-if="ShopDetails.shopSocialMedia.length == 0"
                 >{{ $t("noSocialMediaAvialable") }}
               </label>
-
-              <!--begin::Col-->
-
-              <!--end::Col-->
               <div class="col-12">
                 <a
-              
+               
+               
                       data-bs-toggle="modal"
                       data-bs-target="#kt_modal_new_shop_social"
                   
                   type="button"
                   class="btn btn-lg btn-new"
                 >
-                {{ $t("addAnotherSocialMedia") }}
+                  {{ $t("addAnotherShopSocialMedia") }}
                 </a>
               </div>
+              <!--begin::Col-->
+
+              <!--end::Col-->
+             
             </div>
           </div>
           <div
@@ -1555,6 +1558,7 @@
                               type="number"
                               v-model="newShopWorkingDays.day"
                             >
+                            
                               <input
                                 type="number"
                                 class="form-control form-control-solid form-control-lg"
@@ -1693,7 +1697,7 @@
               <!--begin::Col-->
               <div
                 class="modal fade"
-                :id="`kt_modal_edit_shop_working_${item.id}`"
+                :id="`kt_modal_edit_shop_working_${item.day}`"
                 tabindex="-1"
                 aria-hidden="true"
               >
@@ -1759,22 +1763,8 @@
                         <div class="row">
                           <div class="col-6 mb-3">
                             <!--begin::Input-->
-                            <Field
-                              name="day"
-                              type="number"
-                              v-model="item.day"
-                            >
-                              <input
-                                type="number"
-                                class="form-control w-100 form-control-solid form-control-lg"
-                                placeholder="Enter Day "
-                                v-model="item.day"
-                              />
-                            </Field>
-                            <ErrorMessage
-                              name="day"
-                              class="fv-plugins-message-container invalid-feedback"
-                            />
+                          
+                            <label  class="required fs-5 fw-bold mb-2">Day   {{ item.day }} </label>
                             <!--end::Input-->
                           </div>
                           <!--begin::Col-->
@@ -1941,21 +1931,12 @@
                   <!--end::Info-->
                   <!--begin::Actions-->
                   <div class="d-flex align-items-center py-2">
-                    <button
-                    class="btn btn-sm btn-light-danger me-2"
-                      @click="removeItemshopWorkingDays(index)"
-                    >
-                    <span class="svg-icon svg-icon-danger">
-                      <inline-svg
-                        src="/media/icons/duotune/general/gen027.svg"
-                      />
-                    </span>
-                    </button>
+                    
                     <a
                     role="button"
                       class="btn btn-sm btn-light btn-active-light-primary"
                       data-bs-toggle="modal"
-                      :data-bs-target="`#kt_modal_edit_shop_working_${item.id}`"
+                      :data-bs-target="`#kt_modal_edit_shop_working_${item.day}`"
                     >
                     <span class="svg-icon svg-icon-3">
                     <inline-svg src="/media/icons/duotune/art/art005.svg" />
@@ -1981,18 +1962,7 @@
             <!--begin::Col-->
 
               <!--end::Col-->
-              <div class="col-12">
-                <a
               
-                      data-bs-toggle="modal"
-                      data-bs-target="#kt_modal_new_shop_working_days"
-                  
-                  type="button"
-                  class="btn btn-lg btn-new"
-                >
-                {{ $t("addAnotherShopWorkingDay") }}
-                </a>
-              </div>
             </div>
             <div class="card-body pt-0">
               <label
@@ -2050,6 +2020,7 @@ import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 import Editor from "@/components/Reusable/Editor.vue";
 import LocationSelector from "@/components/Reusable/LocationSelector.vue";
 import * as Yup from "yup";
+import { upload } from "@/composables/uploader";
 import {
   City,
   Country,
@@ -2068,6 +2039,27 @@ interface Langs {
   id:string,
   name:string
 }
+interface props { 
+  id:string,
+
+}
+interface selectedItem { 
+  id:string,
+  dir?:string
+
+}
+interface Lang {
+  id?: number;
+  code?: string;
+  dir?: string;
+  label?: string;
+  icon?: string;
+}
+interface resource{
+  languageId: string, 
+  name:string,
+   detailedAddress:string
+}
 interface ShopDetails {
   id: string;
   latitude: number;
@@ -2076,8 +2068,9 @@ interface ShopDetails {
   countryId: string;
   cityId: string;
   areaId: string;
+  logoKey: string;
   languages: Array<Langs>;
-  resources: [];
+  resources: Array<resource>;
   shopContacts: Array<shopContacts>;
   shopSocialMedia: Array<ShopsSocialMedia>;
   shopWorkingDays: Array<ShopWorkingDays>;
@@ -2086,13 +2079,14 @@ interface ShopDetails {
 }
 
 // init refs
-const countries = ref<Country[] | null>();
+
+  const countries = computed(() => store.getters.getCountries);
 const cities = ref<City[] | null>();
 const areas = ref<Area[] | null>();
 const lookupQueries = store.state.LookupQueries;
 const languages = ref<Language[] | null>();
 
-let selectedItem = ref({});
+let selectedItem = ref<selectedItem>({});
 const ImageUrl=ref('')
 let contactsType = ref<shopContacts[]>();
 let SocialMediaType = ref<ShopsSocialMedia[]>();
@@ -2110,11 +2104,11 @@ let newShopWorkingDays = {} as ShopWorkingDays;
 const shopContactSchema = Yup.object().shape({
   contactTypeId: Yup.string().required("required"),
   label: Yup.string().required("required"),
-  notes: Yup.string(),
+  notes: Yup.string().required("required"),
   value: Yup.string().when("contactTypeId", (contactTypeId) => {
     if (contactTypeId == "2") {
       return Yup.string().email().required("fieldRequired");
-    } else if (contactTypeId == "1") {
+    } else if (contactTypeId == "1" || contactTypeId == "3") {
       return Yup.number().required("fieldRequired");
     } else {
       return Yup.string().required("fieldRequired");
@@ -2158,6 +2152,7 @@ const ShopDetails = ref<ShopDetails>({
   countryId: "",
   cityId: "",
   areaId: "",
+  logoKey:'',
   languages: [],
   shopContacts: [],
   shopSocialMedia: [],
@@ -2168,10 +2163,9 @@ const ShopDetails = ref<ShopDetails>({
 });
 
 // get id as a prop
-let props = defineProps({
-  id: String,
-});
 
+
+const props = defineProps<props>();
 // get supported langs
 const currentLangs = computed(() => store.getters.getSupportedLanguages);
 // set location center
@@ -2209,35 +2203,23 @@ const image = (path) => {
   return `https://mfproductimages.s3.amazonaws.com/` + ImageUrl.value;
 };
 // handleFileUpload image logo 
-const handleFileUpload = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const files = target?.files;
-  if (files && files?.length > 0) {
-    const file: File = files[0];
-    const reader = new FileReader();
+const handleFileUpload = async (event: any) => {
 
-    reader.onload = function (e) {
-      const target: any = e.target;
-      const data = target.result;
-      ShopDetails.value.logoPath = data;
-    };
-
-    reader.readAsDataURL(file);
-    let formData = new FormData();
-    formData.append("file", file);
-
-    store.dispatch(Actions.ADD_SETUP_LOGO, formData).then((res) => {
-      console.log(res);
-       ImageUrl.value = res[1].data.data;
-      ShopDetails.value.logoPath =  image(ImageUrl);;
-      // imageUrl.value = image(url);
-    });
-  }
+const target = event.target as HTMLInputElement;
+ 
+  ShopDetails.value.logoPath = URL.createObjectURL(event.target.files[0]);
+  upload(event).then(res => {
+    ShopDetails.value.logoKey  = res.data.data
+    
+  })
 };
 // save changes function 
 const saveChanges = async (values: any) => {
+
   isLoading.value = true;
-  logoKey.value=ImageUrl.value
+  // ImageUrl.value !='' ? logoKey.value=ImageUrl.value :logoKey.value=logoPath.value
+  
+  console.log( ShopDetails.value);
  
   ShopDetails.value.latitude = center.value.lat;
   ShopDetails.value.longitude = center.value.lng;
@@ -2245,13 +2227,12 @@ const saveChanges = async (values: any) => {
   ShopDetails.value.countryId= ShopDetails.value.countryId.toString() 
   ShopDetails.value.cityId=ShopDetails.value.cityId.toString() 
   store
-    .dispatch(Actions.UPDATE_SHOP_BASE_SETTINGS,{...ShopDetails.value,
-    logoKey:logoKey.value} )
+    .dispatch(Actions.UPDATE_SHOP_BASE_SETTINGS,ShopDetails.value )
     .then(() => {
       isLoading.value = false;
     });
 };
-// set selected item when tap duoblicator changes
+// set selected item when tap dublicator changes
 const setSelectedItem = (payload: any) => {
   selectedItem.value = payload;
 };
@@ -2267,34 +2248,33 @@ const onAreaChange = (areaId: string) => {
     };
   }
 };
-// addnewShopContacts
+
 const addnewShopContacts = () => {
   hideModal(addContactModalRef.value);
   ShopDetails.value.shopContacts.push(newShop);
+  newShop={} as shopContacts
 };
-// removeItemShopContacts
+
 const removeItemShopContacts = (index) => {
   ShopDetails.value.shopContacts.splice(index, 1);
 };
-// addnewSocialMediaType
+
 const addnewSocialMediaType = () => {
   hideModal(addSocialMediaModalRef.value);
   ShopDetails.value.shopSocialMedia.push(newShopSocial);
+  newShopSocial={} as ShopsSocialMedia
 };
-//removeItemSocialMediaType
+
 const removeItemSocialMediaType = (index) => {
   ShopDetails.value.shopSocialMedia.splice(index, 1);
 };
-// addnewshopWorkingDays
+
 const addnewshopWorkingDays = () => {
   hideModal(addshopWorkingModalRef.value);
   ShopDetails.value.shopWorkingDays.push(newShopWorkingDays);
   newShopWorkingDays = {} as ShopWorkingDays;
 };
-// removeItemshopWorkingDays
-const removeItemshopWorkingDays = (index) => {
-  ShopDetails.value.shopWorkingDays.splice(index, 1);
-};
+
 // get shop base settings from api and set it
 const getData = async () => {
   await store.dispatch(Actions.GET_SOCIAL_MEDIA_TYPE);
@@ -2302,20 +2282,30 @@ const getData = async () => {
   await store.dispatch(Actions.GET_CONTACT_TYPE);
   watchEffect(() => (contactsType.value = lookupQueries.contactsType));
 };
+const resetData = () => {
+ 
+    if (currentLangs?.value && currentLangs.value.length > 0) {
+      setSelectedItem(currentLangs.value[0]);
+     
+    }
+   
+
+};
+watchEffect(() => {
+  resetData();
+});
 // load when mounted
 onMounted(() => {
   getData();
-
-  selectedItem.value = currentLangs.value[0];
+  resetData()
   languages.value = store.state.LookupQueries.languages.data;
-  countries.value = lookupQueries.countries?.data;
   store.dispatch(Actions.GET_SHOPS_BASE_SETTINGS, props.id).then((data) => {
     console.log(data);
     ShopDetails.value = data;
     ShopDetails.value.id = props.id;
-    ShopDetails.value.countryId = parseInt(data.countryId);
-    ShopDetails.value.cityId = parseInt(data.cityId);
-    ShopDetails.value.areaId = parseInt(data.areaId);
+    // ShopDetails.value.countryId = parseInt(data.countryId);
+    // ShopDetails.value.cityId = parseInt(data.cityId);
+    // ShopDetails.value.areaId = parseInt(data.areaId);
     logoKey.value=data.logoPath
     onCountryChange(ShopDetails.value.countryId);
     onCityChange(ShopDetails.value.cityId);

@@ -1,6 +1,5 @@
 <template>
   <div class="card">
-
     <div class="card-body">
       <!--begin::Body-->
       <!--begin::Table container-->
@@ -16,7 +15,7 @@
               <th class="min-w-140px">{{ $t("canRevertAction") }}</th>
               <th class="min-w-120px">{{ $t("mustFollowTheOrder") }}</th>
               <th class="min-w-100px">{{ $t("isDefault") }}</th>
-             
+
               <th class="min-w-100px">{{ $t("actions") }}</th>
             </tr>
           </thead>
@@ -36,34 +35,48 @@
                 </td>
 
                 <td>
-                   
-              <span class="svg-icon svg-icon-1 svg-icon-gray-600" v-if="item.canRevertAction">
-                <inline-svg src="/media/svg/general/icons8-done.svg" />
-              </span>
-              <span class="svg-icon svg-icon-1 svg-icon-gray-600 text-end " v-else>
-                <inline-svg  src="/media/svg/general/icons8-cancel.svg" />
-              </span>
+                  <span
+                    class="svg-icon svg-icon-1 svg-icon-gray-600"
+                    v-if="item.canRevertAction"
+                  >
+                    <inline-svg src="/media/svg/general/icons8-done.svg" />
+                  </span>
+                  <span
+                    class="svg-icon svg-icon-1 svg-icon-gray-600 text-end"
+                    v-else
+                  >
+                    <inline-svg src="/media/svg/general/icons8-cancel.svg" />
+                  </span>
                 </td>
 
                 <td>
-                     
-              <span class="svg-icon svg-icon-1 svg-icon-gray-600" v-if="item.mustFollowTheOrder">
-                <inline-svg src="/media/svg/general/icons8-done.svg" />
-              </span>
-              <span class="svg-icon svg-icon-1 svg-icon-gray-600 text-end " v-else>
-                <inline-svg  src="/media/svg/general/icons8-cancel.svg" />
-              </span>
+                  <span
+                    class="svg-icon svg-icon-1 svg-icon-gray-600"
+                    v-if="item.mustFollowTheOrder"
+                  >
+                    <inline-svg src="/media/svg/general/icons8-done.svg" />
+                  </span>
+                  <span
+                    class="svg-icon svg-icon-1 svg-icon-gray-600 text-end"
+                    v-else
+                  >
+                    <inline-svg src="/media/svg/general/icons8-cancel.svg" />
+                  </span>
                 </td>
                 <td>
-                    
-              <span class="svg-icon svg-icon-1 svg-icon-gray-600" v-if="item.isDefault">
-                <inline-svg src="/media/svg/general/icons8-done.svg" />
-              </span>
-              <span class="svg-icon svg-icon-1 svg-icon-gray-600 text-end " v-else>
-                <inline-svg  src="/media/svg/general/icons8-cancel.svg" />
-              </span>
+                  <span
+                    class="svg-icon svg-icon-1 svg-icon-gray-600"
+                    v-if="item.isDefault"
+                  >
+                    <inline-svg src="/media/svg/general/icons8-done.svg" />
+                  </span>
+                  <span
+                    class="svg-icon svg-icon-1 svg-icon-gray-600 text-end"
+                    v-else
+                  >
+                    <inline-svg src="/media/svg/general/icons8-cancel.svg" />
+                  </span>
                 </td>
-                
 
                 <td>
                   <router-link
@@ -93,19 +106,23 @@
         </table>
         <!--end::Table-->
       </div>
-      
+
       <!--end::Table container-->
     </div>
     <!--begin::Body-->
   </div>
   <div class="row my-4">
     <div class="col d-flex justify-content-end">
-
-      <el-pagination v-model:current-page="pagination.pageNumber" @current-change="updatePagination"
-        :page-size="pagination.pageSize" layout="prev, pager, next" :total="pagination.totalCount"
-        :hide-on-single-page="true" background>
+      <el-pagination
+        v-model:current-page="pagination.pageNumber"
+        @current-change="updatePagination"
+        :page-size="pagination.pageSize"
+        layout="prev, pager, next"
+        :total="pagination.totalCount"
+        :hide-on-single-page="true"
+        background
+      >
       </el-pagination>
-
     </div>
   </div>
 </template>
@@ -113,7 +130,7 @@
 <script setup lang="ts">
 import { useStore } from "vuex";
 
-import { defineProps, ref, defineEmits, computed } from "vue";
+import { defineEmits, computed } from "vue";
 import { Pagination } from "@/types";
 import { Mutations } from "@/store/enums/StoreEnums";
 import Swal from "sweetalert2";
@@ -121,12 +138,11 @@ import i18n from "@/core/plugins/i18n";
 
 const store = useStore();
 
-const items = computed( () => store.state.Order.OrderAction )
-
+const items = computed(() => store.state.Order.OrderAction);
 
 const pagination = computed(() => store.state.Order.pagination as Pagination);
 
-let emit = defineEmits(["delete-order-action", "update-pagination"]);
+const emit = defineEmits(["delete-order-action", "update-pagination"]);
 
 function deleteOrderAction(id) {
   Swal.fire({
@@ -140,19 +156,18 @@ function deleteOrderAction(id) {
     confirmButtonText: i18n.global.t("yesSure"),
   }).then((status) => {
     if (status.isConfirmed) emit("delete-order-action", id);
-
+    else return null;
     for (let i = 0; i < items.value.length; i++) {
       if (items.value[i].id === id) {
         items.value.splice(i, 1);
       }
     }
-
   });
 }
 
 function updatePagination(event) {
   store.commit(Mutations.UPDATE_CURRENT_PAGE_MODIFIER, event);
-  
+
   emit("update-pagination", event);
 }
 </script>

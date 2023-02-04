@@ -11,6 +11,7 @@ export default class Order extends VuexModule {
   //? sate
 
   order: Array<any> = [];
+  Allorder: Array<any> = [];
   roles: Array<any> = [];
   OrderAction: Array<any> = [];
   pagination: Pagination = {
@@ -23,6 +24,9 @@ export default class Order extends VuexModule {
   };
   get getOrder() {
     return this.order;
+  }
+  get getAllOrder() {
+    return this.Allorder;
   }
   get getRoles() {
     return this.roles;
@@ -40,6 +44,8 @@ export default class Order extends VuexModule {
 
   @Mutation
   [Mutations.SET_ORDER_STATUS](payload) {
+    this.order=[]
+    this.Allorder=[]
     payload.forEach((e) => {
       this.order.push({
         name: e.name,
@@ -57,7 +63,15 @@ export default class Order extends VuexModule {
         ],
       });
     });
+    payload.forEach((e) => {
+      this.Allorder.push({
+        name: e.name,
+        order: e.order,
+        orderStatusId: e.id,
+        autoComplete: false,
 
+      });
+    });
  
   }
   @Mutation
@@ -143,7 +157,9 @@ export default class Order extends VuexModule {
       url: Actions.DELETE_ORDER_ACTION,
       payload: { id: payload },
     }).then((res) => {
-      resolve(res?.data.data);
+     
+    if (res?.data.statusCode == 200) {
+    
       Swal.fire({
         text: i18n.global.t('deleteSuccess'),
         icon: "success",
@@ -152,7 +168,21 @@ export default class Order extends VuexModule {
         customClass: {
             confirmButton: "btn fw-bold btn-light-primary",
         },
-    })
+    }).then(() => {
+        resolve(res?.data);
+      })
+    } else {
+      resolve(res?.data);
+      Swal.fire({
+        text: res?.data.message,
+        icon: "error",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-light-primary",
+        },
+      });
+    }
     });
   });
 }
@@ -221,16 +251,31 @@ export default class Order extends VuexModule {
           console.log(res);
 
           resolve(res?.data.data);
-          Swal.fire({
-            text: `${payload.name} has added Successfully ! `,
-            icon: "success",
-            buttonsStyling: false,
-            confirmButtonText: "Ok, got it!",
-            customClass: {
-              confirmButton: "btn fw-bold btn-light-primary",
-            },
-          });
-          
+        
+          if (res?.data.statusCode == 200) {
+            Swal.fire({
+              text: `${payload.name} has added Successfully ! `,
+              icon: "success",
+              buttonsStyling: false,
+              confirmButtonText: "Ok, got it!",
+              customClass: {
+                confirmButton: "btn fw-bold btn-light-primary",
+              },
+            }).then(() => {
+              resolve(res?.data);
+            })
+          } else {
+            resolve(res?.data);
+            Swal.fire({
+              text: res?.data.message,
+              icon: "error",
+              buttonsStyling: false,
+              confirmButtonText: "Ok, got it!",
+              customClass: {
+                confirmButton: "btn fw-bold btn-light-primary",
+              },
+            });
+          }
         })
         .catch((er) => {
           reject(er);

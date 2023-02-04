@@ -1,9 +1,9 @@
 <template>
   <Form
     ref="accountForm"
-    :validation-schema="schema"
     class="form fv-plugins-bootstrap5 fv-plugins-framework p-5"
     @submit="submit"
+    :validation-schema="schema"
   >
     <div class="row">
       <!--begin:: name-->
@@ -16,6 +16,10 @@
             v-bind="field"
             class="form-control form-control-solid form-control-lg"
             type="text"
+            :class="{
+            'is-valid': meta.valid,
+            'is-invalid': meta.validated && !meta.valid,
+          }"
           />
         </Field>
         <ErrorMessage class="text-danger" name="accountName"></ErrorMessage>
@@ -27,14 +31,15 @@
         }}</label>
         <Field name="description" type="text" v-model="form.description" v-slot="{ field, meta }">
           <QuillTextEditor
-          v-model:content ="form.description"
-          v-bind="field"
-          contentType="html"
-          :class="{
-            'is-valid': meta.valid,
-            'is-invalid': meta.validated && !meta.valid,
-          }"
-          @input="setVal($event)"
+            v-model:content ="form.description"
+            v-bind="field"
+            class="ql-blank"
+            contentType="html"
+            :class="{
+              'is-valid': meta.valid,
+              'is-invalid': meta.validated && !meta.valid,
+            }"
+            @input="setVal($event)"
           />
         </Field>
         <ErrorMessage class="text-danger" name="description"></ErrorMessage>
@@ -45,12 +50,17 @@
           $t("accountType")
         }}</label>
      
-        <Field name="accountTypeId" type="text"  v-model="accountTypeId">
+        <Field name="accountTypeId" type="text" v-slot="{ field, meta }" v-model="accountTypeId">
 
           <el-select
+            v-bind="field"
             class="w-100 form-control-solid border-0"
             v-model="accountTypeId"
             :placeholder="$t('enterKeyword')"
+            :class="{
+              'is-valid': meta.valid,
+              'is-invalid': meta.validated && !meta.valid,
+            }"
           >
         
             <el-option
@@ -156,18 +166,24 @@
             <!--begin::Input wrapper-->
             <div class="position-relative">
               <!--begin::Input-->
-              <Field
-                  @input="formatCardNumber($event.target.value)"
-                  class="form-control"
-                  :placeholder="$t('name')"
-                  name="bankCardNumber"
+              <Field name="bankCardNumber"  v-slot="{ field, meta }" v-model="form.bankCardNumber">
+                <input type="text"
+                  v-bind="field"
+                  class="form-control form-control-solid form-control-lg"
+                  :placeholder="$t('bankCardNumber')"
+                  @input="formatCardNumber($event)"
                   v-model="form.bankCardNumber"
-                  />
-              <div class="fv-plugins-message-container">
-                <div class="fv-help-block">
-                  <ErrorMessage name="bankCardNumber" />
+                  :class="{
+                    'is-valid': meta.valid,
+                    'is-invalid': meta.validated && !meta.valid,
+                  }"
+                >
+              </Field>
+                <div class="fv-plugins-message-container">
+                  <div class="fv-help-block">
+                    <ErrorMessage name="bankCardNumber" />
+                  </div>
                 </div>
-              </div>
               <!--end::Input-->
 
               <!--begin::Card logos-->
@@ -368,10 +384,10 @@ const accountForm = ref(null);
 // INITIALIZE
 const emit = defineEmits(["account-added"]);
 
-let accountTypeId = ref("")
-const visaCard = ref(false);
-const masterCard = ref(false);
-const americanExpressCard = ref(false);
+let accountTypeId = ref<string>("")
+const visaCard = ref<boolean>(false);
+const masterCard = ref<boolean>(false);
+const americanExpressCard = ref<boolean>(false);
 
 const accountAttrs = {
   accountSubTypeId: "",
@@ -385,10 +401,10 @@ const accountAttrs = {
   bankCardExpiryMonth: '',
   bankCardExpiryYear: '',
 };
-const isLoading = ref(false);
+const isLoading = ref<boolean>(false);
 
 let form = reactive(accountAttrs);
-function setVal(e) {
+function setVal(e : any) {
   form.description = e.target.innerHTML;
 }
 
@@ -405,9 +421,7 @@ watch(form, (newForm) => {
       americanExpressCard.value = americanExpressCardregex.test(
         form.bankCardNumber
       );
-      console.log(" masterCard.value", masterCard.value)
-      console.log("  visaCard.value ",  visaCard.value )
-      console.log("    americanExpressCard.value",    americanExpressCard.value)
+
       if (visaCard.value) {
         form.accountSubTypeId = "3";
       } else if (masterCard.value) {
@@ -435,8 +449,10 @@ function onSubmit() {
     })
     .then(() => {
       isLoading.value = false;
-      emit("account-added");
       resetForm();
+      emit("account-added");
+      var editorEl = document.getElementsByClassName("ql-editor");
+      editorEl[0].innerHTML = "";
     });
 }
 function resetForm() {
@@ -465,9 +481,8 @@ const accountSubTypesId = computed(() => store.getters.getAccountSubTypes)
 
 const schema = yup.object({
   accountName: yup.string().required(i18n.global.t("fieldRequired")),
-  description: yup.string().required(i18n.global.t("fieldRequired")),
+  //description: yup.string().required(i18n.global.t("fieldRequired")),
   accountTypeId: yup.string().required(i18n.global.t("fieldRequired")),
-  //accountSubTypeId:yup.string().required(i18n.global.t("fieldRequired")),
   accountSubTypeId: yup.string().when("accountTypeId", (accountTypeId) => {
     if (accountTypeId !== "3") {
       return yup.string().required(i18n.global.t("fieldRequired"));
@@ -503,7 +518,7 @@ const schema = yup.object({
   bankCardNumber: yup.string().when("accountTypeId", (accountTypeId) => {
         
         if (accountTypeId === "3") {
-          return yup.string().min(13, i18n.global.t("cardNumNotValid")).max(19, i18n.global.t("cardNumNotValid")).required(i18n.global.t("fieldRequired"));
+          return yup.string().min(19, i18n.global.t("cardNumNotValid")).max(19, i18n.global.t("cardNumNotValid")).required(i18n.global.t("fieldRequired"));
         } else {
           return yup.string();
         }
@@ -540,17 +555,23 @@ watch(accountTypeId, (nv, old)=> {
 })
 
 // get account subtypes
-const accountSubtypes = (id) => {
+const accountSubtypes = (id :string) => {
  store.dispatch(Actions.GET_ACCOUNT_SUBTYPES, {
     accountTypeId: id
     });
     form.accountSubTypeId = "";
+    form.walletId = "";
+    form.bankIBANNumber = "";
+    form.bankCardUserName = "";
+    form.bankCardNumber = "";
+    form.bankCardSecurityNumber = "";
+    form.bankCardExpiryMonth = '';
+    form.bankCardExpiryYear = '';
 };
 
 // set mask of credit card number
-const  formatCardNumber=(target)=>{
-  console.log(target)
-  form.bankCardNumber=target.replace(/[^\dA-Z]/g, '').replace(/(.{4})/g, '$1 ').trim();
+const  formatCardNumber=(e: any)=>{
+  form.bankCardNumber = e.target.value.replace(/[^\dA-Z]/g, '').replace(/(.{4})/g, '$1 ').trim(); 
 }
 
 </script>

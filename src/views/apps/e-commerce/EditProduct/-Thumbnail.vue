@@ -121,13 +121,13 @@ const props = defineProps({
   thumbnail: {
     type: String,
     default: "",
-    required: true
+    required: true,
   },
   productId: {
     type: String || Number,
     default: "",
-    required: true
-  }
+    required: true,
+  },
 });
 const photo = ref();
 const url = ref();
@@ -149,7 +149,7 @@ const onUpload = async () => {
     const reqData = {
       method: "post",
       url: "/ManageCommands/upload-file",
-      payload: fd
+      payload: fd,
     };
 
     const { data } = await Api(reqData);
@@ -171,12 +171,12 @@ const updateThumbnail = async (key: string) => {
   try {
     const payload = {
       id: props.productId,
-      thumbnail: key
+      thumbnail: key,
     };
     const reqData = {
       method: "post",
       url: "/ProductCommands/update-product-thumbnail",
-      payload
+      payload,
     };
     await Api(reqData);
   } catch (error) {

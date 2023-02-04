@@ -31,6 +31,7 @@
               <Form class="form w-100" @submit="submit" v-if="form">
                 <!--begin:: Resources-->
                 <div class="col-12 my-3">
+            
                   <tabs-duplicator
                     :items="langs"
                     @selectedItem="setSelectedItem"
@@ -41,9 +42,10 @@
                   </tabs-duplicator>
                   <div class="fields">
                     <div>
+                     
                       <div class="inputs_fields my-3">
                         <div v-for="(item, i) in form.resources" :key="i">
-                          <div v-show="item.languageId == selectedItem.id">
+                          <div v-show="item.languageId == selectedItem?.id">
                             <label
                               class="required fs-5 fw-bold mb-2 d-inline"
                               >{{ $t("productCategorName") }}</label
@@ -337,7 +339,7 @@
                         class="form-check-input"
                         v-model="form.isPublishedOnJetOrder"
                         type="checkbox"
-                        checked=""
+                        
                         data-kt-check="false"
                       /><label for="isPublishedOnJetOrder" class="form-check-label ps-2">
                         {{ $t("isPublishedOnJetOrderApp") }}
@@ -352,7 +354,7 @@
                         class="form-check-input"
                         v-model="form.isPublishedOnShopLink"
                         type="checkbox"
-                        checked=""
+                        
                         data-kt-check="false"
                       /><label for="isPublishedOnShop" class="form-check-label ps-2">
                         {{ $t("isPublishedOnShopLink") }}
@@ -415,7 +417,7 @@
 
 <script lang="ts">
 import { useStore } from "vuex";
-import { ref, defineComponent, computed, reactive, defineExpose } from "vue";
+import { ref, defineComponent, computed, reactive, watch ,onMounted} from "vue";
 import { Actions } from "@/store/enums/StoreEnums";
 import { string } from "yup";
 import { productCategories } from "@/types";
@@ -425,6 +427,7 @@ import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 import Datatable from "@/components/kt-datatable/KTDatatable.vue";
 import { hideModal } from "@/core/helpers/dom";
 import i18n from "@/core/plugins/i18n";
+import { upload } from "@/composables/uploader";
 
 import * as yup from "yup";
 import Swal from "sweetalert2";
@@ -502,31 +505,13 @@ export default defineComponent({
     const removeImage = () => {
       form.value.thumbnailPath = "/media/avatars/blank.png";
     };
-    const handleSubmit = async (event: Event) => {
-      console.log("handle submit");
-
-      const target = event.target as HTMLInputElement;
-      const files = target?.files;
-
-      if (files && files?.length > 0) {
-        const file: File = files[0];
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const target: any = e.target;
-          const data = target.result;
-          form.value.thumbnailPath = data;
-        };
-        reader.readAsDataURL(file);
-        let formData = new FormData();
-        formData.append("file", file);
-
-        store.dispatch(Actions.UPLOAD_FILE, formData).then((res) => {
-          console.log("iama", res);
-          const url = res[1].data.data;
-          form.value.thumbnail = url;
-          // form.value.thumbnailPath = image(url);
-        });
-      }
+    const handleSubmit = async (event: any) => {
+     
+      form.value.thumbnailPath= URL.createObjectURL(event.target.files[0]);
+  upload(event).then(res => {
+    form.value.thumbnail  = res.data.data
+    
+  })
     };
     function checkValueSlug(e) {
       if (e.target.value.length > 3) {
@@ -546,8 +531,23 @@ export default defineComponent({
 
     const submitButton = ref<HTMLButtonElement | null>(null);
 
-    const selectedItem = ref(langs.value[0]);
-
+    const selectedItem = ref({});
+    const resetData = () => {
+  if(langs.value && langs.value.length > 0) {
+    selectedItem.value = langs.value[0];
+    
+}
+}
+watch(langs, (newValue) => {
+  if (newValue) {
+    if (newValue && newValue.length > 0) {
+    resetData();
+    }}
+  }
+);
+onMounted(() => {
+  resetData();
+});
     const schema = yup.object({
       code: yup
         .string()
@@ -581,6 +581,7 @@ export default defineComponent({
     }
 
     return {
+      resetData,
       marketShops,
       langs,
       ProductCategorie,

@@ -380,11 +380,12 @@ export default defineComponent({
             "type",
             "Only the following formats are accepted: .png, .jpeg, .jpg",
             (value) => {
+              console.log(value)
               return (
                 value &&
-                (value[0].type === "image/jpeg" ||
-                  value[0].type === "image/bmp" ||
-                  value[0].type === "image/png")
+                (value.type === "image/jpeg" ||
+                  value.type === "image/bmp" ||
+                  value.type === "image/png")
               );
             }
           ),

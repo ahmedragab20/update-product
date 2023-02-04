@@ -5,24 +5,24 @@ import { Action, Module, Mutation, VuexModule } from "vuex-module-decorators";
 import { computed } from "vue";
 
 interface updateChangedSectionsPayload {
-  sectionId: string,
-  remove?: boolean
+  sectionId: string;
+  remove?: boolean;
 }
 
 interface initializeData {
-  name: string,
-  content: any
+  name: string;
+  content: any;
 }
 
 interface ProductDetails {
-  productBrandId: string,
-  deliveryTimeCategoryId: string,
-  productCategories: string[]
+  productBrandId: string;
+  deliveryTimeCategoryId: string;
+  productCategories: string[];
 }
 
 interface Tax {
-  taxClassId: string | number,
-  taxAmount: number | string
+  taxClassId: string | number;
+  taxAmount: number | string;
 }
 
 @Module
@@ -32,7 +32,7 @@ export default class UpdateProduct extends VuexModule {
   isReadonly = true;
   newOptionData: any = {
     label: "",
-    type: ""
+    type: "",
   };
   variationData: any[] = [];
   globalSections: string[] = ["code", "slug", "product-details", "thumbnail"];
@@ -82,11 +82,15 @@ export default class UpdateProduct extends VuexModule {
       return;
     }
 
-    const isSectionExisted: boolean = this.changedSections.includes(payload.sectionId);
+    const isSectionExisted: boolean = this.changedSections.includes(
+      payload.sectionId
+    );
     if (!isSectionExisted && !payload.remove) {
       this.changedSections.push(payload.sectionId);
     } else if (isSectionExisted && payload.remove) {
-      this.changedSections = this.changedSections.filter(i => i !== payload.sectionId);
+      this.changedSections = this.changedSections.filter(
+        (i) => i !== payload.sectionId
+      );
     }
   }
 
@@ -101,7 +105,7 @@ export default class UpdateProduct extends VuexModule {
       const reqData = {
         method: "get",
         url: "ProductQueries/get-product",
-        payload: { id }
+        payload: { id },
       };
       await Api(reqData).then((res: any) => {
         this.context.commit("SET_PRODUCT", res.data?.data);
@@ -117,7 +121,7 @@ export default class UpdateProduct extends VuexModule {
       const reqData = {
         method: "get",
         url: "/ProductQueries/get-product-variation-data",
-        payload: { id }
+        payload: { id },
       };
       await Api(reqData).then((res: any) => {
         this.context.commit("SET_VARIATION_DATA", res.data.data);
@@ -126,5 +130,4 @@ export default class UpdateProduct extends VuexModule {
       console.error(error);
     }
   }
-
 }

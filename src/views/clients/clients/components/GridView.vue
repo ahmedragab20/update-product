@@ -176,7 +176,7 @@
 
 <script setup lang="ts">
 import { useStore } from "vuex";
-import { ClientGroup } from "@/api/data/ClientGroup";
+
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { ref, defineProps, computed, defineEmits } from "vue";
 import { Pagination } from "@/interfaces/pagination";
@@ -186,50 +186,24 @@ const store = useStore();
 const pagination = computed(
   () => store.state.ClientGroup.pagination as Pagination
 );
-let props = defineProps({
-  items: Array as ClientGroup[],
-});
+
+const items = computed(() => store.state.Clients.Clients);
 // const items = computed(() => store.state.ClientGroup.ClientGroups);
 function updatePagination(event) {
-  console.log("n", event);
 
   store.commit(Mutations.UPDATE_CURRENT_PAGE_CLIENTS, event);
   emit("update-pagination", event);
-  // emit("update-pagination", event);
+
 }
 
 let emit = defineEmits([
-  "updateClientGroup",
-  "update-pagination",
-  "delete-client-group",
-]);
-function deleteClient(id) {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "Are you sure you want to delete Client Group !",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
-  }).then((status) => {
-    if (status.isConfirmed) emit("delete-client-group", id);
 
-    console.log(props.items.length);
-    for (let i = 0; i < props.items.length; i++) {
-      if (props.items[i].id === id) {
-        props.items.splice(i, 1);
-      }
-    }
-    console.log(props.items);
-  });
-}
-const updateClientGroup = (id) => {
-  emit("updateClientGroup", id);
-};
-function eventFire(n) {
-  emit("update-pagination", n);
-}
+  "update-pagination",
+
+]);
+
+
+
 </script>
 
 <style>

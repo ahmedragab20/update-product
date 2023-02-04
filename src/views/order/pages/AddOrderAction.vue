@@ -3,7 +3,8 @@
     ref="brandForm"
     :validation-schema="schema"
     class="form fv-plugins-bootstrap5 fv-plugins-framework p-5"
-    @submit="onSubmit">
+    @submit="onSubmit"
+  >
     <div class="card mb-5 mb-xxl-8">
       <div class="card-body pt-9 pb-0">
         <div class="row g-5 g-xxl-8">
@@ -21,13 +22,15 @@
                     class="form-control form-control-lg form-control-solid"
                     :name="`name`"
                     type="text"
-                    v-slot="{ field, meta }">
+                    v-slot="{ field, meta }"
+                  >
                     <input
                       v-bind="field"
                       v-model="form.name"
                       name="resources"
                       type="text"
-                      class="form-control form-control-solid form-control-lg" />
+                      class="form-control form-control-solid form-control-lg"
+                    />
                   </Field>
 
                   <div class="fv-plugins-message-container">
@@ -51,7 +54,8 @@
                   v-slot="{ field }"
                   type="text"
                   class="form-control form-control-lg form-control-solid"
-                  name="connectedShops">
+                  name="connectedShops"
+                >
                   <Multiselect
                     mode="tags"
                     v-model="form.shops"
@@ -66,11 +70,13 @@
                         'multiselect-search form-control form-control-solid',
                       clear: 'multiselect-lg-clear',
                     }"
-                    :options="marketShops" />
+                    :options="marketShops"
+                  />
                 </Field>
                 <ErrorMessage
                   class="text-danger"
-                  name="connectedShops"></ErrorMessage>
+                  name="connectedShops"
+                ></ErrorMessage>
               </div>
             </div>
             <!--begin::mustFollowTheOrder-->
@@ -81,8 +87,8 @@
                     class="form-check-input"
                     v-model="form.mustFollowTheOrder"
                     type="checkbox"
-                    checked=""
-                    data-kt-check="false" />
+                    data-kt-check="false"
+                  />
                 </span>
 
                 <span class="d-flex flex-column">
@@ -106,8 +112,8 @@
                     class="form-check-input"
                     type="checkbox"
                     v-model="form.canRevertAction"
-                    checked=""
-                    data-kt-check="false" />
+                    data-kt-check="false"
+                  />
                 </span>
                 <!--end::Icon-->
 
@@ -127,7 +133,8 @@
             <!--begin:canRevertActionAfterCompletion-->
             <label
               class="d-flex flex-stack mb-0 cursor-pointer mb-7"
-              v-if="!form.canRevertAction">
+              v-if="!form.canRevertAction"
+            >
               <span class="d-flex align-items-center me-2">
                 <!--begin::Icon-->
                 <span class="symbol symbol-50px me-6">
@@ -135,8 +142,8 @@
                     class="form-check-input"
                     type="checkbox"
                     v-model="form.canRevertActionAfterCompletion"
-                    checked=""
-                    data-kt-check="false" />
+                    data-kt-check="false"
+                  />
                 </span>
 
                 <span class="d-flex flex-column">
@@ -153,7 +160,8 @@
             <!--begin:updateSkippedActionsWithLastActionInformation-->
             <label
               class="d-flex flex-stack mb-0 cursor-pointer mb-7"
-              v-if="!form.mustFollowTheOrder">
+              v-if="!form.mustFollowTheOrder"
+            >
               <span class="d-flex align-items-center me-2">
                 <!--begin::Icon-->
                 <span class="symbol symbol-50px me-6">
@@ -161,8 +169,8 @@
                     class="form-check-input"
                     type="checkbox"
                     v-model="form.updateSkippedActionsWithLastActionInformation"
-                    checked=""
-                    data-kt-check="false" />
+                    data-kt-check="false"
+                  />
                 </span>
 
                 <span class="d-flex flex-column">
@@ -187,8 +195,8 @@
                     class="form-check-input"
                     type="checkbox"
                     v-model="form.isDefault"
-                    checked=""
-                    data-kt-check="false" />
+                    data-kt-check="false"
+                  />
                 </span>
 
                 <span class="d-flex flex-column">
@@ -218,14 +226,17 @@
             :list="order"
             item-key="orderStatusId"
             :group="{ name: 'people', put: false }"
-            @change="log">
+            @change="log"
+          >
             <template #item="{ element }">
               <div
                 :key="element.orderStatusId"
-                class="d-flex align-items-center mb-8 drag-item">
+                class="d-flex align-items-center mb-8 drag-item"
+              >
                 <!--begin::Bullet-->
                 <span
-                  class="bullet bullet-vertical h-40px bg-primary mx-4"></span>
+                  class="bullet bullet-vertical h-40px bg-primary mx-4"
+                ></span>
 
                 <div class="flex-grow-1">
                   <a
@@ -247,19 +258,22 @@
       </div>
       <div class="card col-7">
         <!--begin::Action List-->
-        <span
-          class="fs-6 fw-bold text-gray-400 empty-list"
-          v-if="form.actions.length == 0">
-          Drag and Drop OrderStatus
-        </span>
+
         <!--begin::Body-->
         <div class="card-body w-65">
+          <span
+            class="fs-6 fw-bold text-gray-400 empty-list"
+            v-if="form.actions.length == 0"
+          >
+            Drag and Drop OrderStatus
+          </span>
           <draggable
             class="dragArea list-group"
             :list="form.actions?.sort((a, b) => a.order - b.order)"
             item-key="orderStatusId"
             group="people"
-            @change="log">
+            @change="log"
+          >
             <template #item="{ element }">
               <div class="card shadow-sm mt-2" :key="element.orderStatusId">
                 <div class="card-header border-0 mt-5">
@@ -270,10 +284,12 @@
                     <a
                       @click="removeItem(element)"
                       role="button"
-                      class="card-toolbar mx-4 my-2 d-flex text-center">
+                      class="card-toolbar mx-4 my-2 d-flex text-center"
+                    >
                       <span class="svg-icon svg-icon-3 svg-icon-danger">
                         <inline-svg
-                          src="/media/icons/duotune/general/gen027.svg" />
+                          src="/media/icons/duotune/general/gen027.svg"
+                        />
                       </span>
                     </a>
                   </div>
@@ -284,12 +300,14 @@
                     data-bs-toggle="collapse"
                     :href="`#kt_customer_view_details${element.orderStatusId}`"
                     role="button"
-                    aria-expanded="false">
+                    aria-expanded="false"
+                  >
                     {{ $t("details") }}
                     <span class="ms-2 rotate-180">
                       <span class="svg-icon svg-icon-3">
                         <inline-svg
-                          src="/media/icons/duotune/arrows/arr072.svg" />
+                          src="/media/icons/duotune/arrows/arr072.svg"
+                        />
                       </span>
                     </span>
                   </div>
@@ -299,7 +317,8 @@
                 <div
                   :id="`kt_customer_view_details${element.orderStatusId}`"
                   class="collapse show"
-                  style="padding: 30px">
+                  style="padding: 30px"
+                >
                   <label class="d-flex flex-stack mb-0 cursor-pointer">
                     <!--begin:element-->
                     <!--begin::autoComplete-->
@@ -309,13 +328,14 @@
                           class="form-check-input"
                           type="checkbox"
                           v-model="element.autoComplete"
-                          checked=""
-                          data-kt-check="false" />
+                          data-kt-check="false"
+                        />
                       </span>
 
                       <span class="d-flex flex-column">
                         <span
-                          class="fw-bolder text-gray-800 text-hover-primary fs-5">
+                          class="fw-bolder text-gray-800 text-hover-primary fs-5"
+                        >
                           {{ $t("autoComplete") }}</span
                         >
                         <span class="fs-6 fw-bold text-gray-400">
@@ -330,31 +350,46 @@
                   <div
                     class="col-12 my-3"
                     style="border: 1px solid #04c8c8; padding: 19px"
-                    v-for="(e, idx) in element.connectedRoles">
+                    v-for="(e, idx) in element.connectedRoles"
+                  >
+                  
+                 
                     <label class="required fs-5 fw-bold mb-2 d-inline">
                       {{ $t("roles") }}</label
                     >
+              
                     <Field
                       :name="`connectedRoles[${idx}].role`"
                       type="text"
-                      v-slot="{ field, value }">
+                      v-slot="{ field, value }"
+                    >
                       {{ e.roleId }}
                       <el-select
                         v-bind="field"
                         :mode-value="value"
                         class="w-100 form-control-solid border-0"
-                        v-model="e.roleId">
+                        v-model="e.roleId"
+                        
+                      >
                         <el-option
                           v-for="item in roles"
                           :key="item.id"
                           :label="item.name"
-                          :value="item.id">
+                          :value="item.id"
+                          :disabled="
+                             element.connectedRoles.some(
+                                (p) => p.roleId == item.id
+                              )
+                            ">
+                        
+                        
                         </el-option>
                       </el-select>
                     </Field>
                     <ErrorMessage
                       class="text-danger"
-                      :name="`connectedRoles[${idx}].role`"></ErrorMessage>
+                      :name="`connectedRoles[${idx}].role`"
+                    ></ErrorMessage>
 
                     <label class="d-flex cursor-pointer mt-5 mb-1">
                       <span class="symbol symbol-50px me-6">
@@ -362,14 +397,15 @@
                           class="form-check-input"
                           type="checkbox"
                           v-model="e.sendEmail"
-                          checked=""
-                          data-kt-check="false" />
+                          data-kt-check="false"
+                        />
                       </span>
 
                       <span class="d-flex align-items-center me-2">
                         <span class="d-flex flex-column">
                           <span
-                            class="fw-bolder text-gray-800 text-hover-primary fs-5">
+                            class="fw-bolder text-gray-800 text-hover-primary fs-5"
+                          >
                             {{ $t("sendEmail") }}
                           </span>
                         </span>
@@ -381,13 +417,14 @@
                           class="form-check-input"
                           type="checkbox"
                           v-model="e.sendSMS"
-                          checked=""
-                          data-kt-check="false" />
+                          data-kt-check="false"
+                        />
                       </span>
                       <span class="d-flex align-items-center me-2">
                         <span class="d-flex flex-column">
                           <span
-                            class="fw-bolder text-gray-800 text-hover-primary fs-5">
+                            class="fw-bolder text-gray-800 text-hover-primary fs-5"
+                          >
                             {{ $t("sendSMS") }}
                           </span>
                         </span>
@@ -400,14 +437,15 @@
                           class="form-check-input"
                           type="checkbox"
                           v-model="e.sendMobileNotification"
-                          checked=""
-                          data-kt-check="false" />
+                          data-kt-check="false"
+                        />
                       </span>
 
                       <span class="d-flex align-items-center me-2">
                         <span class="d-flex flex-column">
                           <span
-                            class="fw-bolder text-gray-800 text-hover-primary fs-5">
+                            class="fw-bolder text-gray-800 text-hover-primary fs-5"
+                          >
                             {{ $t("sendNotification") }}
                           </span>
                         </span>
@@ -417,10 +455,12 @@
                       v-if="idx != 0"
                       @click="removeConnectedRole(idx, element.orderStatusId)"
                       role="button"
-                      class="card-toolbar mx-4 my-2 d-flex justify-content-end align-items-center">
+                      class="card-toolbar mx-4 my-2 d-flex justify-content-end align-items-center"
+                    >
                       <span class="svg-icon svg-icon-3 svg-icon-danger">
                         <inline-svg
-                          src="/media/icons/duotune/general/gen027.svg" />
+                          src="/media/icons/duotune/general/gen027.svg"
+                        />
                       </span>
                     </a>
                   </div>
@@ -428,11 +468,14 @@
                     <a
                       role="button"
                       class="btn btn-primary"
-                      @click="NewConnectedRole(element.orderStatusId)">
+                      @click="NewConnectedRole(element.orderStatusId)"
+                    >
                       <span
-                        class="svg-icon svg-icon-2 svg-icon-primary me-0 me-md-2">
+                        class="svg-icon svg-icon-2 svg-icon-primary me-0 me-md-2"
+                      >
                         <inline-svg
-                          src="/media/icons/duotune/arrows/arr075.svg" />
+                          src="/media/icons/duotune/arrows/arr075.svg"
+                        />
                         {{ $t("addRole") }}
                       </span>
                     </a>
@@ -457,10 +500,11 @@
             <span v-if="isLoading" class="indicator-progress d-block">
               {{ $t("wait") }}...
               <span
-                class="spinner-border spinner-border-sm align-middle ms-2" />
+                class="spinner-border spinner-border-sm align-middle ms-2"
+              />
             </span>
             <span v-else>
-              {{ $t("add") }}
+              {{ $t("addOrderAction") }}
               <span class="fas fa-plus"></span>
             </span>
           </button>
@@ -474,19 +518,37 @@
 import * as yup from "yup";
 import Multiselect from "@vueform/multiselect";
 import i18n from "@/core/plugins/i18n";
-import { reactive, ref, onMounted, computed, watch } from "vue";
+import { reactive, ref, computed ,unref} from "vue";
 import { useStore } from "vuex";
 import { ErrorMessage, Field, Form } from "vee-validate";
 import draggable from "vuedraggable";
 import { Actions } from "@/store/enums/StoreEnums";
 import { actionOrderTemplate } from "@/types";
 import Swal from "sweetalert2";
+import { useRouter } from "vue-router";
+interface OrderActionTemplateType {
+  canRevertAction: boolean;
+  mustFollowTheOrder: boolean;
+  canRevertActionAfterCompletion: boolean;
+  updateSkippedActionsWithLastActionInformation: boolean;
+  isDefault: boolean;
+  shops: Array<string>;
+  name: string;
+  actions: Array<actionOrderTemplate>;
+}
+interface connectedRoles {
+  roleId?: string;
+  sendEmail: false;
+  sendSMS: false;
+  sendMobileNotification: false;
+}
 const store = useStore();
 const marketShops = computed(() => store.getters.getMarketData.shops);
 const order = computed(() => store.getters.getOrder);
 const roles = computed(() => store.getters.getRoles);
 const isLoading = ref(false);
-let actions = ref<actionOrderTemplate>([]);
+const router = useRouter();
+const actions = ref<actionOrderTemplate[]>();
 store.dispatch(Actions.GET_ORDER_STATUS);
 store.dispatch(Actions.GET_ROLES);
 const schema = yup.object({
@@ -500,10 +562,10 @@ const schema = yup.object({
     .required(i18n.global.t("fieldRequired")),
 });
 
-const removeItem = (el) => {
-  actions.value.splice(
-    actions.value.findIndex(function (i) {
-      return i.orderStatusId === el.orderStatusId;
+const removeItem = (el: actionOrderTemplate) => {
+  form.value.actions.splice(
+    form.value.actions.findIndex(function (i) {
+      return i.orderStatusId == el.orderStatusId;
     }),
     1
   );
@@ -511,28 +573,34 @@ const removeItem = (el) => {
   order.value.push(el);
   order.value.sort((a, b) => a.order - b.order);
 };
+const itemInstance = ref<connectedRoles>({
+  roleId: "",
+  sendEmail: false,
+  sendMobileNotification: false,
+  sendSMS: false,
+});
 
-const NewConnectedRole = (id) => {
-  let item = {
-    roleId: "",
-    sendEmail: false,
-    sendSMS: false,
-    sendMobileNotification: false,
-  };
-  form.actions.forEach((e) => {
+const NewConnectedRole = (id: string) => {
+  form.value.actions.forEach((e) => {
     if (parseInt(e.orderStatusId) == parseInt(id)) {
-      e.connectedRoles = [...e.connectedRoles, item];
+      e.connectedRoles.push(itemInstance.value);
     }
   });
+  itemInstance.value={
+    roleId: "",
+  sendEmail: false,
+  sendMobileNotification: false,
+  sendSMS: false,
+  }
 };
 const removeConnectedRole = (index, id) => {
-  form.actions.forEach((e) => {
+  form.value.actions.forEach((e) => {
     if (parseInt(e.orderStatusId) == parseInt(id)) {
       e?.connectedRoles.splice(index, 1);
     }
   });
 };
-const OrderActionTemplate = reactive({
+const OrderActionTemplate = ref<OrderActionTemplateType>({
   canRevertAction: false,
   mustFollowTheOrder: false,
   canRevertActionAfterCompletion: false,
@@ -540,12 +608,12 @@ const OrderActionTemplate = reactive({
   isDefault: false,
   shops: [],
   name: "",
-  actions,
+  actions: [],
 });
 const form = reactive(OrderActionTemplate);
 
 const onSubmit = () => {
-  if (form.actions.length == 0) {
+  if (form.value.actions.length == 0) {
     Swal.fire({
       text: i18n.global.t("order template must have one action at least"),
       icon: "warning",
@@ -555,12 +623,13 @@ const onSubmit = () => {
       confirmButtonText: i18n.global.t("ok"),
     });
   } else {
-  
     let bool = true;
-    for (let i = 0; i < form.actions.length; i++) {
-      if (form.actions[i].connectedRoles[0].roleId === "") {
+    for (let i = 0; i < form.value.actions.length; i++) {
+      for (let j=0; j < form.value.actions[i].connectedRoles.length;j++) {
+        if (form.value.actions[i].connectedRoles[j].roleId == ""){
+        console.log("jij")
         Swal.fire({
-          text: i18n.global.t("You Have to select Role !!"),
+          text: i18n.global.t("You Have to select   All Role !!"),
           icon: "warning",
 
           confirmButtonColor: "#3085d6",
@@ -569,11 +638,11 @@ const onSubmit = () => {
         });
         bool = false;
         break;
-      }
+      }}
     }
     if (bool) {
       isLoading.value = true;
-      store.dispatch(Actions.ADD_ORDER_ACTION, form).then(() => {
+      store.dispatch(Actions.ADD_ORDER_ACTION, form.value).then(() => {
         isLoading.value = false;
       });
     }

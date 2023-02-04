@@ -19,7 +19,8 @@
 
           <!--begin::Table body-->
           <tbody>
-            <template v-for="(item, index) in tableData" :key="index">
+            
+            <template v-for="(item, index) in items" :key="index">
               <tr>
                 <td>
                   <div
@@ -37,7 +38,7 @@
                 </td>
 
                 <td>
-                  <!-- <a
+                  <a
                     type="button"
                     data-bs-toggle="modal"
                     data-bs-target="#kt_modal_update_client"
@@ -48,7 +49,7 @@
                     <span class="svg-icon svg-icon-3">
                       <inline-svg src="/media/icons/duotune/art/art005.svg" />
                     </span>
-                  </a> -->
+                  </a>
 
                   <a
                     @click="deleteGroup(item.id)"
@@ -89,19 +90,19 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, ref, onMounted, computed } from "vue";
+import {  computed } from "vue";
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
-import { ICustomer } from "@/core/data/customers";
+
 import { useStore } from "vuex";
 import { Pagination } from "@/types";
 import Swal from "sweetalert2";
-
+import { ClientGroupType } from "@/types";
 let emit = defineEmits([
   "updateClientGroup",
   "update-pagination",
   "delete-client-group",
 ]);
-function deleteGroup(id) {
+function deleteGroup(id: string) {
   Swal.fire({
     title: "Are you sure?",
     text: "Are you sure you want to delete Client Group !",
@@ -121,72 +122,25 @@ function deleteGroup(id) {
     console.log(tableData);
   });
 }
-const updateClientGroup = (id) => {
+const updateClientGroup = (id: string) => {
   emit("updateClientGroup", id);
 };
 const pagination = computed(
   () => store.state.ClientGroup.pagination as Pagination
 );
-console.log("pagination", pagination);
+interface Props {
+  items: Array<ClientGroup>;
+}
+
 const store = useStore();
+const props = defineProps<Props>();
 const tableData = computed(() => store.state.ClientGroup.ClientGroups);
-const checkedCustomers = ref([]);
 
 function updatePagination(event) {
   console.log("event", event);
   store.commit(Mutations.UPDATE_PAGINATION_CLIENT_GROUP, event);
   // emit("update-pagination", event);
 }
-const initCustomers = ref<Array<ICustomer>>([]);
-
-// onMounted(() => {
-//   setCurrentPageBreadcrumbs("Customers Listing", ["Apps", "Customers"]);
-//   initCustomers.value.splice(
-//     0,
-//     tableData.value.length,
-//     ...tableData.value
-//   );
-// });
-
-const deleteFewCustomers = () => {
-  checkedCustomers.value.forEach((item) => {
-    deleteCustomer(item);
-  });
-  checkedCustomers.value.length = 0;
-};
-
-const deleteCustomer = (id) => {
-  for (let i = 0; i < tableData.value.length; i++) {
-    if (tableData.value[i].id === id) {
-      tableData.value.splice(i, 1);
-    }
-  }
-};
-
-const search = ref<string>("");
-const searchItems = () => {
-  tableData.value.splice(0, tableData.value.length, ...initCustomers.value);
-  if (search.value !== "") {
-    let results: Array<ICustomer> = [];
-    for (let j = 0; j < tableData.value.length; j++) {
-      if (searchingFunc(tableData.value[j], search.value)) {
-        results.push(tableData.value[j]);
-      }
-    }
-    tableData.value.splice(0, tableData.value.length, ...results);
-  }
-};
-
-const searchingFunc = (obj, value): boolean => {
-  for (let key in obj) {
-    if (!Number.isInteger(obj[key]) && !(typeof obj[key] === "object")) {
-      if (obj[key].indexOf(value) != -1) {
-        return true;
-      }
-    }
-  }
-  return false;
-};
 </script>
 <style>
 span.item-name {

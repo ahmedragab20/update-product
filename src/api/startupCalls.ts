@@ -8,7 +8,6 @@ export default async () => {
   const token = stateToken || storedToken;
   const isLoggedIn = store.getters.isUserAuthenticated || storedToken;
 
-
   if (isLoggedIn) {
     await store.dispatch("AUTH_REQUESTS", token);
   }
@@ -23,6 +22,7 @@ export default async () => {
   await store.dispatch(Actions.CLIENTS_CONDITION);
   await store.dispatch(Actions.GENDER);
   await store.dispatch(Actions.FONTAWESOME_ICONS);
+  await store.dispatch(Actions.MARKET);
 
   await store.dispatch(Actions.DELIVERY_CLASSES);
   await store.dispatch(Actions.VEHICLE_TYPES);

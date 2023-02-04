@@ -2,6 +2,52 @@
 // Main init file of global bootstrap and theme functions, mixins, variables and config
 //
 
+// Font
+@font-face {
+  font-family: 'DIN Next';
+  src: url('@/assets/fontweb/ultralight-webfont.woff') format("woff");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'DIN Next';
+  src: url('@/assets/fontweb/light-webfont.woff') format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DIN Next';
+  src: url('@/assets/fontweb/medium-webfont.woff') format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DIN Next';
+  src: url('@/assets/fontweb/bold-webfont.woff') format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Symbio AR+LT';
+  src: url('@/assets/fontweb/symbio-bold.woff') format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Symbio AR+LT';
+  src: url('@/assets/fontweb/symbio-regular.woff') format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 // Custom functions & mixins
 @import "./core/base/functions";
@@ -19,7 +65,6 @@
 @import "~bootstrap/scss/maps";
 @import "~bootstrap/scss/mixins";
 @import "~bootstrap/scss/utilities";
- 
 
 // 3rd-Party plugins variables
 @import "./core/vendors/plugins/variables";
@@ -27,3 +72,5 @@
 // Custom layout variables
 @import "layout/variables";
 @import "./core/layout/docs/variables";
+
+@import "./maz-ui/override-colors.css";

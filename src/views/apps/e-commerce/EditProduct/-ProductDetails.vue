@@ -255,7 +255,7 @@ import SaveChangeBtn from "@/views/apps/e-commerce/EditProduct/-SaveChangeBtn.vu
 import Dropdown from "@/components/Reusable/Dropdown.vue";
 import { ref } from "@vue/reactivity";
 import { useStore } from "vuex";
-import { computed, onBeforeMount, onMounted, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { Product, Categories } from "@/types";
 
 interface Props {

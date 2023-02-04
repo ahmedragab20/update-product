@@ -163,7 +163,7 @@
       <!--begin::Label-->
       <label class="form-label required mb-3">{{ $t("location") }} </label>
       <!--end::Label-->
-  {{center}}
+
       <Field
         v-slot="{ field }"
         type="text"
@@ -189,13 +189,13 @@ import store from "@/store";
 import { ErrorMessage, Field } from "vee-validate";
 import { Country, City, Area, Coordinates } from "@/types";
 import { useGeolocation } from "@vueuse/core";
-import { onMounted, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import LocationSelector from "@/components/Reusable/LocationSelector.vue";
 import Multiselect from "@vueform/multiselect";
 import { Actions } from "@/store/enums/StoreEnums";
 const { coords, locatedAt, error } = useGeolocation();
 
-const countries = ref<Country[] | null>();
+const countries = computed(() => store.getters.getCountries);
 const cities = ref<City[] | null>();
 const city = ref<City | null>();
 const areas = ref<Area[] | null>();
@@ -205,9 +205,6 @@ const center = ref<Coordinates>({ lat: 0, lng: 0 });
 
 const lookupQueries = store.state.LookupQueries;
 
-onMounted(() => {
-  countries.value = lookupQueries.countries?.data;
-});
 
 const onCountryChange = async (countryId: string) => {
   const country = countries.value?.find((x) => x.id === countryId);

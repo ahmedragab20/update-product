@@ -90,6 +90,7 @@
                   <label class="required fs-5 fw-bold mb-2 d-inline">
                     {{ $t("icon") }}
                   </label>
+
                   <Field name="icon" type="text" v-slot="{ field, value }">
                     <el-select
                       :model-value="value"
@@ -162,7 +163,7 @@
                       name="textColorHexa"
                       value="#000000"
                       type="color"
-                      v-slot="{ value, field }"
+                      v-slot="{ field }"
                     >
                       <el-color-picker v-model="formData.textColorHexa" />
                       <input
@@ -217,14 +218,16 @@
                   <div
                     class="d-flex justify-content-between gap-1 align-items-center flex-wrap"
                   >
-                    <label class="form-label">Client Condition </label>
+                    <label class="form-label">{{
+                      $t("clientCondition")
+                    }}</label>
                     <div>
                       <button
                         @click="toggleAddNewGroupItemDialog"
                         type="button"
                         class="btn btn-sm bg-light-primary text-primary btn-hover-rise rounded-pill"
                       >
-                        + Add new Client Condition
+                        + {{ $t("addNewClientCondition") }}
                       </button>
                     </div>
                   </div>
@@ -235,9 +238,9 @@
                         class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
                       >
                         <th class="text-truncate">#</th>
-                        <th class="text-truncate">name</th>
+                        <th class="text-truncate">{{ $t("name") }}</th>
 
-                        <th class="text-truncate">Actions</th>
+                        <th class="text-truncate">{{ $t("actions") }}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -247,7 +250,11 @@
                         </td>
                         <td class="text-truncate">
                           <div class="td-holder">
-                            {{ clientCondition?.find((x) => x.id == item.conditionId)?.name }}
+                            {{
+                              clientCondition?.find(
+                                (x) => x.id == item.conditionId
+                              )?.name
+                            }}
                           </div>
                         </td>
 
@@ -258,7 +265,7 @@
                               class="btn btn-sm btn-bg-light rounded-pill btn-text-info me-2"
                               title="edit"
                               @click="
-                                setClickedModifier(item),
+                                setClickedCondition(item),
                                   toggleAddGroupItemDialog()
                               "
                             >
@@ -271,7 +278,7 @@
                               type="button"
                               class="btn btn-sm btn-bg-light rounded-pill btn-text-danger"
                               title="remove"
-                              @click="removeModifier(item.id)"
+                              @click="removeClientCondition(item.id)"
                             >
                               <i
                                 class="bi bi-trash3 text-danger"
@@ -291,10 +298,10 @@
                   type="button"
                   class="btn bg-light-success text-primary btn-hover-rise btn-sm mb-5"
                 >
-                  + Add Client Condition
+                  + {{ $t("addClientCondition") }}
                 </button>
                 <span class="text-danger row">
-                  {{ $t("Client must have one Condition at least") }}
+                  {{ $t("ClientMustHaveOneConditionAtLeast") }}
                 </span>
               </div>
               <el-dialog
@@ -313,14 +320,13 @@
                           <label class="required fs-5 fw-bold mb-2 d-inline">
                             {{ $t("clientsCondition") }}</label
                           >
-                          {{ itemInstance.conditionId }}
-
                           <Field name="conditionId" v-slot="{ field, value }">
                             <el-select
                               v-bind="field"
                               :mode-value="value"
                               class="w-100 form-control-solid border-0"
                               v-model="itemInstance.conditionId"
+                              @change="resetItem(itemInstance.conditionId)"
                             >
                               <el-option
                                 v-for="item in clientCondition"
@@ -679,7 +685,6 @@
                               type="text"
                               v-slot="{ field, value }"
                             >
-                              <!-- {{  getArea(condition.cityId)}} -->
                               <el-select
                                 v-bind="field"
                                 :mode-value="value"
@@ -743,18 +748,18 @@
 
                       <div class="mt-7">
                         <button
-                          v-if="!clickedModifier"
+                          v-if="!clickedCondition"
                           type="submit"
                           class="btn btn-primary btn-text-white btn-hover-rise shadow-sm"
                         >
-                          Submit Data
+                          {{ $t("submitData") }}
                         </button>
                         <button
                           v-else
                           type="submit"
                           class="btn btn-primary btn-text-white btn-hover-rise shadow-sm"
                         >
-                          Edit Data
+                          {{ $t("editData") }}
                         </button>
                       </div>
                     </Form>
@@ -786,13 +791,13 @@
               :disabled="!isSubmitAllValid"
             >
               <span v-if="!loading" class="indicator-label">
-                Submit
+                {{ $t("submit") }}
                 <span class="svg-icon svg-icon-3 ms-2 me-0">
                   <inline-svg src="/media/icons/duotune/arrows/arr064.svg" />
                 </span>
               </span>
               <span v-if="loading" class="indicator-progress">
-                Please wait...
+                {{ $t("pleaseWait") }}...
                 <span
                   class="spinner-border spinner-border-sm align-middle ms-2"
                 ></span>
@@ -809,19 +814,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, unref, defineEmits } from "vue";
+import { computed, ref, unref, defineEmits, watch } from "vue";
 import { hideModal } from "@/core/helpers/dom";
 import { uuid } from "vue-uuid";
 import { Field, Form, ErrorMessage } from "vee-validate";
 import Swal from "sweetalert2";
+
+import { screenDimensions } from "@/utils/helpers";
 import { Actions } from "@/store/enums/StoreEnums";
 import * as yup from "yup";
 import i18n from "@/core/plugins/i18n";
 import { useStore } from "vuex";
-interface screenDimensionsObject {
-  availHeight: number;
-  availWidth: number;
-}
+
 interface conditionsType {
   conditionId: string;
   id?: string;
@@ -830,7 +834,7 @@ interface conditionsType {
   maxValue: string;
   operationTypeId: string;
 }
-interface FormClientGroup {
+interface ClientGroupForm {
   name: string;
   icon?: string;
   textColorHexa: string;
@@ -838,34 +842,29 @@ interface FormClientGroup {
   conditionsOperatorId: string;
   conditions: Array<conditionsType>;
 }
-const screenDimensions = (): screenDimensionsObject => {
-  const availWidth = window.innerWidth;
-  const availHeight = window.innerHeight;
 
-  return { availWidth, availHeight };
-};
 const store = useStore();
-const icons = computed(() => store.getters.getIcons);
-const conditionsOperator = computed(() => store.getters.getConditionType);
-const copmerisonType = computed(() => store.getters.getcopmerisonType);
-const clientCondition = computed(() => store.getters.getclientsCondition);
-const countries = computed(() => store.getters.getCountries);
-const gender = computed(() => store.getters.getGender);
-const cities = computed(() => store.getters.getCities);
-const area = computed(() => store.getters.getAreas);
+const icons = computed<any>(() => store.getters.getIcons);
+const conditionsOperator = computed<any>(() => store.getters.getConditionType);
+const copmerisonType = computed<any>(() => store.getters.getcopmerisonType);
+const clientCondition = computed<any>(() => store.getters.getclientsCondition);
+const countries = computed<any>(() => store.getters.getCountries);
+const gender = computed<any>(() => store.getters.getGender);
+const cities = computed<any>(() => store.getters.getCities);
+const area = computed<any>(() => store.getters.getAreas);
 let emit = defineEmits(["fetchData"]);
 const addCustomerModalRef = ref<null | HTMLElement>(null);
 const loading = ref<boolean>(false);
-const country = ref("");
-const groupItemDialog = ref(false);
-const confirmationDialog = ref(false);
+const country = ref<string>("");
+const groupItemDialog = ref<boolean>(false);
+const confirmationDialog = ref<boolean>(false);
 const targetRemovedDetails = ref({
   id: null,
   array: "",
 });
-const city = ref("");
+const city = ref<string>("");
 const conditions = ref<conditionsType[]>([]);
-const formData = ref<FormClientGroup>({
+const formData = ref<ClientGroupForm>({
   name: "",
   icon: "",
   textColorHexa: "#2b2b2b",
@@ -880,6 +879,7 @@ const itemInstance = ref({
   maxValue: "",
   operationTypeId: "1",
 });
+
 const toggleConfirmationDialog = (info: { id: any; array: string }) => {
   targetRemovedDetails.value = info;
 
@@ -896,17 +896,18 @@ const toggleAddNewGroupItemDialog = () => {
     maxValue: "",
     operationTypeId: "1",
   };
+  clickedCondition.value = null;
   groupItemDialog.value = !groupItemDialog.value;
 };
-const clickedModifier = ref();
-const setClickedModifier = (item: {
+const clickedCondition = ref();
+const setClickedCondition = (item: {
   conditionId: string;
   value: string;
   operationTypeId: string;
   minValue: string;
   maxValue: string;
 }) => {
-  clickedModifier.value = item;
+  clickedCondition.value = item;
 
   itemInstance.value.conditionId = item.conditionId;
   itemInstance.value.value = item.value;
@@ -914,7 +915,7 @@ const setClickedModifier = (item: {
   itemInstance.value.minValue = item.minValue;
   itemInstance.value.maxValue = item.maxValue;
 };
-const removeModifier = async (id: string) => {
+const removeClientCondition = async (id: string) => {
   Swal.fire({
     title: i18n.global.t("alertText"),
     text: i18n.global.t("deleteclientGroupAlertText"),
@@ -927,21 +928,30 @@ const removeModifier = async (id: string) => {
   }).then((status) => {
     if (status.isConfirmed) {
       conditions.value = conditions.value.filter((i) => i.id !== id);
-      
+
       toggleConfirmationDialog({ id: null, array: "" });
     }
   });
 };
+const resetItem = (id: any) => {
+  itemInstance.value = {
+    conditionId: id,
+    value: "",
 
+    minValue: "",
+    maxValue: "",
+    operationTypeId: "1",
+  };
+  (country.value = ""), (city.value = "");
+};
 const addnewItem = (values: any) => {
   const item = unref(itemInstance.value);
 
-  if (!clickedModifier.value) {
-
+  if (!clickedCondition.value) {
     conditions.value.push({ ...item, id: uuid.v4() });
   } else {
     let targeted = conditions.value.find(
-      (el: any) => el.id === clickedModifier.value.id
+      (el: any) => el.id === clickedCondition.value.id
     );
     targeted.conditionId = item.conditionId;
     targeted.value = item.value;
@@ -957,12 +967,15 @@ const addnewItem = (values: any) => {
     operationTypeId: "1",
   };
   toggleAddGroupItemDialog();
-  clickedModifier.value = null;
+  clickedCondition.value = null;
 };
 const getCities = (id: any) => {
+  city.value = "";
   store.dispatch(Actions.GET_CITY_BY_COUNTRYID, id);
 };
 const getArea = (id: any) => {
+  itemInstance.value.value = "";
+
   store.dispatch(Actions.GET_AREA_BY_CITYID, id);
 };
 
@@ -971,7 +984,6 @@ const schema = yup.object().shape({
   operationTypeId: yup.string().default("1"),
   // value: yup.string().required(i18n.global.t("fieldRequired")),
   minValue: yup.string().when("operationTypeId", (operationTypeId: string) => {
-  
     if (operationTypeId === "6") {
       return yup.string().required(i18n.global.t("fieldRequired"));
     } else {
@@ -989,7 +1001,6 @@ const schema = yup.object().shape({
     }
   }),
   gender: yup.string().when("conditionId", (conditionId: string) => {
-    
     if (conditionId === "9") {
       return yup.string().required(i18n.global.t("fieldRequired"));
     } else {
@@ -997,7 +1008,6 @@ const schema = yup.object().shape({
     }
   }),
   country: yup.string().when("conditionId", (conditionId: string) => {
-    
     if (conditionId === "10") {
       return yup.string().required(i18n.global.t("fieldRequired"));
     } else {
@@ -1005,7 +1015,6 @@ const schema = yup.object().shape({
     }
   }),
   city: yup.string().when("conditionId", (conditionId: string) => {
-    
     if (conditionId === "11") {
       return yup.string().required(i18n.global.t("fieldRequired"));
     } else {
@@ -1013,31 +1022,45 @@ const schema = yup.object().shape({
     }
   }),
   area: yup.string().when("conditionId", (conditionId: string) => {
-    
     if (conditionId === "12") {
       return yup.string().required(i18n.global.t("fieldRequired"));
     } else {
       return yup.string();
     }
   }),
-  value: yup.string().when("conditionId", (conditionId: string) => {
-    
-    if (
-      conditionId === "7" ||
-      conditionId === "10" ||
-      conditionId === "11" ||
-      conditionId === "12" ||
-      conditionId === "8" ||
-      conditionId === "9"
-    ) {
-      return yup.string();
-    } else {
-      
-      return yup.string().required(i18n.global.t("fieldRequired"));
-    }
-  }),
+  value: yup
+    .string()
+    .when("conditionId", (conditionId: string) => {
+      if (
+        conditionId === "7" ||
+        conditionId === "10" ||
+        conditionId === "11" ||
+        conditionId === "12" ||
+        conditionId === "8" ||
+        conditionId === "9"
+      ) {
+        return yup.string()
+
+      } else {
+        return yup.string().when("operationTypeId", (operationTypeId: string) => {
+      console.log("value operationTypeId : ", operationTypeId);
+      if (operationTypeId === "6") {
+        return yup.string();
+      } else {
+        return yup.string().required(i18n.global.t("fieldRequired"));
+      }
+    })
+      }
+    }),
+    // .when("operationTypeId", (operationTypeId: string) => {
+    //   console.log("value operationTypeId : ", operationTypeId);
+    //   if (operationTypeId === "6") {
+    //     return yup.string();
+    //   } else {
+    //     return yup.string().required(i18n.global.t("fieldRequired"));
+    //   }
+    // }),
   maxValue: yup.string().when("operationTypeId", (operationTypeId: string) => {
-   
     if (operationTypeId === "6") {
       return yup.string().required(i18n.global.t("fieldRequired"));
     } else {
@@ -1080,30 +1103,21 @@ const isSubmitAllValid = computed(() => {
 const onSubmit = (values: any, { resetForm }: any) => {
   loading.value = true;
 
-  setTimeout(() => {
+  formData.value.conditions = conditions.value;
+
+  store.dispatch(Actions.ADD_CLIENT_GROUP, formData.value).then((res) => {
+    hideModal(addCustomerModalRef.value);
     loading.value = false;
-
-    store.dispatch(Actions.ADD_CLIENT_GROUP, formData.value).then(() => {
-      hideModal(addCustomerModalRef.value);
-      (formData.value.name = ""),
-        (formData.value.icon = ""),
-        (formData.value.textColorHexa = "#2b2b2b"),
-        (formData.value.backgroundColorHeax = "#ffffff"),
-        (formData.value.conditionsOperatorId = ""),
-        (conditions.value = [
-          {
-            conditionId: "",
-            value: "",
-            minValue: "",
-            maxValue: "",
-            operationTypeId: "1",
-          },
-        ]),
-
-      (formData.value.conditions = []), resetForm();
-      emit("fetchData");
-    });
-  }, 2000);
+    (formData.value.name = ""),
+      (formData.value.icon = ""),
+      (formData.value.textColorHexa = "#2b2b2b"),
+      (formData.value.backgroundColorHeax = "#ffffff"),
+      (formData.value.conditionsOperatorId = ""),
+      (conditions.value = []),
+      (formData.value.conditions = []),
+      resetForm();
+    emit("fetchData");
+  });
 };
 </script>
 <style>

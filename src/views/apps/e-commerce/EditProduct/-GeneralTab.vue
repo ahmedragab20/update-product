@@ -2,14 +2,23 @@
   <div>
     <div class="d-flex flex-column gap-7 gap-xl-10">
       <!--begin::General resources-->
-      <div class="card card-flush py-4"
-           :class="{'gradient-border' : updateProductState.changedSections.includes('resources')}">
+      <div
+        class="card card-flush py-4"
+        :class="{
+          'gradient-border':
+            updateProductState.changedSections.includes('resources'),
+        }"
+      >
         <!--begin::Card header-->
         <div class="card-header">
-          <div class="card-title d-flex justify-content-between align-items-center flex-wrap w-100">
+          <div
+            class="card-title d-flex justify-content-between align-items-center flex-wrap w-100"
+          >
             <h2>General</h2>
             <div @click="resourcesHowTo = true">
-              <span class="badge badge-light-dark cursor-pointer user-select-none">
+              <span
+                class="badge badge-light-dark cursor-pointer user-select-none"
+              >
                 <i class="bi bi-info-circle-fill text-sm text-dark me-1"></i>
                 what this
               </span>
@@ -29,19 +38,20 @@
                   src="https://cdn.dribbble.com/users/2187949/screenshots/15382644/media/33bba895502f9bc3754573891dfd1b1d.jpg"
                   width="240"
                   alt=""
-                >
+                />
               </div>
               <p class="text-center mx-auto mt-5">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias at dignissimos obcaecati provident quasi
-                quo.
-                soluta tenetur vero? A atque autem commodi doloribus ea eius nihil porro tempora tempore vel!
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Alias
+                at dignissimos obcaecati provident quasi quo. soluta tenetur
+                vero? A atque autem commodi doloribus ea eius nihil porro
+                tempora tempore vel!
               </p>
             </div>
           </template>
         </el-dialog>
         <!--end::Card header-->
         <!--begin::Card body-->
-        <product-resources :langs="langs" :product="props.product" />
+        <product-resources :languages="langs" :product="props.product" />
         <!--end::Card header-->
       </div>
       <!--end::General resources-->
@@ -195,7 +205,7 @@ const activeDiscounts = ref<any[]>([]);
 const deactivatedDiscounts = ref<any[]>([]);
 const discountTable = ref([
   { id: "active-discount", label: "Active" },
-  { id: "deactivated-discount", label: "Deactivated" }
+  { id: "deactivated-discount", label: "Deactivated" },
 ]);
 const selectedDiscountTableType = ref();
 const setSelectedDiscountTable = (discount: any) => {
@@ -209,8 +219,8 @@ const getActiveDiscounts = async (productId: string | number) => {
     payload: {
       productId,
       pageSize: 0,
-      pageNumber: 0
-    }
+      pageNumber: 0,
+    },
   };
   try {
     const { data }: any = await Api(reqData);
@@ -226,8 +236,8 @@ const getDeactivatedDiscounts = async (productId: string | number) => {
     payload: {
       productId,
       pageSize: 0,
-      pageNumber: 0
-    }
+      pageNumber: 0,
+    },
   };
   try {
     const { data }: any = await Api(reqData);
@@ -241,7 +251,7 @@ const deactivateDiscountAlert = (discount) => {
     title: "We're Done!",
     text: "The Data has been saved!",
     handler: deactivateDiscount,
-    payload: discount
+    payload: discount,
   });
 };
 const deactivateDiscount = async (discount) => {
@@ -258,7 +268,7 @@ const deactivateDiscount = async (discount) => {
     targetedDiscount.isActive = false;
     deactivatedDiscounts.value = [
       targetedDiscount,
-      ...deactivatedDiscounts.value
+      ...deactivatedDiscounts.value,
     ];
 
     activeDiscounts.value = activeDiscounts.value.filter(
@@ -268,12 +278,12 @@ const deactivateDiscount = async (discount) => {
   if (!!discount.id) {
     const payload = {
       id: props.product.id,
-      discountId: discount["id"]
+      discountId: discount["id"],
     };
     const reqData = {
       method: "post",
       url: "/ProductCommands/deactivate-product-discount",
-      payload
+      payload,
     };
 
     try {

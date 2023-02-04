@@ -6,10 +6,9 @@ export const WalletRoutes: Array<RouteRecordRaw> = [
     component: () => import("@/views/wallet/pages/index.vue"),
   },
   {
-    path: "/wallet/wallet-details/:id",
+    path: "/wallet/wallet-details/:id/:shopId",
     name: "wallet-details",
     props: true,
     component: () => import("@/views/wallet/pages/details.vue"),
   },
- 
 ];

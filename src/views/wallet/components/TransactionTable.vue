@@ -19,10 +19,10 @@
               v-model="pagination.pageSize"
               placeholder="Number Of Item"
             >
-              <el-option value="4">6</el-option>
+              <el-option value="6">6</el-option>
               <el-option value="10">10</el-option>
 
-              <el-option value="2">22</el-option>
+              <el-option value="50">50</el-option>
               <el-option value="100">100</el-option>
             </el-select>
           </li>

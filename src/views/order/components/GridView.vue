@@ -3,33 +3,38 @@
     <div v-for="order in items" :key="order.id" class="col-12 col-md-4">
       <div class="card shadow-sm h-100">
         <div
-          class="card-toolbar mx-4 my-2 d-flex justify-content-end align-items-center">
+          class="card-toolbar mx-4 my-2 d-flex justify-content-end align-items-center"
+        >
           <div class="dropdown">
             <button
               type="button"
               class="btn btn-sm btn-icon btn-color-primary btn-active-light-primary"
               id="dropdownMenuButton1"
               data-bs-toggle="dropdown"
-              aria-expanded="false">
+              aria-expanded="false"
+            >
               <!--begin::Svg Icon | path: icons/duotune/general/gen024.svg-->
               <span class="svg-icon svg-icon-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24px"
                   height="24px"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <g
                     stroke="none"
                     stroke-width="1"
                     fill="none"
-                    fill-rule="evenodd">
+                    fill-rule="evenodd"
+                  >
                     <rect
                       x="5"
                       y="5"
                       width="5"
                       height="5"
                       rx="1"
-                      fill="currentColor"></rect>
+                      fill="currentColor"
+                    ></rect>
                     <rect
                       x="14"
                       y="5"
@@ -37,7 +42,8 @@
                       height="5"
                       rx="1"
                       fill="currentColor"
-                      opacity="0.3"></rect>
+                      opacity="0.3"
+                    ></rect>
                     <rect
                       x="5"
                       y="14"
@@ -45,7 +51,8 @@
                       height="5"
                       rx="1"
                       fill="currentColor"
-                      opacity="0.3"></rect>
+                      opacity="0.3"
+                    ></rect>
                     <rect
                       x="14"
                       y="14"
@@ -53,7 +60,8 @@
                       height="5"
                       rx="1"
                       fill="currentColor"
-                      opacity="0.3"></rect>
+                      opacity="0.3"
+                    ></rect>
                   </g>
                 </svg>
               </span>
@@ -61,7 +69,8 @@
             </button>
             <div
               aria-labelledby="dropdownMenuButton1"
-              class="dropdown-menu menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-bold w-200px pb-2">
+              class="dropdown-menu menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg-light-primary fw-bold w-200px pb-2"
+            >
               <!--begin::Menu item-->
               <div class="menu-item px-3">
                 <div class="menu-content fs-6 text-dark fw-bolder px-3 py-4">
@@ -77,7 +86,8 @@
               <div class="menu-item px-3">
                 <router-link
                   class="menu-link px-3 d-flex justify-content-between align-items-center"
-                  :to="`/order/update-order/${order.id}`">
+                  :to="`/order/update-order/${order.id}`"
+                >
                   <span>{{ $t("updateOrder") }}</span>
                   <span class="svg-icon svg-icon-3">
                     <inline-svg src="/media/icons/duotune/art/art005.svg" />
@@ -87,7 +97,8 @@
               <div class="menu-item px-3">
                 <a
                   @click="deleteOrderAction(order.id)"
-                  class="menu-link px-3 d-flex justify-content-between align-items-center">
+                  class="menu-link px-3 d-flex justify-content-between align-items-center"
+                >
                   <span>{{ $t("delete") }}</span>
                   <span class="svg-icon svg-icon-danger">
                     <inline-svg src="/media/icons/duotune/general/gen027.svg" />
@@ -103,7 +114,8 @@
           </div>
         </div>
         <div
-          class="card-body pt-0 d-flex flex-column align-items-center justify-content-center">
+          class="card-body pt-0 d-flex flex-column align-items-center justify-content-center"
+        >
           <h2>
             {{ order.name }}
           </h2>
@@ -131,14 +143,16 @@
           </div> -->
           <div class="d-flex mt-5 row">
             <div
-              class="border border-gray-300 border-dashed rounded py-3 px-4 mx-2 mb-3 col-12 row">
+              class="border border-gray-300 border-dashed rounded py-3 px-4 mx-2 mb-3 col-12 row"
+            >
               <span class="fw-bold text-start text-gray-400">
                 {{ $t("Must Follow The Order") }}
               </span>
 
               <span
                 class="svg-icon svg-icon-1 svg-icon-gray-600"
-                v-if="order.mustFollowTheOrder">
+                v-if="order.mustFollowTheOrder"
+              >
                 <inline-svg src="/media/svg/general/icons8-done.svg" />
               </span>
               <span class="svg-icon svg-icon-1 svg-icon-gray-600" v-else>
@@ -147,18 +161,21 @@
             </div>
 
             <div
-              class="border text-start border-gray-300 border-dashed rounded py-3 px-4 mx-2 mb-3 col-12 row">
+              class="border text-start border-gray-300 border-dashed rounded py-3 px-4 mx-2 mb-3 col-12 row"
+            >
               <span class="fw-bold text-gray-400"
                 >{{ $t("Can Revert Action") }}
               </span>
               <span
                 class="svg-icon svg-icon-1 svg-icon-gray-600 text-end"
-                v-if="order.canRevertAction">
+                v-if="order.canRevertAction"
+              >
                 <inline-svg src="/media/svg/general/icons8-done.svg" />
               </span>
               <span
                 class="svg-icon svg-icon-1 svg-icon-gray-600 text-end"
-                v-else>
+                v-else
+              >
                 <inline-svg src="/media/svg/general/icons8-cancel.svg" />
               </span>
             </div>
@@ -195,17 +212,20 @@
             </div>
           </div> -->
             <div
-              class="border text-start border-gray-300 border-dashed rounded py-3 px-4 mx-2 mb-3 col-12 row">
+              class="border text-start border-gray-300 border-dashed rounded py-3 px-4 mx-2 mb-3 col-12 row"
+            >
               <span class="fw-bold text-gray-400">{{ $t("isDefault") }} </span>
 
               <span
                 class="svg-icon svg-icon-1 svg-icon-gray-600 text-end"
-                v-if="order.isDefault">
+                v-if="order.isDefault"
+              >
                 <inline-svg src="/media/svg/general/icons8-done.svg" />
               </span>
               <span
                 class="svg-icon svg-icon-1 svg-icon-gray-600 text-end"
-                v-else>
+                v-else
+              >
                 <inline-svg src="/media/svg/general/icons8-cancel.svg" />
               </span>
             </div>
@@ -222,7 +242,8 @@
         layout="prev, pager, next"
         :total="pagination.totalCount"
         :hide-on-single-page="true"
-        background>
+        background
+      >
       </el-pagination>
     </div>
   </div>
@@ -231,14 +252,14 @@
 import { useStore } from "vuex";
 
 import { Pagination } from "@/types";
-import {  computed, defineEmits } from "vue";
+import { computed, defineEmits } from "vue";
 import Swal from "sweetalert2";
 import i18n from "@/core/plugins/i18n";
 
 const store = useStore();
 const items = computed(() => store.state.Order.OrderAction);
-let emit = defineEmits(["delete-order-action", "update-pagination"]);
-function deleteOrderAction(id) {
+const emit = defineEmits(["delete-order-action", "update-pagination"]);
+function deleteOrderAction(id: string) {
   console.log(id);
   Swal.fire({
     title: i18n.global.t("alertText"),
@@ -251,13 +272,12 @@ function deleteOrderAction(id) {
     confirmButtonText: i18n.global.t("yesSure"),
   }).then((status) => {
     if (status.isConfirmed) emit("delete-order-action", id);
-
+    else return null;
     for (let i = 0; i < items.value.length; i++) {
       if (items.value[i].id === id) {
         items.value.splice(i, 1);
       }
     }
-    console.log(items);
   });
 }
 const pagination = computed(() => store.state.Order.pagination as Pagination);

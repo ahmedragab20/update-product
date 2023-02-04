@@ -15,13 +15,12 @@ export default async <T extends ParamsT>({
 }: T) => {
   try {
     // get method function block
-
     if (method === "get" && !payload) {
       const data = await axios.get(url, {
         headers: customsHeaders || undefined,
       });
-      if (data?.data?.succeeded) {
-        store.commit("SET_RESPONSE_HEADER", data.headers, { root: true });
+      if (data.data.succeeded) {
+        await store.dispatch("setResponseHandler", data.headers);
         store.commit("ERRORS", null, { root: true });
         return data;
       } else {
@@ -33,8 +32,8 @@ export default async <T extends ParamsT>({
         headers: customsHeaders || undefined,
         params: payload,
       });
-      if (data?.data?.succeeded) {
-        store.commit("SET_RESPONSE_HEADER", data.headers, { root: true });
+      if (data.data.succeeded) {
+        await store.dispatch("setResponseHandler", data.headers);
         store.commit("ERRORS", null, { root: true });
         return data;
       } else {
@@ -47,10 +46,12 @@ export default async <T extends ParamsT>({
       const data = await axios.post(url, payload || undefined, {
         headers: customsHeaders || undefined,
       });
+      console.log(data);
 
-      if (data?.data?.succeeded) {
-        store.commit("SET_RESPONSE_HEADER", data.headers, { root: true });
+      if (data.data.succeeded) {
+        await store.dispatch("setResponseHandler", data.headers);
         store.commit("ERRORS", null, { root: true });
+
         return data;
       } else {
         store.commit("ERRORS", data, { root: true });
@@ -62,20 +63,8 @@ export default async <T extends ParamsT>({
       const data = await axios.put(url, payload || undefined, {
         headers: customsHeaders || undefined,
       });
-      if (data?.data?.succeeded) {
-        store.commit("SET_RESPONSE_HEADER", data.headers, { root: true });
-        store.commit("ERRORS", null, { root: true });
-        return data;
-      } else {
-        store.commit("ERRORS", data, { root: true });
-        return data;
-      }
-
-      //! delete method function block
-    } else if (method === "delete") {
-      const data = await axios.delete(url, payload || undefined);
-      if (data?.data?.succeeded) {
-        store.commit("SET_RESPONSE_HEADER", data.headers, { root: true });
+      if (data.data.succeeded) {
+        await store.dispatch("setResponseHandler", data.headers);
         store.commit("ERRORS", null, { root: true });
         return data;
       } else {

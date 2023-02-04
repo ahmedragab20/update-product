@@ -199,6 +199,11 @@ interface GategoriesOptions {
   label: string;
   children: Array<productCategories>;
 }
+
+interface props { 
+  id:string,
+
+}
 const store = useStore();
 // define shopCategories
 const shopCategories = ref<shopCategories>({
@@ -206,10 +211,8 @@ const shopCategories = ref<shopCategories>({
   id: "",
 });
 // get id as a prop
-let props = defineProps({
-  id: String,
-});
 
+const props = defineProps<props>();
 // define local pagination
 const localPagination = reactive({ pageNumber: 1, pageSize: 5 });
 // set pagination 
@@ -239,9 +242,12 @@ const addGategories = (id) => {
       },
     });
   } else {
-    shopCategories.value.productCategories.push(parseInt(id));
+    shopCategories.value.productCategories.push(id);
     GategoriesId.value = "";
+    
+    
   }
+
 };
 // get GategoriesOptions from store
 const GategoriesOptions = computed(
@@ -261,7 +267,7 @@ const deleteGategory = (id) => {
 // save changes
 const saveChanges = async (values: any) => {
   isLoading.value = true;
-
+ 
   store
     .dispatch(Actions.UPDATE_SHOP_CATEGORIES, shopCategories.value)
     .then(() => {
@@ -271,7 +277,7 @@ const saveChanges = async (values: any) => {
 // get shop category from api
 onMounted(() => {
 
-
+  store.dispatch(Actions.GET_CATEGORIES);
   store.dispatch(Actions.GET_SHOP_CATEGORIES, props.id).then((data) => {
   
     shopCategories.value.productCategories= data.data.productCategories.map(el=> parseInt(el.id))

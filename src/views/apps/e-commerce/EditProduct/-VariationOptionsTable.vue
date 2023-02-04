@@ -8,31 +8,15 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(option, $index) in optionsCopy"
-          :key="option.connectionId"
-          @click="rowClickedHandler(option)"
-        >
+        <tr v-for="option in options" :key="option.connectionId">
           <td
             class="text-truncate position-relative"
             style="min-width: 100px; max-width: 140px"
           >
-            <div class="d-flex align-items-center justify-content-start">
-              <input
-                :disabled="reqLoading"
-                :readonly="isReadonly"
-                :value="newOptionData['label'] || option.resources['0'].label"
-                class="border-0 bg-transparent"
-                type="text"
-                @click="mutateIsReadonly(false)"
-                @input="
-                  editTableData({
-                    key: 'Label',
-                    value: $event.target.value,
-                  })
-                "
-              />
-            </div>
+            <div
+              class="d-flex align-items-center justify-content-start"
+              v-text="getResource(option.resources)"
+            />
           </td>
           <td>
             <div class="d-flex gap-2 w-100">
@@ -49,18 +33,6 @@
                     class="rounded-circle"
                     style="width: 20px; height: 20px"
                   />
-                  <el-color-picker
-                    v-if="
-                      clickedItem &&
-                      clickedItem.connectionId === option.connectionId
-                    "
-                    v-model="color"
-                    :predefine="predefineColors"
-                    class="mb-1"
-                    color-format="hex"
-                    size="small"
-                    @change="editTableData({ key: 'type', value: option })"
-                  />
                 </div>
                 <div
                   v-else
@@ -68,51 +40,13 @@
                 >
                   <div>
                     <img
-                      :src="option.type || option.image || placeholderImage"
+                      :src="optionImage(option)"
                       class="rounded-circle"
                       height="30"
                       width="30"
                       style="object-fit: cover"
-                      @click="
-                        imageViewerModalHandler(
-                          option.type || option.image || placeholderImage
-                        )
-                      "
+                      @click="imageViewerModalHandler(optionImage(option))"
                     />
-                  </div>
-                  <div
-                    v-if="
-                      clickedItem &&
-                      clickedItem.connectionId === option.connectionId
-                    "
-                  >
-                    <input
-                      :ref="`editImage-${option.connectionId}`"
-                      accept=".png, .jpg, .jpeg"
-                      hidden
-                      name="avatar"
-                      type="file"
-                      @change="onFileSelected($event)"
-                    />
-                    <el-button
-                      v-if="!reqLoading"
-                      :icon="Edit"
-                      circle
-                      plain
-                      size="small"
-                      type="primary"
-                      @click="
-                        $refs[`editImage-${option.connectionId}`][0].click()
-                      "
-                    />
-                    <el-button
-                      v-else
-                      circle
-                      loading
-                      plain
-                      size="small"
-                      type="primary"
-                    ></el-button>
                   </div>
                 </div>
               </div>
@@ -122,27 +56,82 @@
           <td>
             <div class="w-100 d-flex justify-content-end">
               <button
-                :disabled="reqLoading"
                 class="btn btn-text-danger btn-sm text-nowrap"
                 type="button"
-                @click="removeOption(option.connectionId)"
+                @click="askToRemoveOption(option.connectionId)"
               >
                 <i class="bi bi-trash text-danger"></i>
-                Remove Option
+              </button>
+              <button
+                @click="setEditTargetedOption(option)"
+                class="btn btn-sm"
+                type="button"
+              >
+                <i class="bi bi-pencil-square text-info"></i>
               </button>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- Edit Option Dialog -->
+    <Modal
+      v-model:modal-value="editOptionDialog"
+      :close="editOptionDialogToggle"
+      box-width-class="dialog-width"
+    >
+      <div v-if="!!clickedItem" class="p-3">
+        <EditVariationOption
+          title="Edit Variation"
+          :close="editOptionDialogToggle"
+          resources-title="Name of new option"
+          prices-title="Add an extra price"
+          :item="clickedItem"
+          type="edit"
+          @variation-option-data="updateOption"
+        />
+      </div>
+    </Modal>
+    <MazDialogPromise
+      :data="{
+        title: 'Delete option',
+        message: 'Are you sure to delete this user ?',
+      }"
+      identifier="one"
+    />
+    <MazDialogPromise identifier="two">
+      <template #title> Really delete this user ?</template>
+      <template #default>
+        Are you really really sure to delete this user ?
+      </template>
+    </MazDialogPromise>
+
+    <MazDialog v-model="removeOptionConfirmDialog">
+      <template #title> User deleted</template>
+      <template #default> User is deleted !</template>
+    </MazDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import Api from "@/utils/ApiHelper";
-import { ref } from "vue";
-import { computed, onMounted, watchEffect } from "@vue/runtime-core";
-import { Edit } from "@element-plus/icons-vue";
+import { ref, watch } from "vue";
+import { onMounted } from "@vue/runtime-core";
+import { useToast } from "maz-ui";
+import MazDialogPromise, {
+  useMazDialogPromise,
+} from "maz-ui/components/MazDialogPromise";
+
+import Modal from "@/components/Reusable/Modal.vue";
+import MazDialog from "maz-ui/components/MazDialog";
+
+import EditVariationOption from "./-EditVariationOption.vue";
+import { useStore } from "vuex";
+import { getResource } from "@/utils/helpers";
+
+const store = useStore();
+const { showDialogAndWaitChoice } = useMazDialogPromise();
+const { toast } = useToast();
 
 const props = defineProps({
   options: {
@@ -157,138 +146,83 @@ const props = defineProps({
     type: Function,
     required: true,
   },
-  typeId: {
-    type: null,
-    required: true,
-  },
-  isReadonly: {
-    type: Boolean,
-    default: false,
-    required: true,
-  },
-  mutateIsReadonly: {
-    type: Function,
-    required: true,
-  },
   imageViewerModalHandler: {
     type: Function,
     required: true,
   },
+  languages: {
+    type: Array,
+    required: true,
+  },
 });
 
-const color = ref("#" + Math.random().toString(16).slice(2, 8).toUpperCase());
-const predefineColors = ref([
-  "#ff4500",
-  "#ff8c00",
-  "#ffd700",
-  "#90ee90",
-  "#00ced1",
-  "#1e90ff",
-  "#c71585",
-  "rgba(255, 69, 0, 0.68)",
-  "rgb(255, 120, 0)",
-  "hsv(51, 100, 98)",
-  "hsva(120, 40, 94, 0.5)",
-  "hsl(181, 100%, 37%)",
-  "hsla(209, 100%, 56%, 0.73)",
-  "#c7158577",
-]);
 const placeholderImage = ref(
   "https://cdn.dribbble.com/userupload/2917223/file/original-1586ed4f9ec248ef534919ac89c28976.png?compress=1&resize=752x"
 );
-const newOptionData = ref({});
+
+const optionImage = (option) => {
+  console.log(option);
+  const baseURL = "https://mfproductimages.s3.amazonaws.com/";
+  return option?.image && option?.image.includes("http")
+    ? option.image
+    : `${baseURL}${option.image}` || placeholderImage;
+};
+
+const newOptionData = ref();
+
+const removeOptionConfirmDialog = ref(false);
+const askToRemoveOption = async (id) => {
+  await showDialogAndWaitChoice("one");
+  await showDialogAndWaitChoice("two");
+
+  props.removeOption(id);
+};
+
 const clickedItem = ref<any>();
 
-const optionsCopy = computed(() => {
-  return props.options;
+const setEditTargetedOption = (option: any) => {
+  clickedItem.value = option;
+  editOptionDialogToggle();
+};
+const editOptionDialog = ref(false);
+
+const editOptionDialogToggle = () => {
+  editOptionDialog.value = !editOptionDialog.value;
+};
+watch(editOptionDialog, (newV) => {
+  if (!newV) {
+    // reset the clicked item
+    clickedItem.value = {};
+  }
 });
 
-const rowClickedHandler = (option: any) => {
-  clickedItem.value = option;
-};
-
-const setNewOptionDataLabel = (newVal) => {
-  const item = optionsCopy.value.find(
-    (item) => item.connectionId === clickedItem.value.connectionId
-  );
-  const newOptionItem = newOptionData.value?.find(
-    (item) => item.connectionId === clickedItem.value.connectionId
-  );
-
-  item.resources[0].label = newVal;
-  newOptionItem.resources[0].label = newVal;
-};
-
-const setNewOptionDataColor = (option) => {
-  const item = optionsCopy.value.find(
-    (item) => item.connectionId === option.connectionId
-  );
-
-  item.type = color.value;
-  item.colorHexa = color.value;
-};
-
-const editTableData = ({ key, value }) => {
-  if (key.toLocaleLowerCase() === "label") {
-    setNewOptionDataLabel(value);
-  } else if (key.toLocaleLowerCase() === "type") {
-    setNewOptionDataColor(value);
-  }
-};
-
-const photo = ref();
-const url = ref();
-const reqDone = ref<any>(false);
-const reqLoading = ref(false);
-
-const onFileSelected = (event) => {
-  reqDone.value = false;
-  photo.value = event.target.files[0];
-  url.value = URL.createObjectURL(photo.value);
-
-  onUpload();
-};
-
-const onUpload = async () => {
+const updateOption = async (optionData) => {
   try {
-    reqLoading.value = true;
-
-    const item = optionsCopy.value.find(
-      (item) => item.connectionId === clickedItem.value.connectionId
+    const item = props.options.find(
+      (item) => item.connectionId === optionData.connectionId
     );
-
-    const fd = new FormData();
-    fd.append("file", photo.value);
-
-    const reqData = {
-      method: "post",
-      url: "/ManageCommands/upload-file",
-      payload: fd,
-    };
-
-    const { data } = await Api(reqData);
-    if (data?.succeeded) {
-      reqDone.value = true;
-      item["type"] = url.value;
-      item["imageKey"] = data.data;
-    } else reqDone.value = "failed";
+    item["resources"] = optionData["resources"] || [];
+    item["image"] = optionData["image"] || "";
+    item["colorHexa"] = optionData["colorHexa"] || "";
+    placeholderImage.value = optionData["imgURL"];
+    await toast.success("Done, press save changes to submit this change", {
+      position: "bottom",
+      timeout: 5000,
+    });
   } catch (error) {
-    console.error(error);
-  } finally {
-    reqLoading.value = false;
-  }
-};
-const cancel = () => {
-  url.value = null;
-};
+    await toast.error("Something went wrong! please try again later", {
+      position: "bottom",
+      timeout: 5000,
+    });
 
-const log = (item): void => {};
+    console.error(error);
+  }
+
+  editOptionDialogToggle();
+};
 
 onMounted(() => {
-  newOptionData.value = optionsCopy.value;
-});
-watchEffect(() => {
-  props.options?.resources;
+  newOptionData.value = props.options;
 });
 </script>
 <style lang="scss" scoped>

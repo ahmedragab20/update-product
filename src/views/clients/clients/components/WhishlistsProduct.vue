@@ -12,7 +12,7 @@
       <!--begin::Modal content-->
       <div class="modal-content">
         <!--begin::Form-->
-        <div class="card pt-4">
+        <div class="card pt-4" >
           <!--begin::Card header-->
 
           <!--end::Card header-->
@@ -43,9 +43,11 @@
               </template>
               
             </Datatable>
+            
           </div>
           <!--end::Card body-->
         </div>
+        
         <!--end::Form-->
       </div>
     </div>

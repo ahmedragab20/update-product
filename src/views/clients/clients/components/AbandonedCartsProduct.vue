@@ -7,7 +7,6 @@
     tabindex="-1"
     aria-hidden="true"
   >
-  
     <!--begin::Modal dialog-->
     <div class="modal-dialog modal-dialog-centered mw-650px">
       <!--begin::Modal content-->
@@ -27,8 +26,7 @@
               :rows-per-page="5"
               :enable-items-per-page-dropdown="false"
             >
-           
-<template v-slot:cell-name="{ row: payment }">
+              <template v-slot:cell-name="{ row: payment }">
                 {{ payment.name }}
               </template>
               <template v-slot:cell-quantity="{ row: payment }">
@@ -45,10 +43,9 @@
                   alt=""
                 />
               </template>
-   <template v-slot:cell-id="{ row: payment }">
+              <template v-slot:cell-id="{ row: payment }">
                 {{ payment.id }}
               </template>
-              
             </Datatable>
           </div>
           <!--end::Card body-->
@@ -68,24 +65,20 @@ import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { hideModal } from "@/core/helpers/dom";
 
 export default defineComponent({
-  name: "client-wishlist-product",
+  name: "client-abandon-product",
 
   components: {
     Datatable,
   },
   setup(props) {
     const store = useStore();
-    const tableData = computed(
-      () => store.state.Clients.AbandonedCartsProduct
-    );
+    const tableData = computed(() => store.state.Clients.AbandonedCartsProduct);
 
-    const fetchData = (id) => {
-      console.log("ijd", id);
-
-      store.dispatch(Actions.GET_CLIENT_ABANDONED_CARTS_PRODUCTS, id).then((res) => {
-        data.value = true;
-        console.log("AbandonedCartsProduct", res);
-      });
+ const fetchData = (id) => {
+ store.dispatch(Actions.GET_CLIENT_ABANDONED_CARTS_PRODUCTS, id)
+        .then((res) => {
+          data.value = true;
+        });
     };
 
     const data = ref(false);
@@ -95,7 +88,7 @@ export default defineComponent({
         key: "id",
         sortable: true,
       },
-       {
+      {
         name: "Name",
         key: "name",
 
@@ -119,7 +112,6 @@ export default defineComponent({
 
         sortable: true,
       },
-     
     ]);
 
     return { tableHeader, tableData, data, fetchData };

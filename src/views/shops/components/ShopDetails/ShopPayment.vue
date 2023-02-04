@@ -47,14 +47,14 @@
                         :label="item.name"
                         :value="item.id"
                         :disabled="
-                          paymentMethodsResult.includes(parseInt(item.id))
+                          form.shopPaymentOptions.includes(parseInt(item.id))
                         "
                       >
                         <span class="mx-2">{{ item.name }}</span>
                         <span
                           class="mx-2 text-danger"
                           v-if="
-                            paymentMethodsResult.includes(parseInt(item.id))
+                              form.shopPaymentOptions.includes(parseInt(item.id))
                           "
                           >{{ $t("alreadySelected") }}</span
                         >
@@ -143,8 +143,8 @@
         
       </div>
       <!--begin::Actions-->
-      <div class="row">
-        <div class="card w-50 card-flush justify-content-center align-items-center floating  py-6 px-9">
+      <div class="d-flex justify-content-center">
+        <div class="card col-12 justify-content-center align-items-center floating  py-6 px-9">
           <div class="card-title text-gray-400 fw-normal d-block pt-0">
             {{ $t("pleaseDontForgetToSavePaymentChanges") }}
           </div>
@@ -179,37 +179,40 @@ import { object, string } from "yup/lib/locale";
 
 interface shopPayment {
   id: string;
-  shopPaymentOptions: [];
+  shopPaymentOptions: Array<string>;
 }
 interface paymentMethodInterface {
   name: string;
   id: string;
   logo: string;
 }
-// deifne local pagination
+
+interface props { 
+  id:string,
+
+}
+
 const localPagination = reactive({ pageNumber: 1, pageSize: 5 });
 // deifne refs
 const isLoading = ref(false);
 const store = useStore();
 const paymentMethod = ref<paymentMethodInterface[]>();
 let paymetMethodId = ref();
+
 const shopPayment = ref<shopPayment>({
   shopPaymentOptions: [],
   id: "",
 });
 // get id as a prop
-let props = defineProps({
-  id: String,
-  countryId: String,
-});
+const props = defineProps<props>();
 const form = reactive(shopPayment);
-// delete Payment
+
 function deletePayment(id) {
-  let filteredMethod = shopPayment.value.shopPaymentOptions.filter(el => {
+  shopPayment.value.shopPaymentOptions= shopPayment.value.shopPaymentOptions.filter(el => {
     return el !== id
   })
-  shopPayment.value.shopPaymentOptions = filteredMethod;
-  console.log("form.value.shopPaymentOptions",shopPayment.value.shopPaymentOptions);
+  // shopPayment.value.shopPaymentOptions = filteredMethod;
+
 }
 // add payment
 function addPayment(id){
@@ -225,7 +228,7 @@ function addPayment(id){
         }
       })
   }else{
-    shopPayment.value.shopPaymentOptions.push(parseInt(id));
+    shopPayment.value.shopPaymentOptions.push(id);
     paymetMethodId.value = "";
   }
 }
@@ -241,8 +244,8 @@ const saveChanges = async (values: any) => {
   isLoading.value = false;
 };
 // get payment method
-const getpaymentMethod = () => {
-  store.dispatch(Actions.GET_PAYMENT_METHODS, props.countryId).then((data) => {
+const getpaymentMethod = (countryId:string) => {
+  store.dispatch(Actions.GET_PAYMENT_METHODS, countryId).then((data) => {
     paymentMethod.value = data.data;
   });
 };
@@ -256,13 +259,16 @@ const paymentMethodsResult = computed(() =>
 );
 
 onMounted(() => {
-  getpaymentMethod();
+  store.dispatch(Actions.GET_SHOPS_BASE_SETTINGS, props.id).then((data) => {
+    console.log(data);
+   
+    getpaymentMethod( data.countryId);
+  });
+ 
   // get shops payment settings from api
   store.dispatch(Actions.GET_SHOPS_PAYEMENT, props.id).then((data) => {
-    console.log("data",data);
     shopPayment.value = data;
-    shopPayment.value.shopPaymentOptions = data.shopPaymentOptions;
-    console.log("data.shopPaymentOptions",data.shopPaymentOptions);
+
     
   });
 });

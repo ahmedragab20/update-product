@@ -1,4 +1,7 @@
 import Swal from "sweetalert2";
+import store from "@/store";
+import { computed } from "vue";
+import { Language } from "@/types";
 
 interface IAlert {
   title: string;
@@ -19,11 +22,29 @@ interface screenDimensionsObject {
   availWidth: number;
 }
 
+const websiteLanguage = computed((): string => store.state.websiteLanguage);
+const languages = computed(
+  (): Language[] => store.state.LookupQueries.languages?.data
+);
+
+/**
+ * @function
+ * @param resources
+ * @param resourceKey the key we use to filter the resources
+ * @returns {resource} Object
+ */
+export const getResource = (resources: any[], resourceKey = "languageId") => {
+  const siteLng: any = languages.value?.find(
+    (lng: Language) => lng.code === websiteLanguage.value
+  );
+  return resources.find((l) => l.languageId === siteLng.id)?.label || "";
+};
+
 export const dateFormat = (date: Date, withoutTime?: boolean) => {
   const newData = new Date(date);
   const numberWithTwoDigits = {
     minimumIntegerDigits: 2,
-    useGrouping: false
+    useGrouping: false,
   };
 
   const year = newData.getFullYear();
@@ -75,24 +96,24 @@ export const isTheTwoArraysMatch = (arr: any[], target: any[]): boolean => {
 };
 
 export const swalAlert = ({
-                            title,
-                            text,
-                            handler,
-                            payload,
-                            parentTitle,
-                            parentText,
-                            cancelText,
-                            cancelDialogText,
-                            cancelDialogTitle,
-                            submitText,
-                            hasCancel
-                          }: IAlert) => {
+  title,
+  text,
+  handler,
+  payload,
+  parentTitle,
+  parentText,
+  cancelText,
+  cancelDialogText,
+  cancelDialogTitle,
+  submitText,
+  hasCancel,
+}: IAlert) => {
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton: "btn btn-danger",
-      cancelButton: "btn btn-text-success"
+      cancelButton: "btn btn-text-success",
     },
-    buttonsStyling: false
+    buttonsStyling: false,
   });
   const swalHandler = async () => {
     swalWithBootstrapButtons
@@ -103,7 +124,7 @@ export const swalAlert = ({
         showCancelButton: hasCancel,
         confirmButtonText: submitText || "Yes, I'm sure!",
         cancelButtonText: cancelText || "No, cancel!",
-        reverseButtons: true
+        reverseButtons: true,
       })
       .then((result) => {
         if (result.isConfirmed) {
@@ -191,7 +212,7 @@ export const compareTwoDates = (date1: string, date2: string) => {
     isCurrentDateEqualDateTwo,
     isCurrentDateInBetween,
     comingUpAfter,
-    isValidForDiscount
+    isValidForDiscount,
   };
 };
 

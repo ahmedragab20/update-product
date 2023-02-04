@@ -39,7 +39,7 @@
     </div>
   </div>
   <div class="d-flex justify-content-between align-items-center w-100">
-    <h2>{{ $t("clientGroup") }}</h2>
+    <h2>{{ $t("clientsGroup") }}</h2>
 
     <div class="d-flex align-items-center justify-content-end my-3">
       <ul class="nav nav-pills me-6 mb-2 mb-sm-0">
@@ -101,6 +101,7 @@
   </div>
 
   <component
+  v-if="ClientGroups.length >0"
     @update-pagination="fetchData"
     :items="ClientGroups"
     :is="activeComponent"
@@ -108,21 +109,26 @@
     @delete-client-group="deleteGroup"
     @updateClientGroup="updateClientGroup"
   />
-
-  <update-client-group-modal ref="update" />
+  <div v-else>
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span>{{ $t("Loading") }}...</span>
+          </div>
+        </div>
+      </div>
+  <update-client-group-modal ref="update" @fetchData="fetchData" />
   <AddClientGroupModal @fetchData="fetchData"></AddClientGroupModal>
 </template>
 
 <script lang="ts">
-import { computed, ref, defineComponent } from "vue";
-
+import { computed, ref, defineComponent , onMounted} from "vue";
+import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb"; 
 import AddClientGroupModal from "../components/AddClientGroupModal.vue";
 import UpdateClientGroupModal from "../components/UpdateClientGroupModal.vue";
-
 import TableView from "../components/TableView.vue";
-
 import GridView from "../components/GridView.vue";
 import { useStore } from "vuex";
+import i18n from "@/core/plugins/i18n";
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { Pagination } from "@/interfaces/pagination";
 import { showModal } from "@/core/helpers/dom";
@@ -138,13 +144,13 @@ export default defineComponent({
 
   setup(props) {
     //
-    const filter = ref("");
+    const filter = ref<string>("");
     const store = useStore();
     const pagination = computed(
       () => store.state.ClientGroup.pagination as Pagination
     );
     const clientCondition = computed(() => store.getters.getclientsCondition);
-    const search = ref("");
+    const search = ref<string>("");
     let ClientGroups = computed(() => store.state.ClientGroup.ClientGroups);
     let all = ref(ClientGroups);
 
@@ -161,10 +167,12 @@ export default defineComponent({
       TABLE_VIEW = 1,
       GRID_VIEW = 2,
     }
-    const update = ref();
+    const update = ref<any>();
     const updateClientGroupModalRef = ref<null | HTMLElement>(null);
-    const deleteGroup = (id) => {
-      store.dispatch(Actions.DELETE_CLIENT_GROUP, id);
+    const deleteGroup = (id : any) => {
+      store.dispatch(Actions.DELETE_CLIENT_GROUP, id).then(()=>{
+        fetchData();
+      })
     };
     showModal(updateClientGroupModalRef.value);
     const activeView = ref(views.GRID_VIEW);
@@ -180,11 +188,11 @@ export default defineComponent({
     const setActiveView = (val: views) => {
       activeView.value = val;
     };
-    const setItemsPerPage = (e) => {
+    const setItemsPerPage = (e : any) => {
       store.commit(Mutations.UPDATE_PAGINATION_CLIENT_GROUP, e);
     };
     // fetchData();
-    const filterMember = (evt) => {
+    const filterMember = (evt : any) => {
       if (evt < 1) {
         fetchData();
       } else {
@@ -194,7 +202,9 @@ export default defineComponent({
     const searchItem = () => {
       store.commit(Mutations.SEARCH_GROUP, search);
     };
-
+    onMounted(() => {
+      setCurrentPageBreadcrumbs(i18n.global.t("clientsGroup"), []);
+    });
     return {
       updateClientGroupModalRef,
       views,

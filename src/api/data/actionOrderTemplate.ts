@@ -6,8 +6,7 @@ export interface actionOrderTemplateType {
     order: number;
     orderStatusId: string;
     connectedRoles: Array<connectedRoles>;
-   
-    autoComplete: true;
+   autoComplete: true;
 
  
 }

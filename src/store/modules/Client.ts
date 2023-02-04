@@ -74,33 +74,33 @@ export default class Clients extends VuexModule {
   @Mutation
   [Mutations.SET_CLIENT_ADDRESS](ADDRESS) {
     this.ClientAddress = ADDRESS;
-    console.log("ClientAddress", this.ClientAddress);
+    
   }
 
   @Mutation
   [Mutations.SET_CLIENT_WHISHLISTS](WHISHLISTS) {
     this.ClientWhishlists = WHISHLISTS;
-    console.log("ClientWhishlists", this.ClientWhishlists);
+   
   }
   @Mutation
   [Mutations.SET_CLIENT_WHISHLISTS_PRODUCTS](WHISHLISTS_PRODUCTS) {
     this.ClientWhishlistsProducts = WHISHLISTS_PRODUCTS;
-    console.log("ClientWhishlistsProducts", this.ClientWhishlistsProducts);
+ 
   }
   @Mutation
   [Mutations.SET_CLIENT_ABANDONED_CARTS](ABANDONED_CARTS) {
     this.AbandonedCarts = ABANDONED_CARTS;
-    console.log("AbandonedCarts", this.AbandonedCarts);
+
   }
   @Mutation
   [Mutations.SET_CLIENT_ABANDONED_CARTS_PRODUCTS](ABANDONED_CARTS_PRODUCTS) {
     this.AbandonedCartsProduct = ABANDONED_CARTS_PRODUCTS;
-    console.log("AbandonedCartsProduct", this.AbandonedCartsProduct);
+
   }
   @Mutation
   [Mutations.SET_CLIENT_DEVICES](DEVICES) {
     this.ClientDevices = DEVICES;
-    console.log("ClientDevices", this.ClientDevices);
+
   }
 
   //! Actions
@@ -244,23 +244,7 @@ export default class Clients extends VuexModule {
       });
     });
   }
-  @Action
-  [Actions.DELETE_CLIENT_GROUP](payload) {
-    Api({
-      method: "post",
-      url: Actions.DELETE_CLIENT_GROUP,
-      payload: { id: payload },
-    }).then((res) => {
-      Swal.fire({
-        text: " Client Group has been Removed !",
-        icon: "success",
-        showCancelButton: false,
-        confirmButtonColor: "#04c8c8",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Ok",
-      });
-    });
-  }
+
 
   @Action
   [Actions.GET_CLIENTS]({ query, pageSize, pageNumber }) {
@@ -282,83 +266,8 @@ export default class Clients extends VuexModule {
     });
   }
 
-  @Action
-  [Actions.UPDATE_CLIENT_GROUP](payload: any) {
-    let conditions = [];
-    console.log(payload);
-    this.GroupUpdatePayload = {
-      id: payload.id,
-      name: payload.name,
-      conditionsOperatorId: payload?.conditionsOperator?.id,
-      icon: payload.icon,
-      backgroundColorHeax: payload.backgroundColorHeax,
-      textColorHexa: payload.textColorHexa,
-      conditions: [] as any,
-    };
-    payload.conditions.forEach((el) => {
-      this.GroupUpdatePayload?.conditions.push({
-        id: el.id,
-        conditionId: el.condition?.id,
-        value: el.value,
-        minValue: el.minValue,
-        maxValue: el.maxValue,
-        operationTypeId: el.operationType.id,
-      });
-    });
-    console.log("   this.GroupUpdatePayload", this.GroupUpdatePayload);
-    payload = this.GroupUpdatePayload;
-
-    Api({ method: "post", url: Actions.UPDATE_CLIENT_GROUP, payload }).then(
-      (res) => {
-        Swal.fire({
-          text: " Client Group has been Updated !",
-          icon: "success",
-          showCancelButton: false,
-          confirmButtonColor: "#04c8c8",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Ok",
-        });
-      }
-    );
-  }
-
-  @Action
-  [Actions.ADD_CLIENT_GROUP](payload) {
   
-    return new Promise((resolve, reject) => {
-    
-    Api({ method: "post", url: Actions.ADD_CLIENT_GROUP, payload }).then(
-      (res) => {
-        if (res?.data.statusCode == 200) {
-          Swal.fire({
-            text: i18n.global.t("clientGroupAdded"),
-            icon: "success",
-            buttonsStyling: false,
-            confirmButtonText: "Ok, got it!",
-            customClass: {
-              confirmButton: "btn fw-bold btn-light-primary",
-            },
-          }).then(() => {
-            resolve(res?.data);
-          })
-        } else {
-          resolve(res?.data);
-          Swal.fire({
-            text: res?.data.message,
-            icon: "error",
-            buttonsStyling: false,
-            confirmButtonText: "Ok, got it!",
-            customClass: {
-              confirmButton: "btn fw-bold btn-light-primary",
-            },
-          });
-        }
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-        // let returnedTarget = {} as productModifiersType;
-      }
+
+
    
 }

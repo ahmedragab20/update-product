@@ -1,6 +1,29 @@
 <template>
   <!--begin::Basic info-->
-  <div class="product-label d-flex flex-column flex-column-fluid">
+  <div>
+  <div
+    v-if="form?.isDeliveredByJetOrder"
+      
+    >
+    <div class="text-center">
+        <img
+        src="/media/svg/illustrations/easy/6.svg"
+          class="rounded-circle my-3 user-select-none"
+          style="
+            width: 210px;
+            height: 210px;
+            object-fit: cover;
+            pointer-events: none;
+          "
+        />
+        <h5 class="text-muted">
+          <i class="fa fa-info-circle"></i>
+          Your orders are delivered by JetOrder. If you would like to make any changes on the delivery fees, please contact support.
+        </h5>
+       
+      </div>
+    </div>
+  <div class="product-label d-flex flex-column flex-column-fluid" v-else>
     <!--begin::Container-->
 
     <!--begin::Form-->
@@ -10,8 +33,11 @@
       @submit="saveChanges"
     >
       <div class="row">
+      
         <div class="col-12">
+         
           <div class="card card-flush py-4 mb-4">
+    
             <div class="card-header">
               <div class="card-title">
                 {{ $t("deliveryPolicyValues") }}
@@ -19,9 +45,10 @@
             </div>
 
             <div class="card-body pt-0">
-              <tabs-duplicator :items="props.languages" @selectedItem="setSelectedItem">
+              <tabs-duplicator :items="langs" @selectedItem="setSelectedItem">
                 <template #label="{ item }">
                   {{ item.name }}
+               
                 </template>
               </tabs-duplicator>
               <div class="fields">
@@ -31,7 +58,7 @@
                       v-for="(item, i) in form.deliveryPolicyValues"
                       :key="i"
                     >
-                      <div v-show="(item.languageId == selectedItem.language)">
+                      <div  v-if="item.languageId == selectedItem.language">
                         <Field
                           class="form-control form-control-lg form-control-solid"
                           v-model="form.deliveryPolicyValues[i].value"
@@ -39,7 +66,9 @@
                           type="text"
                           v-slot="{ field, meta }"
                         >
+                       
                           <textarea
+                          
                             class="form-control form-control-lg form-control-solid"
                             v-bind="field"
                             v-model="form.deliveryPolicyValues[i].value"
@@ -78,23 +107,64 @@
               </div>
             </div>
             <div class="card-body pt-0">
-              <Field name="country" type="text" v-slot="{ field, value }">
-                <el-select
-                  v-bind="field"
-                  :mode-value="value"
-                  class="w-100 form-control-solid border-0"
-                  v-model="country"
-                  @change="getCities(country)"
-                >
-                  <el-option
-                    v-for="item in countries"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id"
+              <Field
+                    v-slot="{ field }"
+                    type="text"
+                    class="form-control form-control-lg form-control-solid"
+                    name="countryId"
+                     v-model="country"
                   >
-                  </el-option>
-                </el-select>
-              </Field>
+                    <Multiselect
+                    
+                      v-bind="field"
+                       v-model="country"
+                      :searchable="true"
+                      label="name"
+                      value-prop="id"
+                      :can-clear="false"
+                      :classes="{
+                        container:
+                          'multiselect-lg form-control form-control-lg form-control-solid',
+                        search:
+                          'multiselect-search form-control form-control-solid',
+                      }"
+                      :options="countries"
+                     
+                  @change="getCities(country)"
+                    >
+                      <template #singlelabel="{ value }">
+                        <div class="multiselect-single-label">
+                          <div class="flag-container">
+                            <img
+                              :src="value.icon"
+                              :alt="value.name"
+                              width="20"
+                              height="15"
+                            />
+                          </div>
+                          <div class="dots-text">
+                            {{ value.name }}
+                          </div>
+                        </div>
+                      </template>
+
+                        <template #option="{ option }">
+                          <div class="flag-container">
+                            <img
+                              :src="option.icon"
+                              :alt="option.name"
+                              width="20"
+                              height="15"
+                            />
+                          </div>
+                          <div class="dots-text">
+                            {{ option.name }}
+                          </div>
+                        </template>
+                      </Multiselect>
+                    </Field>
+                   
+             
               <label
                 class="col-form-label text-gray-400 fw-normal d-block pt-0"
               >
@@ -280,10 +350,10 @@ ref="addContactModalRef"
                 <div class="col-12" v-if="item.areaId == areaTab">
                   <tabs-duplicator
                     :items="Currency"
-                    @selectedItem="setselectedItemCurrency"
+                    @selectedItem="setSelectedGroupItemCurrency"
                   >
                     <template #label="{ item }">
-                      {{ item.label }}
+                      {{ item?.label }}
                     </template>
                   </tabs-duplicator>
 
@@ -292,7 +362,7 @@ ref="addContactModalRef"
                       <div class="inputs_fields my-3">
                         <div>
                           <div
-                            v-if="item.currencyId == setselectedItemCurrency.id"
+                            v-if="item.currencyId == selectedItemCurrency.id"
                           >
                             <label class="required fs-5 fw-bold mb-2 d-inline"
                               >{{ $t("price") }}
@@ -314,9 +384,10 @@ ref="addContactModalRef"
                               v-slot="{ field, meta }"
                             >
                               <input
+                            
                                 v-bind="field"
                                 v-model.number="form.deliveryCosts[i].price"
-                                :dir="setselectedItemCurrency.dir"
+                                :dir="selectedItemCurrency.dir"
                                 type="number"
                                 class="form-control w-100 form-control-solid form-control-lg"
                                 :class="{
@@ -373,6 +444,7 @@ ref="addContactModalRef"
       </div>
     </Form>
   </div>
+</div>
   <!--end::Basic info-->
 </template>
 
@@ -381,8 +453,10 @@ import { ref, computed, reactive, watch, onMounted, watchEffect } from "vue";
 import { ErrorMessage, Field, Form } from "vee-validate";
 import { Actions } from "@/store/enums/StoreEnums";
 import { useStore } from "vuex";
-
+import Multiselect from "@vueform/multiselect";
 import { Country, City, Coordinates } from "@/types";
+import Swal from "sweetalert2/dist/sweetalert2.min.js";
+import i18n from "@/core/plugins/i18n";
 import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 
 // define interfaces
@@ -409,27 +483,34 @@ interface shopDelivery {
 
   deliveryCosts: Array<deliveryCosts>;
 }
+interface languagesType {
+  language: string;
+
+  name: string;
+}
+interface props {
+  id: string;
+
+
+}
 // get id as a prop
-let props = defineProps({
-  id: String,
-  languages:Array
-});
+const props = defineProps<props>();
 const addContactModalRef = ref(null);
 const store = useStore();
-const lookupQueries = store.state.LookupQueries;
 const Currency = computed(() => store.getters.getSupportedCurrencies);
-// get supported langs from store
-const langs = props.languages;
+
 // define refs
-const countries = ref<Country[] | null>();
+const langs =ref<languagesType[] | null>();
+const countries = computed(() => store.getters.getCountries);
 const cities = ref<City[] | null>();
 const city = ref<City | null>();
 const areas = ref<Area[] | null>([]);
 const country = ref("");
 const areaTab = ref("");
 const areaTest = ref([]);
+
 // get area tap
-const getTab = (id) => {
+const getTab = (id:string) => {
   areaTab.value = id;
 
   // set area id and currencyId
@@ -505,26 +586,38 @@ const shopDelivery = ref<shopDelivery>({
 });
 const form = reactive(shopDelivery);
 const selectedItem = ref();
-const setselectedItemCurrency = ref();
-// init resources
+const selectedItemCurrency = ref();
+const setSelectedGroupItemCurrency = (currency: object) => {
+  selectedItemCurrency.value = currency;
+  console.log("form.  selectedItemCurrency.value",  selectedItemCurrency.value)
+};
+
 function initResources() {
-  props.languages.forEach((element) => {
+  console.log("lang",langs)
+  console.log(" shopDelivery.value.deliveryPolicyValues", shopDelivery.value.deliveryPolicyValues)
+  if (  langs.value.length >0) {
+  langs.value.forEach((element) => {
+    console.log("ele")
     shopDelivery.value.deliveryPolicyValues.push({
-      languageId: element.id,
+      languageId: element.language,
       value: "",
     });
   });
+  console.log(" shopDelivery.value.deliveryPolicyValues", shopDelivery.value.deliveryPolicyValues)
+}
 
 }
 // watch on langs when langs change resources will init
-watch(props.languages, (newVal) => {
-  if (newVal && newVal.length) {
+
+watch(langs.value , (newVal) => {
+  if (newVal && newVal.length >0) {
     initResources();
     selectedItem.value = newVal[0];
   }
 });
+
 const isLoading = ref(false);
-// save changes
+
 const saveChanges = async (values: any) => {
   isLoading.value = true;
  await store.dispatch(
@@ -533,14 +626,23 @@ const saveChanges = async (values: any) => {
   );
   isLoading.value = false;
 };
-// get shops delivery settings from api
-onMounted(() => {
-  countries.value = lookupQueries.countries?.data;
-  if (props.languages && props.languages.length) {
-    initResources();
-    selectedItem.value = props.languages[0];
-    setselectedItemCurrency.value = Currency.value[0];
+const setSelectedItem = (payload: any) => {
+  selectedItem.value = payload;
+};
+const resetData = () => {
+  if (langs.value && langs.value.length) {
+    setSelectedItem(langs.value[0])
+   
   }
+  if (Currency.value && Currency.value.length > 0) {
+      setSelectedGroupItemCurrency(Currency.value[0]);
+    }
+};
+
+watchEffect(() => {
+  resetData();
+});
+const getShopDelivery=()=>{
   store.dispatch(Actions.GET_SHOPS_DELIVERY_SETTINGS, props.id).then((data) => {
     console.log(data);
     shopDelivery.value = data;
@@ -549,6 +651,18 @@ onMounted(() => {
       initResources();
     }
   });
+}
+// get shops delivery settings from api
+onMounted(() => {
+  resetData();
+  
+
+  store.dispatch(Actions.GET_SHOPS_BASE_SETTINGS, props.id).then((data) => {
+    console.log(data);
+    langs.value = data.languages;
+    getShopDelivery()
+  });
+
 });
 </script>
 <style>
@@ -559,5 +673,15 @@ onMounted(() => {
 .floating {
   position: fixed;
   bottom: 0px;
+}
+.multiselect-lg {
+  position: relative;
+  margin: 0 auto;
+  box-sizing: border-box;
+  cursor: pointer;
+  outline: none;
+}
+.multiselect-dropdown-lg {
+  width: 200px;
 }
 </style>

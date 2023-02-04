@@ -1,7 +1,4 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import store from "@/store";
-import { Mutations, Actions } from "@/store/enums/StoreEnums";
-import JwtService from "@/core/services/JwtService";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -56,17 +53,4 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
-
-// router.beforeEach(() => {
-//   // reset config to initial state
-//   store.commit(Mutations.RESET_LAYOUT_CONFIG);
-
-//   store.dispatch(Actions.VERIFY_AUTH, { api_token: JwtService.getToken() });
-
-//   // Scroll page to top on every route change
-//   setTimeout(() => {
-//     window.scrollTo(0, 0);
-//   }, 100);
-// });
-
 export default router;

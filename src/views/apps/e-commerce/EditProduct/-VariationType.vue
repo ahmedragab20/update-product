@@ -134,7 +134,7 @@ const addVariationType = (type = "add"): void => {
   pushedNewForm.value = false;
   if (type === "add") {
     variationTypes.value?.push({
-      ...newTypePayload.value
+      ...newTypePayload.value,
     });
 
     emit("addNewVariationType", ["add", variationTypes.value]);
@@ -143,9 +143,7 @@ const addVariationType = (type = "add"): void => {
       (i) => i.id === newTypePayload.value.id
     );
     if (item) {
-      const foundIndex = variationTypes.value.findIndex(
-        (x) => x.id == item.id
-      );
+      const foundIndex = variationTypes.value.findIndex((x) => x.id == item.id);
       variationTypes.value[foundIndex] = newTypePayload.value;
     }
     emit("addNewVariationType", ["edit", variationTypes.value]);
@@ -187,9 +185,9 @@ const removeTypeHandler = (indexNumber: number): void => {
 const swalWithBootstrapButtons = Swal.mixin({
   customClass: {
     confirmButton: "btn btn-danger",
-    cancelButton: "btn btn-text-success"
+    cancelButton: "btn btn-text-success",
   },
-  buttonsStyling: false
+  buttonsStyling: false,
 });
 
 const removeTypeConfirmationHandler = (item: any, isLastOption?: boolean) => {
@@ -203,7 +201,7 @@ const removeTypeConfirmationHandler = (item: any, isLastOption?: boolean) => {
       showCancelButton: true,
       confirmButtonText: "Yes, Remove it!",
       cancelButtonText: "No, cancel!",
-      reverseButtons: true
+      reverseButtons: true,
     })
     .then((result) => {
       if (result.isConfirmed) {
@@ -248,7 +246,7 @@ const addVariationTypeValidation = computed(() => {
       newTypePayload.value &&
       !newTypePayload.value.resources &&
       !newTypePayload.value.resources.length ===
-      marketLanguages.value.length) ||
+        marketLanguages.value.length) ||
     (newTypePayload.value &&
       newTypePayload.value.options &&
       newTypePayload.value.options.length === 0) ||
@@ -269,7 +267,7 @@ const log = () => {
 onMounted(() => {
   if (variationsData.value) {
     variationTypes.value = variationsData.value;
-    activeVariationTypes.value = variationTypes.value?.map(el => el.id);
+    activeVariationTypes.value = variationTypes.value?.map((el) => el.id);
     addVariationType("defaults");
     pushNewTypeForm("defaults");
   }
@@ -277,7 +275,7 @@ onMounted(() => {
 watch(variationsData, (newValue) => {
   if (newValue) {
     variationTypes.value = variationsData.value;
-    activeVariationTypes.value = variationTypes.value?.map(el => el.id);
+    activeVariationTypes.value = variationTypes.value?.map((el) => el.id);
     addVariationType("defaults");
     pushNewTypeForm("defaults");
   }

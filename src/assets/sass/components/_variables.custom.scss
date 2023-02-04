@@ -6,39 +6,67 @@
 
 // Theme colors
 // Primary
-$primary: #04c8c8;
-// $primary: if(isDarkMode(), #0bb783, #04c8c8);
-$primary-active: if(isDarkMode(), #04aa77, #00afaf);
-$primary-light: if(isDarkMode(), #1c3238, #dcfdfd);
+$primary: #ef227f;
+$primary-active: if(isDarkMode(), #04aa77, #a71859);
+$primary-light: if(isDarkMode(), #1c3238, #fde9f2);
 $primary-inverse: #ffffff;
 
 // Success
-$success: if(isDarkMode(), #3699ff, #009ef7);
-$success-active: if(isDarkMode(), #187de4, #0095e8);
-$success-light: if(isDarkMode(), #212e48, #f1faff);
+$success: if(isDarkMode(), #3699ff, #51cc23);
+$success-active: if(isDarkMode(), #187de4, #398f19);
+$success-light: if(isDarkMode(), #212e48, #eefae9);
 $success-inverse: #ffffff;
 
 // Info
-$info: if(isDarkMode(), #8950fc, #7239ea);
-$info-active: if(isDarkMode(), #7337ee, #5014d0);
-$info-light: if(isDarkMode(), #2f264f, #f8f5ff);
+$info: if(isDarkMode(), #8950fc, #38a1d6);
+$info-active: if(isDarkMode(), #7337ee, #277196);
+$info-light: if(isDarkMode(), #2f264f, #ebf6fb);
 $info-inverse: #ffffff;
 
 // Danger
-$danger: if(isDarkMode(), #f64e60, #f1416c);
-$danger-active: if(isDarkMode(), #ee2d41, #d9214e);
-$danger-light: if(isDarkMode(), #3a2434, #fff5f8);
+$danger: if(isDarkMode(), #f64e60, #ff2626);
+$danger-active: if(isDarkMode(), #ee2d41, #b31b1b);
+$danger-light: if(isDarkMode(), #3a2434, #ffe9e9);
 $danger-inverse: #ffffff;
 
 // Warning
-$warning: if(isDarkMode(), #ffa800, #ffc700);
-$warning-active: if(isDarkMode(), #ee9d01, #f1bc00);
-$warning-light: if(isDarkMode(), #392f28, #fff8dd);
+$warning: if(isDarkMode(), #ffa800, #FFA800FF);
+$warning-active: if(isDarkMode(), #ee9d01, #ee9d01);
+$warning-light: if(isDarkMode(), #392f28, #fffde9);
 $warning-inverse: #ffffff;
 
+// Secondary
+$secondary: if(isDarkMode(), #ffa800, #36365b);
+$secondary-active: if(isDarkMode(), #ee9d01, #262640);
+$secondary-light: if(isDarkMode(), #392f28, #ebebef);
+$secondary-inverse: #ffffff;
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Symbio AR+LT" !important;
+}
+
+// light
+//$light: if(isDarkMode(), #E2E2E5, #E2E2E5);
+
 // Card Box Shadow
-$card-box-shadow: if(isDarkMode(), none, 0px 10px 35px 0px rgba(56, 71, 109, 0.075));
+$card-box-shadow: if(
+                isDarkMode(),
+                none,
+                0px 10px 35px 0px rgba(56, 71, 109, 0.075)
+);
 $card-border-radius: 0.85rem;
+
+$rounded-sm: 0.625rem;
 
 // Font family
 $font-family-sans-serif: "Roboto", sans-serif;

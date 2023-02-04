@@ -2,21 +2,28 @@
   <div
     class="min-vh-100 flex-column d-flex justify-content-center align-items-center w-100"
   >
+    <div>
+      <Note />
+    </div>
+    <button @click="changeRout" class="btn btn-danger">get out of here</button>
     <div
       class="min-vh-100 d-flex justify-content-center align-items-center w-100"
     >
       <Editor>
         <template #upper>
-          <tabs-duplicator :items="items" @selectedItem="setSelectedItem">
+          <tabs-duplicator
+            :items="items"
+            div-id="f482ce1f-7784-499d-b58d-d94d495f80e6"
+            @selectedItem="setSelectedItem"
+          >
             <template #label="{ item }">
               {{ item.label }}
             </template>
           </tabs-duplicator>
         </template>
         <template #fields>
-          <keep-alive>
+          <div id="f482ce1f-7784-499d-b58d-d94d495f80e6" class="px-5 py-3">
             <div
-              dir="auto"
               v-for="(field, $index) in items"
               :key="$index"
               style="width: 600px"
@@ -39,7 +46,7 @@
                 />
               </div>
             </div>
-          </keep-alive>
+          </div>
         </template>
       </Editor>
     </div>
@@ -55,7 +62,7 @@
         White
       </a>
       <a href="#" class="btn btn-success me-2 mb-2"
-      ><i class="fas fa-envelope-open-text fs-4 me-2"></i> Caption</a
+        ><i class="fas fa-envelope-open-text fs-4 me-2"></i> Caption</a
       >
       <a href="#" class="btn btn-flex btn-primary px-6 me-2 mb-2">
         <span class="svg-icon svg-icon-2x">
@@ -98,7 +105,7 @@
         <div class="d-flex flex-column text-light pe-0 pe-sm-10">
           <h4 class="mb-2 text-light">This is an alert</h4>
           <span
-          >The alert component can be used to highlight certain parts of your
+            >The alert component can be used to highlight certain parts of your
             page for higher content visibility.</span
           >
         </div>
@@ -118,29 +125,57 @@
     </div>
     <!--begin::Status-->
     <div style="width: 300px" class="mb-10">
-      <SelectStatus />
+      <DropdownTest />
+    </div>
+    <div class="mb-10">
+      <div style="width: 280px" class="" aria-hidden="true">
+        <div class="loading-skeleton w-100 d-flex gap-5 flex-column bg-light">
+          <div
+            v-for="n in 5"
+            :key="n"
+            class="placeholder-div w-100 py-5 rounded shadow"
+          ></div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-5">
+      <button
+        @click="toggleToast"
+        class="btn btn-sm btn-text-info border border-info border-dashed bg-hover-light-info"
+      >
+        Toggle Toast
+      </button>
+    </div>
+    <div class="mb-10">
+      <Toast :value="showToast" />
     </div>
     <div style="width: 450px" class="border border-light rounded-3 p-2 my-5">
       <tabs-duplicator
+        div-id="633f5cd0-0788-4a33-aebc-a4f15382700a"
         :items="items"
         @selectedItem="inputTextSelectedLangHandler"
+        active-btn-classes="py-2 px-4"
+        color="text-white"
+        body-classes="shadow bg-white"
       >
         <template #label="{ item }">
           {{ item.label }}
         </template>
       </tabs-duplicator>
-      <input
-        v-model="inputText[inputTextSelectedLang.id]"
-        type="text"
-        class="form-control mt-3"
-        placeholder="1- type something..."
-      />
-      <input
-        v-model="inputText2[inputTextSelectedLang.id]"
-        type="text"
-        class="form-control mt-3"
-        placeholder="2- type something..."
-      />
+      <div id="633f5cd0-0788-4a33-aebc-a4f15382700a" class="p-5">
+        <input
+          v-model="inputText[inputTextSelectedLang.id]"
+          type="text"
+          class="form-control mt-3"
+          placeholder="1- type something..."
+        />
+        <input
+          v-model="inputText2[inputTextSelectedLang.id]"
+          type="text"
+          class="form-control mt-3"
+          placeholder="2- type something..."
+        />
+      </div>
       <div>
         {{ inputText }}
       </div>
@@ -163,9 +198,11 @@
       <GoogleMaps @currentLocation="currentLocationF" height="100vh" />
     </div>
     <SearchMultiSelect />
-    <div class="mt-5 min-vh-100 d-flex justify-content-center align-items-center flex-column">
+    <div
+      class="mt-5 min-vh-100 d-flex justify-content-center align-items-center flex-column"
+    >
       <div style="width: 120px; margin-bottom: 20px">
-        <img :src="mediaURL" class="img-thumbnail" alt="...">
+        <img :src="mediaURL" class="img-thumbnail" alt="..." />
       </div>
       <input
         ref="fileUpload"
@@ -180,13 +217,93 @@
           {{ response.data.data }}
         </pre>
       </div>
-      <button :disabled="uploading" @click="$refs.fileUpload.click()" type="button"
-              class="btn btn-warning text-black rounded-3">
-        <span v-if="!uploading">
-          UPLOAD A FILE
-        </span>
+      <button
+        :disabled="uploading"
+        @click="$refs.fileUpload.click()"
+        type="button"
+        class="btn btn-warning text-black rounded-3"
+      >
+        <span v-if="!uploading"> UPLOAD A FILE </span>
         <span v-else class="spinner-border spinner-border-sm"></span>
       </button>
+    </div>
+  </div>
+  <div class="d-flex flex-column justify-content-center align-items-center">
+    <div>
+      <h1>Grid Layout</h1>
+      <h2>Grid Layout</h2>
+      <h3>Grid Layout</h3>
+      <h4>Grid Layout</h4>
+      <h5>Grid Layout</h5>
+      <h6>Grid Layout</h6>
+      <p>Grid Layout</p>
+    </div>
+    <div>
+      <h1>1234567890</h1>
+      <h2>1234567890</h2>
+      <h3>1234567890</h3>
+      <h4>1234567890</h4>
+      <h5>1234567890</h5>
+      <h6>1234567890</h6>
+      <p>1234567890</p>
+    </div>
+    <div>
+      <h1>الحمدلله حمدا كثيرا</h1>
+      <h2>الحمدلله حمدا كثيرا</h2>
+      <h3>الحمدلله حمدا كثيرا</h3>
+      <h4>الحمدلله حمدا كثيرا</h4>
+      <h5>الحمدلله حمدا كثيرا</h5>
+      <h6>الحمدلله حمدا كثيرا</h6>
+      <p>الحمدلله حمدا كثيرا</p>
+    </div>
+    <div>
+      <h1>١٢٣٤٥٦٧٨٩٠</h1>
+      <h2>١٢٣٤٥٦٧٨٩٠</h2>
+      <h3>١٢٣٤٥٦٧٨٩٠</h3>
+      <h4>١٢٣٤٥٦٧٨٩٠</h4>
+      <h5>١٢٣٤٥٦٧٨٩٠</h5>
+      <h6>١٢٣٤٥٦٧٨٩٠</h6>
+      <p>١٢٣٤٥٦٧٨٩٠</p>
+    </div>
+  </div>
+  <div class="container text-center">
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Illo nihil quae
+    repudiandae veritatis voluptatem. Ab assumenda beatae itaque laudantium
+    quaerat sequi sunt suscipit velit! Adipisci excepturi omnis quaerat totam
+    unde?
+  </div>
+  <div class="container">
+    <div>
+      <h2 class="font-32px text-center mt-5">Colors</h2>
+    </div>
+    <div class="d-flex gap-3 flex-nowrap overflow-auto w-100 py-5">
+      <div>
+        <Sketch v-model="color" />
+      </div>
+      <div>
+        <Chrome v-model="color" />
+      </div>
+      <div>
+        <Compact v-model="color" />
+      </div>
+      <div>
+        <Swatches v-model="color" />
+      </div>
+      <div>
+        <Grayscale v-model="color" />
+      </div>
+      <div>
+        <Material v-model="color" />
+      </div>
+      <div>
+        <Photoshop v-model="color" />
+      </div>
+      <div>
+        <Slider v-model="color" />
+      </div>
+      <div>
+        <Twitter v-model="color" />
+      </div>
     </div>
   </div>
 </template>
@@ -198,14 +315,22 @@ import Editor from "@/components/Reusable/Editor.vue";
 import InputField from "@/components/Reusable/InputField.vue";
 import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 import GoogleMaps from "@/components/Reusable/GoogleMaps.vue";
-import { QuillEditor } from "@vueup/vue-quill";
-import SelectStatus from "@/views/apps/e-commerce/EditProduct/-SelectStatus.vue";
 import SearchMultiSelect from "@/views/dummy/-SearchMultiSelect.vue";
+import DropdownTest from "./-Dropdown-test.vue";
+import Note from "@/components/Reusable/Note.vue";
+import Toast from "@/components/Reusable/Toast.vue";
+import { QuillEditor } from "@vueup/vue-quill";
 import { reactive, ref } from "@vue/reactivity";
 import { onMounted } from "vue";
 import { watch } from "@vue/runtime-core";
 import { upload } from "@/composables/uploader";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
+
+const changeRout = () => {
+  router.push("/apps/ecommerce/catalog/edit-product");
+};
 
 interface Lang {
   id?: number;
@@ -218,12 +343,12 @@ interface Lang {
 const data = reactive({
   ar: {
     product_name: "",
-    product_description: ""
+    product_description: "",
   },
   en: {
     product_name: "",
-    product_description: ""
-  }
+    product_description: "",
+  },
 });
 
 const items = reactive<Lang[]>([
@@ -232,15 +357,15 @@ const items = reactive<Lang[]>([
     code: "en",
     dir: "ltr",
     label: "english",
-    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png"
+    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png",
   },
   {
     id: 2,
     code: "ar",
     dir: "rtl",
     label: "العربية",
-    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png"
-  }
+    icon: "https://cdn-icons-png.flaticon.com/64/197/197595.png",
+  },
 ]);
 const inputTextSelectedLang = ref({});
 
@@ -258,14 +383,14 @@ const submitInputTextField = () => {
   Object.keys(inputText.value).forEach((el, i, array) => {
     items.push({
       langId: el,
-      name: inputText.value[el]
+      name: inputText.value[el],
     });
   });
   Object.keys(inputText2.value).forEach((el, i, array) => {
     items2.push({
       langId: el,
       name: inputText2.value[el],
-      description: inputText.value[el]
+      description: inputText.value[el],
     });
   });
 
@@ -291,8 +416,8 @@ const editorOptions = ref({
     [{ font: [] }],
     [{ align: [] }],
 
-    ["clean"] // remove formatting button
-  ]
+    ["clean"], // remove formatting button
+  ],
 });
 
 const log = (): void => console.log(product.value);
@@ -321,19 +446,26 @@ const quillEditorContentAr = (callback: string) => {
 const currentLocationF = (payload) => {
   console.log(payload);
 };
-const mediaURL = ref("https://images.unsplash.com/photo-1671690872526-f8057e9ac97d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80");
+const mediaURL = ref(
+  "https://images.unsplash.com/photo-1671690872526-f8057e9ac97d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1035&q=80"
+);
 const response = ref();
 const uploading = ref(false);
 const uploaderHandler = (e) => {
   uploading.value = true;
   mediaURL.value = URL.createObjectURL(e.target.files[0]);
 
-  upload(e).then(res => {
-    response.value = res;
-  }).finally(() => {
-    uploading.value = false;
-  });
+  upload(e)
+    .then((res) => {
+      response.value = res;
+    })
+    .finally(() => {
+      uploading.value = false;
+    });
 };
+
+const color = ref("#56a5f6");
+
 onMounted(() => {
   if (items && items.length > 0) {
     inputTextSelectedLangHandler(items[0]);
@@ -349,6 +481,12 @@ watch(
     }
   }
 );
+
+const showToast = ref(true);
+
+const toggleToast = () => {
+  showToast.value = !showToast.value;
+};
 </script>
 
 <style lang="scss">

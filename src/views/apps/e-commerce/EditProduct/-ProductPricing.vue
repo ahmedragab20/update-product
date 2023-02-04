@@ -1,6 +1,10 @@
 <template>
-  <div class="card card-flush py-4"
-       :class="{'gradient-border' : updateProductState.changedSections.includes('prices')}">
+  <div
+    class="card card-flush py-4"
+    :class="{
+      'gradient-border': updateProductState.changedSections.includes('prices'),
+    }"
+  >
     <!--begin::Card header-->
     <div class="card-header">
       <div class="card-title">
@@ -16,7 +20,7 @@
           :items="currencies"
           @selectedItem="setSelectedCurrency"
         >
-          <template #label="{ item }: any">
+          <template #label="{ item }">
             <span class="text-nowrap">
               {{ item.label }}
             </span>
@@ -108,14 +112,14 @@ const updateProductState = computed(() => store.state.UpdateProduct);
 const updateChangedSections = ({ sectionId, remove }) => {
   store.commit("ADD_CHANGED_SECTIONS", {
     sectionId,
-    remove
+    remove,
   });
 };
 
 const initializeComponentsData = ({ name, content }) => {
   store.commit("INITIALIZE_DATA", {
     name,
-    content
+    content,
   });
 };
 
@@ -139,7 +143,7 @@ const pricingSaveChangesHandler = async () => {
         finalPrices.set(currency.id, {
           currencyId: currency.id,
           price: prices.value[`price-${currency.id}`],
-          costPrice: prices.value[`costPrice-${currency.id}`]
+          costPrice: prices.value[`costPrice-${currency.id}`],
         });
       }
     });
@@ -151,13 +155,13 @@ const pricingSaveChangesHandler = async () => {
 
   const payload = {
     id: props.product.id,
-    prices: finalPricesArr
+    prices: finalPricesArr,
   };
 
   const reqData = {
     method: "post",
     url: "/ProductCommands/update-product-pricing",
-    payload
+    payload,
   };
 
   try {
@@ -167,7 +171,7 @@ const pricingSaveChangesHandler = async () => {
       pricingChanged.value = "done";
       initializeComponentsData({
         name: "prices",
-        content: payload.prices
+        content: payload.prices,
       });
       pricingErrorMsg.value = "";
     } else {
@@ -199,7 +203,7 @@ onMounted(() => {
     });
     initializeComponentsData({
       name: "prices",
-      content: props.product.prices
+      content: props.product.prices,
     });
   }
   if (props.currencies && props.currencies.length > 0) {
@@ -225,22 +229,25 @@ watch(
 
       initializeComponentsData({
         name: "prices",
-        content: props.product.prices
+        content: props.product.prices,
       });
     }
   }
 );
-watch(() => pricingChanged.value, (newV, oldValue) => {
-  if (newV && !oldValue || newV && oldValue === "done") {
-    updateChangedSections({
-      sectionId: "prices",
-      remove: false
-    });
-  } else {
-    updateChangedSections({
-      sectionId: "prices",
-      remove: true
-    });
+watch(
+  () => pricingChanged.value,
+  (newV, oldValue) => {
+    if ((newV && !oldValue) || (newV && oldValue === "done")) {
+      updateChangedSections({
+        sectionId: "prices",
+        remove: false,
+      });
+    } else {
+      updateChangedSections({
+        sectionId: "prices",
+        remove: true,
+      });
+    }
   }
-});
+);
 </script>

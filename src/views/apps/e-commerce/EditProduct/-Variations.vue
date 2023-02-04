@@ -21,6 +21,7 @@ import { useStore } from "vuex";
 import { uuid } from "vue-uuid";
 import Api from "@/utils/ApiHelper";
 import Loader from "@/components/Reusable/Loader.vue";
+
 const store = useStore();
 
 const product = computed(() => store.state.UpdateProduct.product);
@@ -28,12 +29,12 @@ const variationsData = computed(() => store.state.UpdateProduct.variationData);
 
 let variationTypeOptions = reactive<any>([]);
 let typeId = ref<any>(0);
-let productVariations = ref<any[]>([]);
+let productVariations = ref<any>([]);
 const variationTypes = ref<any>([]);
 const actionType = ref<any>("");
 const pageLoading = ref<boolean>(false);
 
-const variationTypeOptionsReciever = ([first, second]: object[]) => {
+const variationTypeOptionsReciever = ([first, second]: any[]) => {
   actionType.value = first;
   variationTypes.value = second;
 
@@ -108,8 +109,8 @@ const addProductVariation = (): void => {
 const setupMergeTwoArrays = (array1: [], array2: []) => {
   let result = [];
 
-  array1.forEach((item1) => {
-    array2.forEach((item2) => {
+  array1.forEach((item1: any) => {
+    array2.forEach((item2: any) => {
       result.push({
         optionIds: [item1.connectionId, item2.connectionId],
         variationProductName: [item1.resources, item2.resources],
@@ -123,8 +124,8 @@ const setupMergeTwoArrays = (array1: [], array2: []) => {
 const mergeTwoArrays = (array1: [], array2: []) => {
   let result = [];
 
-  array1.forEach((item1) => {
-    array2.forEach((item2) => {
+  array1.forEach((item1: any) => {
+    array2.forEach((item2: any) => {
       const optionIds = [...item1.optionIds, item2.connectionId];
       const variationProductName = [
         ...item1.variationProductName,
@@ -185,7 +186,7 @@ const fetchVariations = async () => {
     pageLoading.value = false;
   });
 };
-onBeforeMount(() => {
-  fetchVariations();
+onBeforeMount(async () => {
+  await fetchVariations();
 });
 </script>

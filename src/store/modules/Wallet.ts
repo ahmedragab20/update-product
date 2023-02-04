@@ -9,7 +9,7 @@ import i18n from "@/core/plugins/i18n";
 @Module
 export default class WalletModule extends VuexModule {
   WalletList: Array<Wallet> = [];
-  WalletDetails: {} | undefined;
+  WalletDetails: Wallet;
   shops = [];
 
   WalletTransactionTable: Array<any> = [];
@@ -136,7 +136,7 @@ export default class WalletModule extends VuexModule {
             });
           }
 
-          // this.context.commit(Mutations.ADD_PRODCUCT_LABEL)
+          
         })
         .catch((er) => {
           reject(er);
@@ -149,7 +149,7 @@ export default class WalletModule extends VuexModule {
     return new Promise((resolve, reject) => {
       const payload = {
         method: "get",
-        url: Actions.GET_WALLET_BY_ID + `?&shopId=${id}`,
+        url: Actions.GET_WALLET_BY_ID + `?shopId=${id}`,
       };
 
       Api(payload).then((response) => {

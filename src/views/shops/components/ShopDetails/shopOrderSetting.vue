@@ -532,11 +532,11 @@ const supportCurrencies = computed(() => store.getters.getSupportedCurrencies);
 // save changes and update shop orderSetting
 const saveChanges = async (values: any) => {
 
-  console.log('orderSetting', orderSetting)
+
   values = {
     ...values,
   };
-  console.log('    ...values,', ...values)
+
   if (submitButton.value) {
     try {
       orderSetting.id = props.id;
@@ -572,7 +572,7 @@ const saveChanges = async (values: any) => {
 
 // init resources
 function initResources() {
-  console.log("log order currencies", orderSetting.currencies);
+
   supportCurrencies.value.forEach((element) => {
     orderSetting.taxFeesShopLink.push({
       currencyId: element.id,
@@ -588,7 +588,7 @@ function initResources() {
     });
 
   });
-  console.log("log order taxFeesShopLink", orderSetting.taxFeesShopLink);
+ 
 }
 
 
@@ -603,19 +603,18 @@ onMounted(() => {
   store.dispatch(Actions.GET_SHOPS_ORDER_SETTINGS, props.id).then((data) => {
     Object.assign(orderSetting, data)
     orderSetting.currencies = [];
-    console.log("orderSetting.currencies = [];",orderSetting.currencies);
+ 
     
     data.currencies.forEach(element => {
       orderSetting.currencies.push(element.currencyId)
     });
-    console.log("data.currencies.forEach", orderSetting.currencies);
+
     
     if(orderSetting.minimumOrderValuesShopLink.length==0 || orderSetting.taxFeesShopLink.length==0 || orderSetting.serviceFeesShopLink.length==0){
         initResources();
     }
     //selectedItem.value = orderSetting.currencies[0];
-    console.log("orderSetting.value", orderSetting.currencies);
-    console.log("orderSetting.value2", selectedItem.value);
+
   });
   
 })

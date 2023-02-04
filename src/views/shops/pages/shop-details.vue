@@ -250,20 +250,10 @@
 
   <!--end::Navbar-->
 
-  <router-view v-slot="{ Component, route }">
-    <ShopPayment
-      v-if="route.name === 'shop-payment'"
-      :countryId="shopData.countryId"
-      :id="shopData.id"
-    />
-    <ShopDelivery
-      v-if="route.name === 'shop-delivery'"
-      :languages="shopData.languages"
-      :id="shopData.id"
-    />
-    <router-view v-else>
-      <component :is="Component" />
-    </router-view>
+
+   
+    <router-view >
+     
   </router-view>
 </template>
 

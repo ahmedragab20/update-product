@@ -1,24 +1,26 @@
 import { RouteRecordRaw } from "vue-router";
 
 export const Products: Array<RouteRecordRaw> = [
-
   {
     path: "/products/modifier",
     name: "product-modifier",
-    component: () => import("@/views/products/product-modifier/pages/index.vue"),
+    component: () =>
+      import("@/views/products/product-modifier/pages/index.vue"),
   },
   {
     path: "/products/modifier/:id",
     name: "product-modifier-details",
     props: true,
     component: () =>
-      import("@/views/products/product-modifier/pages/product-modifiers-details.vue"),
+      import(
+        "@/views/products/product-modifier/pages/product-modifiers-details.vue"
+      ),
   },
   {
     path: "/products/categories",
     name: "product-categories",
     component: () =>
-      import("@/views/products/product-categories/pages/index.vue")
+      import("@/views/products/product-categories/pages/index.vue"),
   },
   {
     path: "/products/brands",
@@ -32,7 +34,6 @@ export const Products: Array<RouteRecordRaw> = [
     component: () =>
       import("@/views/products/product-brands/pages/brand-details-form.vue"),
   },
-
 
   {
     path: "/products/labels",

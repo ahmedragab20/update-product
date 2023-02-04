@@ -3,6 +3,7 @@ export default  interface ShopWorkingDaysData {
     startWorkingTime: string;
     endWorkingTime: string;
     notes: string;
-    isWorking:boolean
+    isWorking:boolean;
+    id?:string
     
   }

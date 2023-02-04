@@ -407,17 +407,17 @@ export default class LookupQueries extends VuexModule {
     });
   }
 
-  @Action
-  [Actions.GET_SHOPS]() {
-    const payload = {
-      method: "get",
-      url: Actions.GET_SHOPS,
-    };
+  // @Action
+  // [Actions.GET_SHOPS]() {
+  //   const payload = {
+  //     method: "get",
+  //     url: Actions.GET_SHOPS,
+  //   };
 
-    Api(payload).then((response) => {
-      this.context.commit(Mutations.GET_SHOPS, response?.data);
-    });
-  }
+  //   Api(payload).then((response) => {
+  //     this.context.commit(Mutations.GET_SHOPS, response?.data);
+  //   });
+  // }
 
   // Settings API Get Request
   @Mutation

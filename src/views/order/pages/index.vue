@@ -92,12 +92,20 @@
 
   <!--begin::Card body-->
   <component
+  v-if="OrderAction.length>0"
     :items="OrderAction"
     :is="activeComponent"
     :pagination="pagination"
     @update-pagination="fetchData"
     @delete-order-action="deleteOrderAction" />
   <!--end::Card body-->
+  <div v-else>
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span>{{ $t("Loading") }}...</span>
+          </div>
+        </div>
+      </div>
   <!--end::Card-->
 </template>
 

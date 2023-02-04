@@ -186,7 +186,7 @@
                             <!--begin:Info-->
                             <span class="d-flex flex-column">
                               <span class="fw-bolder fs-6">
-                                {{ WalletDetails.availableBalance }}</span
+                                {{ WalletDetails?.availableBalance }}</span
                               >
                             </span>
                             <!--end:Info-->
@@ -308,30 +308,6 @@
                 <!--begin::Step 3-->
                 <div data-kt-stepper-element="content">
                   <div class="w-100">
-                    <!--begin::Input group-->
-                    <div class="fv-row mb-10">
-                      <!--begin::Label-->
-                      <label class="required fs-5 fw-bold mb-2">
-                        {{ $t("yourPassword") }}
-                      </label>
-                      <!--end::Label-->
-
-                      <!--begin::Input-->
-                      <Field
-                        type="text"
-                        class="form-control form-control-lg form-control-solid"
-                        name="password"
-                        placeholder=""
-                        v-model="form.password"
-                      />
-                      <ErrorMessage
-                        class="fv-plugins-message-container invalid-feedback"
-                        name="password"
-                      />
-                      <!--end::Input-->
-                    </div>
-                    <!--end::Input group-->
-
                     <!--begin::Input group-->
                     <div class="fv-row mb-10">
                       <!--begin::Label-->
@@ -471,7 +447,7 @@
 }
 </style>
 
-<script lang="ts">
+<script lang="ts" setup>
 import i18n from "@/core/plugins/i18n";
 import {
   defineComponent,
@@ -502,178 +478,133 @@ interface Step2 {
 
 interface Step3 {
   notes: string;
-  password: string;
 }
 
 interface KTCreateApp extends Step1, Step2, Step3 {}
 
-export default defineComponent({
-  name: "withdraw-modal",
-  components: {
-    Field,
+const WalletDetails = computed(() => store.state.WalletModule.WalletDetails);
+const store = useStore();
 
-    ErrorMessage,
-  },
-  setup() {
-    const WalletDetails = computed(
-      () => store.state.WalletModule.WalletDetails
-    );
-    const store = useStore();
+const AccountsInWithdrawFromWallet = computed(
+  () => store.state.AllAccounts.InWithdrawFromWallet
+);
+const _stepperObj = ref<StepperComponent | null>(null);
+const createAppRef = ref<HTMLElement | null>(null);
+const createAppModalRef = ref<HTMLElement | null>(null);
+const currentStepIndex = ref(0);
 
-    const AccountsInWithdrawFromWallet = computed(
-      () => store.state.AllAccounts.InWithdrawFromWallet
-    );
-    const _stepperObj = ref<StepperComponent | null>(null);
-    const createAppRef = ref<HTMLElement | null>(null);
-    const createAppModalRef = ref<HTMLElement | null>(null);
-    const currentStepIndex = ref(0);
-
-    let accountType = ref("");
-    const withdrawForm = {
-      shopId: "",
-
-      password: "",
-
-      accountId: "",
-      amount: 1,
-      notes: "",
-    };
-    const isLoading = ref(false);
-
-    let form = reactive(withdrawForm);
-
-    onMounted(() => {
-      _stepperObj.value = StepperComponent.createInsance(
-        createAppRef.value as HTMLElement
-      );
-    });
-
-    const createAppSchema = [
-      Yup.object({
-        amount: Yup.number()
-          .lessThan(
-            WalletDetails.value.availableBalance,
-            "Amount should be less than Current Balanc"
-          )
-          .required()
-          .label("Amount"),
-      }),
-      Yup.object({
-        accountId: Yup.string().required().label("accountTypeMthod"),
-        // accountId: Yup.string().required().label("accountId"),
-      }),
-
-      Yup.object({
-        notes: Yup.string().required().label("notes"),
-        password: Yup.string().required().label("password"),
-      }),
-    ];
-
-    // extracts the individual step schema
-    const currentSchema = computed(() => {
-      return createAppSchema[currentStepIndex.value];
-    });
-
-    const totalSteps = computed(() => {
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      return _stepperObj.value.totatStepsNumber;
-    });
-
-    const { resetForm, handleSubmit } = useForm<Step1 | Step2 | Step3>({
-      validationSchema: currentSchema,
-    });
-    const goto = () => {
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      _stepperObj.value.goto(1);
-    };
-    const previousStep = () => {
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      currentStepIndex.value--;
-
-      _stepperObj.value.goPrev();
-    };
-
-    const handleStep = handleSubmit((values) => {
-      if (currentStepIndex.value < 3) {
-        currentStepIndex.value++;
-      }
-
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      _stepperObj.value.goNext();
-    });
-    function removeForm() {
-      currentStepIndex.value = 0;
-
-      form.shopId = "";
-      form.accountId = "";
-
-      form.password = "";
-
-      form.amount = 0;
-      form.notes = "";
-    }
-    const formSubmit = () => {
-      isLoading.value = true;
-      form.shopId = WalletDetails.value.shopId;
-      Object.keys(form).forEach((key) => {
-        if (form[key] === "") {
-          delete form[key];
-        }
-      });
-
-      store.dispatch(Actions.WITHDRAW_TO_WALLET, form).then(() => {
-        goto();
-        resetForm({
-          values: {
-            ...form,
-          },
-        });
-        isLoading.value = false;
-        hideModal(createAppModalRef.value);
-        removeForm();
-      });
-    };
-
-    resetForm({
-      values: {
-        ...form,
-      },
-    });
-
-    return {
-      goto,
-
-      accountType,
-      isLoading,
-      withdrawForm,
-      form,
-
-      handleStep,
-      WalletDetails,
-      formSubmit,
-
-      previousStep,
-      createAppRef,
-      currentStepIndex,
-      totalSteps,
-      createAppModalRef,
-      getIllustrationsPath,
-      AccountsInWithdrawFromWallet,
-    };
-  },
+const withdrawForm = ref<KTCreateApp>({
+  shopId: "",
+  accountId: "",
+  amount: 1,
+  notes: "",
 });
+const isLoading = ref(false);
+
+let form = reactive(withdrawForm);
+
+onMounted(() => {
+  _stepperObj.value = StepperComponent.createInsance(
+    createAppRef.value as HTMLElement
+  );
+});
+
+const createAppSchema = [
+  Yup.object({
+    amount: Yup.number()
+      .test("fileSize", "The file is too large", (value) => {
+        return !!value;
+      })
+      .test(
+        "type",
+        "The amount must be less than the available balance and greater than 0",
+        (value) => {
+          console.log(value);
+          return value && value < WalletDetails?.value?.availableBalance;
+        }
+      ),
+  }),
+  Yup.object({
+    accountId: Yup.string().required().label("accountTypeMthod"),
+    // accountId: Yup.string().required().label("accountId"),
+  }),
+
+  Yup.object({
+    notes: Yup.string().required().label("notes"),
+  }),
+];
+
+// extracts the individual step schema
+const currentSchema = computed(() => {
+  return createAppSchema[currentStepIndex.value];
+});
+
+const totalSteps = computed(() => {
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  return _stepperObj.value.totatStepsNumber;
+});
+
+const { resetForm, handleSubmit } = useForm<Step1 | Step2 | Step3>({
+  validationSchema: currentSchema,
+});
+const goto = () => {
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  _stepperObj.value.goto(1);
+};
+const previousStep = () => {
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  currentStepIndex.value--;
+
+  _stepperObj.value.goPrev();
+};
+
+const handleStep = handleSubmit((values) => {
+  if (currentStepIndex.value < 3) {
+    currentStepIndex.value++;
+  }
+
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  _stepperObj.value.goNext();
+});
+function removeForm() {
+  currentStepIndex.value = 0;
+
+  form.value.shopId = "";
+  form.value.accountId = "";
+
+  form.value.amount = 1;
+  form.value.notes = "";
+}
+const formSubmit = () => {
+  isLoading.value = true;
+  form.value.shopId = WalletDetails.value.shopId;
+  Object.keys(form).forEach((key) => {
+    if (form[key] === "") {
+      delete form[key];
+    }
+  });
+
+  store.dispatch(Actions.WITHDRAW_TO_WALLET, form.value).then(() => {
+    goto();
+  
+    isLoading.value = false;
+    hideModal(createAppModalRef.value);
+    removeForm();
+  });
+};
+
 </script>
 <style>
 .h-25px {

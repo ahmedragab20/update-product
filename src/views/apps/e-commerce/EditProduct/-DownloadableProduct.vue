@@ -68,7 +68,7 @@
       <div class="mb-3 d-flex gap-2 align-items-center">
         <span class="badge badge-light">
           {{
-            files.length > 0
+            files && files.length > 0
               ? `${files.length === 1 ? "one file" : `${files.length} Files`}`
               : "No files added yet. try to add one!"
           }}
@@ -228,7 +228,7 @@
             <div v-if="selectedFileLocation" class="mt-4">
               <section v-if="selectedFileLocation.code === 'ExternalHosting'">
                 <label for="fileExternalLink" class="form-label my-3"
-                >Link URL</label
+                  >Link URL</label
                 >
                 <input
                   type="text"
@@ -450,8 +450,8 @@ const props = defineProps({
   product: {
     type: Object,
     default: {},
-    required: true
-  }
+    required: true,
+  },
 });
 
 const store = useStore();
@@ -463,7 +463,7 @@ const selectedDeliveryWaysIds = ref<any[]>([]); //-> the selected items' IDs
 const selectedDeliveryWays = ref<any[]>([]); //-> the final result of the selected items (what you're going to use in the template)
 const findSelectedDiscountShops = (ids: Array<string | number> = []) => {
   selectedDeliveryWays.value = deliveryWays.value?.filter((item) =>
-    ids.includes(item.id)
+    ids?.includes(item.id)
   );
 };
 // where you receive the data from the dropdown component
@@ -505,8 +505,8 @@ const editorOptions = ref({
     ["bold", "italic", "underline", "strike"], // toggled buttons
     ["blockquote"],
     [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-    [{ font: [] }]
-  ]
+    [{ font: [] }],
+  ],
 });
 const fileLocations = computed(
   () => store.state.LookupQueries.digitalProductFileLocation
@@ -540,7 +540,7 @@ const onUpload = async (event) => {
     const reqData = {
       method: "post",
       url: "/ManageCommands/upload-file",
-      payload: fd
+      payload: fd,
     };
 
     const { data }: any = await Api(reqData);
@@ -611,7 +611,7 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
     let fileData;
     let payload: any = {
       downloadableDigitalProducts: [],
-      digitalProductDeliveryWays: selectedDeliveryWaysIds.value
+      digitalProductDeliveryWays: selectedDeliveryWaysIds.value,
     };
 
     if (!isEdit) {
@@ -621,14 +621,14 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
         fileLocationURL: fileExternalLink.value,
         resources: resourcesFinal,
         fileSize: fileSize.value,
-        fileType: fileType.value
+        fileType: fileType.value,
       };
 
       Object.keys(resources.value).forEach((key: string) => {
         resourcesFinal.push({
           languageId: key,
           title: resources.value[key],
-          description: fileDescription.value[key]
+          description: fileDescription.value[key],
         });
       });
 
@@ -644,7 +644,7 @@ const submitData = async (isEdit: boolean = false, isDelete?: boolean) => {
     const reqData = {
       url: "/ProductCommands/update-product-downloadable-digital-products",
       method: "post",
-      payload
+      payload,
     };
 
     const { data }: any = await Api(reqData);
@@ -702,7 +702,7 @@ watch(languages, (newValue) => {
   }
 });
 watch(files, (newValue) => {
-  if (filesBackup.value.length === 0) {
+  if (filesBackup.value?.length === 0) {
     filesBackup.value = newValue;
   }
 });

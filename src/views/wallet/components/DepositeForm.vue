@@ -203,7 +203,7 @@
                             <!--begin:Info-->
                             <span class="d-flex flex-column">
                               <span class="fw-bolder fs-6">
-                                {{ WalletDetails.availableBalance }}</span
+                                {{ WalletDetails?.availableBalance }}</span
                               >
                             </span>
                             <!--end:Info-->
@@ -594,14 +594,24 @@
                                   <div class="position-relative">
                                     <!--begin::Input-->
                                     <Field
-                                      @input="
-                                        formatCardNumber($event.target.value)
-                                      "
-                                      class="form-control"
-                                      placeholder="Enter card number"
                                       name="bankCardNumber"
-                                      v-model="depositForm.bankCardNumber"
-                                    />
+                                      v-slot="{ field, meta }"
+                                      v-model="form.bankCardNumber"
+                                    >
+                                      <input
+                                        type="text"
+                                        v-bind="field"
+                                        class="form-control form-control-solid form-control-lg"
+                                        :placeholder="$t('bankCardNumber')"
+                                        @input="formatCardNumber($event)"
+                                        v-model="form.bankCardNumber"
+                                        :class="{
+                                          'is-valid': meta.valid,
+                                          'is-invalid':
+                                            meta.validated && !meta.valid,
+                                        }"
+                                      />
+                                    </Field>
                                     <div class="fv-plugins-message-container">
                                       <div class="fv-help-block">
                                         <ErrorMessage name="bankCardNumber" />
@@ -819,8 +829,6 @@
                 <!--begin::Step 3-->
                 <div data-kt-stepper-element="content">
                   <div class="w-100">
-                  
-
                     <!--begin::Input group-->
                     <div class="fv-row mb-10">
                       <!--begin::Label-->
@@ -964,21 +972,14 @@
 }
 </style>
 
-<script lang="ts">
+<script lang="ts" setup>
 import i18n from "@/core/plugins/i18n";
-import {
-  defineComponent,
-  onMounted,
-  ref,
-  computed,
-  reactive,
-  watch,
-} from "vue";
+import { onMounted, ref, computed, reactive, watch } from "vue";
 import { StepperComponent } from "@/assets/ts/components/_StepperComponent";
 import Swal from "sweetalert2/dist/sweetalert2.min.js";
 import { useForm } from "vee-validate";
 import { Field, ErrorMessage } from "vee-validate";
-import { Actions, Mutations } from "@/store/enums/StoreEnums";
+import { Actions } from "@/store/enums/StoreEnums";
 import * as Yup from "yup";
 import { hideModal } from "@/core/helpers/dom";
 import { getIllustrationsPath } from "@/core/helpers/assets";
@@ -998,7 +999,6 @@ interface Step2 {
 
 interface Step4 {
   notes: string;
-
 }
 
 interface Step3 {
@@ -1017,382 +1017,326 @@ interface Step3 {
 
 interface KTCreateApp extends Step1, Step2, Step3, Step4 {}
 
-export default defineComponent({
-  name: "create-app-modal",
-  components: {
-    Field,
+const state = ref("");
+const visaCard = ref(false);
+const masterCard = ref(false);
+const americanExpressCard = ref(false);
+const value = ref("myAccount");
+const WalletDetails = computed(() => store.state.WalletModule.WalletDetails);
+const store = useStore();
+const MyAccounts = computed(() => store.state.AllAccounts.InDepositeToWallet);
 
-    ErrorMessage,
-  },
-  setup() {
-    const state = ref("");
-    const visaCard = ref(false);
-    const masterCard = ref(false);
-    const americanExpressCard = ref(false);
-    const value = ref("myAccount");
-    const WalletDetails = computed(
-      () => store.state.WalletModule.WalletDetails
-    );
-    const store = useStore();
-    const MyAccounts = computed(
-      () => store.state.AllAccounts.InDepositeToWallet
-    );
+const _stepperObj = ref<StepperComponent | null>(null);
+const createAppRef = ref<HTMLElement | null>(null);
+const createAppModalRef = ref<HTMLElement | null>(null);
+const currentStepIndex = ref(0);
 
-    const _stepperObj = ref<StepperComponent | null>(null);
-    const createAppRef = ref<HTMLElement | null>(null);
-    const createAppModalRef = ref<HTMLElement | null>(null);
-    const currentStepIndex = ref(0);
+let accountType = ref("");
+const depositForm = ref<KTCreateApp>({
+  accountSubTypeId: '',
+  name: '',
+  shopId: '',
+  accountTypeMthod: '',
 
-    let accountType = ref("");
-    const depositForm = ref<KTCreateApp>({
-      accountSubTypeId: "",
-      name: "",
-      shopId: "",
-      accountTypeMthod: "",
+  accountType: '',
+  accountId: '',
+  amount: 1,
+  notes: '',
 
-      accountType: "",
-      accountId: "",
-      amount: 1,
-      notes: "",
-
-      walletId: "",
-      bankIBANNumber: "",
-      bankCardUserName: "",
-      bankCardNumber: "",
-      bankCardSecurityNumber: "",
-      bankCardExpiryMonth: "",
-      bankCardExpiryYear: "",
-    });
-    const saveAccount = ref(false);
-
-    const isLoading = ref(false);
-
-    let form = reactive(depositForm);
-    watch(depositForm.value, (newForm) => {
-      let visaCardregex = new RegExp("4[0-9 ]{15}(?:[0-9]{3})?$");
-      let masterCardregex = new RegExp(
-        "^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9 ]{15}$"
-      );
-
-      let americanExpressCardregex = new RegExp("3[47][0-9 ]{16}$");
-      visaCard.value = visaCardregex.test(depositForm.value.bankCardNumber);
-      masterCard.value = masterCardregex.test(depositForm.value.bankCardNumber);
-      americanExpressCard.value = americanExpressCardregex.test(
-        depositForm.value.bankCardNumber
-      );
-
-      if (visaCard.value) {
-        depositForm.value.accountSubTypeId = "3";
-      } else if (masterCard.value) {
-        depositForm.value.accountSubTypeId = "4";
-      } else if (americanExpressCard.value) {
-        depositForm.value.accountSubTypeId = "5";
-      }
-    });
-    onMounted(() => {
-      _stepperObj.value = StepperComponent.createInsance(
-        createAppRef.value as HTMLElement
-      );
-    });
-
-    const createAppSchema = [
-      Yup.object({
-        amount: Yup.number()
-          .lessThan(
-            WalletDetails.value.availableBalance,
-            "Amount should be less than Current Balanc"
-          )
-          .required()
-          .label("Amount"),
-      }),
-      Yup.object({
-        accountTypeMthod: Yup.string().required().label("accountTypeMthod"),
-        // accountId: Yup.string().required().label("accountId"),
-      }),
-      Yup.object({
-        accountId: Yup.string().when("accountTypeMthod", (accountTypeMthod) => {
-          if (accountTypeMthod === "myAccount") {
-            console.log("accountTypeMthod", accountTypeMthod);
-            return Yup.string().required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-        name: Yup.string().when("accountTypeMthod", (accountTypeMthod) => {
-          if (accountTypeMthod === "newAccount") {
-            console.log("accountTypeMthod", accountTypeMthod);
-            return Yup.string().required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-        accountType: Yup.string().when(
-          "accountTypeMthod",
-          (accountTypeMthod) => {
-            if (accountTypeMthod === "newAccount") {
-              console.log("accountTypeMthod", accountTypeMthod);
-              return Yup.string().required(i18n.global.t("fieldRequired"));
-            } else {
-              return Yup.string();
-            }
-          }
-        ),
-        accountSubTypeId: Yup.string().when(
-          "accountTypeMthod",
-          (accountTypeMthod) => {
-            if (accountTypeMthod === "newAccount") {
-              return Yup.string().required(i18n.global.t("fieldRequired"));
-            } else {
-              return Yup.string();
-            }
-          }
-        ),
-        walletId: Yup.string().when("accountType", (accountType) => {
-          if (accountType === "2") {
-            console.log("accountTypeyes", accountType);
-            return Yup.string().required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-        bankIBANNumber: Yup.string().when("accountType", (accountType) => {
-          if (accountType === "4") {
-            return Yup.string().required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-        bankCardUserName: Yup.string().when("accountType", (accountType) => {
-          console.log("accountType", accountType);
-
-          if (accountType === "3") {
-            return Yup.string().required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-        bankCardNumber: Yup.string().when("accountType", (accountType) => {
-          if (accountType === "3") {
-            return Yup.string()
-              .min(13, i18n.global.t("cardNumNotValid"))
-              .max(19, i18n.global.t("cardNumNotValid"))
-              .required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-        bankCardSecurityNumber: Yup.string().when(
-          "accountType",
-          (accountType) => {
-            if (accountType === "3") {
-              return Yup.string()
-                .min(3, i18n.global.t("cardSecurtyNumNotValid"))
-                .max(3, i18n.global.t("cardSecurtyNumNotValid"))
-                .required(i18n.global.t("fieldRequired"));
-            } else {
-              return Yup.string();
-            }
-          }
-        ),
-        bankCardExpiryMonth: Yup.string().when("accountType", (accountType) => {
-          if (accountType === "3") {
-            return Yup.string().required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-        bankCardExpiryYear: Yup.string().when("accountType", (accountType) => {
-          if (accountType === "3") {
-            return Yup.string().required(i18n.global.t("fieldRequired"));
-          } else {
-            return Yup.string();
-          }
-        }),
-      }),
-
-      Yup.object({
-        notes: Yup.string().required().label("notes"),
-  
-      }),
-    ];
-
-    // extracts the individual step schema
-    const currentSchema = computed(() => {
-      return createAppSchema[currentStepIndex.value];
-    });
-
-    const totalSteps = computed(() => {
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      return _stepperObj.value.totatStepsNumber;
-    });
-
-    const { resetForm, handleSubmit } = useForm<Step1 | Step2 | Step3 | Step4>({
-      validationSchema: currentSchema,
-    });
-
-    const goto = () => {
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      _stepperObj.value.goFirst();
-      _stepperObj.value.destroy();
-    };
-    const previousStep = () => {
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      currentStepIndex.value--;
-
-      _stepperObj.value.goPrev();
-    };
-    const check = (v) => {
-      console.log(v);
-      state.value = v.target.value;
-      currentStepIndex.value++;
-
-      if (!_stepperObj.value) {
-        return;
-      }
-
-      _stepperObj.value.goNext();
-    };
-    const handleStep = handleSubmit((values) => {
-      if (saveAccount.value && currentStepIndex.value == 2) {
-        Object.keys(depositForm.value).forEach((key) => {
-          if (depositForm.value[key] === "") {
-            delete depositForm.value[key];
-          }
-        });
-        store.dispatch(Actions.ADD_ACCOUNT, depositForm.value).then(() => {
-          Swal.fire({
-            text: `Account  Added Successfully ! `,
-            icon: "success",
-            buttonsStyling: false,
-            confirmButtonText: "Ok, got it!",
-            customClass: {
-              confirmButton: "btn fw-bold btn-light-primary",
-            },
-          });
-        });
-      }
-
-      if (currentStepIndex.value < 4) {
-        currentStepIndex.value++;
-      }
-
-      if (!_stepperObj.value) {
-        return;
-      }
-      // console.log('_stepperObj.value',_stepperObj.value.destroy())
-
-      _stepperObj.value.goNext();
-    });
-
-    function removeForm() {
-      currentStepIndex.value = 0;
-      depositForm.value.accountSubTypeId = "";
-      depositForm.value.shopId = "";
-      depositForm.value.accountTypeMthod = "";
-
-      depositForm.value.accountType = "";
-      depositForm.value.accountId = "";
-      depositForm.value.amount = 0;
-      depositForm.value.notes = "";
-      depositForm.value.walletId = "";
-      depositForm.value.bankIBANNumber = "";
-      depositForm.value.bankCardUserName = "";
-      depositForm.value.bankCardNumber = "";
-      depositForm.value.bankCardSecurityNumber = "";
-      depositForm.value.bankCardExpiryMonth = "";
-      depositForm.value.bankCardExpiryYear = "";
-    }
-    const formSubmit = async (values: any) => {
-      console.log(values);
-      isLoading.value = true;
-      depositForm.value.bankCardNumber = depositForm.value.bankCardNumber;
-      depositForm.value.shopId = WalletDetails.value.shopId;
-      Object.keys(depositForm.value).forEach((key) => {
-        if (depositForm.value[key] === "") {
-          delete depositForm.value[key];
-        }
-      });
-      store
-        .dispatch(Actions.DEPOSITE_TO_WALLET, depositForm.value)
-        .then((res) => {
-          removeForm();
-          goto();
-          saveAccount.value = false;
-
-          hideModal(createAppModalRef.value);
-          isLoading.value = false;
-        });
-    };
-
-    const accountTypes = computed(() => store.getters.getAccountTypes);
-    const accountSubTypesId = computed(() => store.getters.getAccountSubTypes);
-    const accountSubtypes = (id) => {
-      store.dispatch(Actions.GET_ACCOUNT_SUBTYPES, {
-        accountTypeId: id,
-      });
-      depositForm.value.accountSubTypeId = "";
-      depositForm.value.bankCardExpiryMonth = "";
-      depositForm.value.bankCardExpiryYear = "";
-      depositForm.value.bankCardNumber = "";
-      depositForm.value.bankIBANNumber = "";
-      depositForm.value.bankCardSecurityNumber = "";
-      depositForm.value.bankCardUserName = "";
-      depositForm.value.walletId = "";
-    };
-
-    const formatCardNumber = (target) => {
-      console.log(target);
-      depositForm.value.bankCardNumber = target
-        .replace(/[^\dA-Z]/g, "")
-        .replace(/(.{4})/g, "$1 ")
-        .trim();
-    };
-
-    return {
-      removeForm,
-      saveAccount,
-      formatCardNumber,
-      goto,
-
-      accountSubtypes,
-
-      visaCard,
-      masterCard,
-      americanExpressCard,
-
-      state,
-      accountTypes,
-      accountSubTypesId,
-      accountType,
-      isLoading,
-      depositForm,
-      form,
-      check,
-      value,
-      handleStep,
-      WalletDetails,
-      formSubmit,
-
-      previousStep,
-      createAppRef,
-      currentStepIndex,
-      totalSteps,
-      createAppModalRef,
-      getIllustrationsPath,
-
-      MyAccounts,
-    };
-  },
+  walletId: '',
+  bankIBANNumber: '',
+  bankCardUserName: '',
+  bankCardNumber: '',
+  bankCardSecurityNumber: '',
+  bankCardExpiryMonth: '',
+  bankCardExpiryYear: '',
 });
+const saveAccount = ref(false);
+
+const isLoading = ref(false);
+
+let form = reactive(depositForm);
+watch(depositForm.value, (newForm) => {
+  let visaCardregex = new RegExp("4[0-9 ]{15}(?:[0-9]{3})?$");
+  let masterCardregex = new RegExp(
+    "^(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9 ]{15}$"
+  );
+
+  let americanExpressCardregex = new RegExp("3[47][0-9 ]{16}$");
+  visaCard.value = visaCardregex.test(depositForm.value.bankCardNumber);
+  masterCard.value = masterCardregex.test(depositForm.value.bankCardNumber);
+  americanExpressCard.value = americanExpressCardregex.test(
+    depositForm.value.bankCardNumber
+  );
+
+  if (visaCard.value) {
+    depositForm.value.accountSubTypeId = "3";
+  } else if (masterCard.value) {
+    depositForm.value.accountSubTypeId = "4";
+  } else if (americanExpressCard.value) {
+    depositForm.value.accountSubTypeId = "5";
+  }
+});
+onMounted(() => {
+  _stepperObj.value = StepperComponent.createInsance(
+    createAppRef.value as HTMLElement
+  );
+});
+
+const createAppSchema = [
+  Yup.object({
+    amount: Yup.number()
+      .test("fileSize", "The file is too large", (value) => {
+        return !!value;
+      })
+      .test(
+        "type",
+        "The amount must be less than the available balance and greater than 0",
+        (value) => {
+          console.log(value);
+          return value && value < WalletDetails?.value?.availableBalance;
+        }
+      ),
+  }),
+  Yup.object({
+    accountTypeMthod: Yup.string().required().label("accountTypeMthod"),
+    // accountId: Yup.string().required().label("accountId"),
+  }),
+  Yup.object({
+    accountId: Yup.string().when("accountTypeMthod", (accountTypeMthod:string) => {
+      if (accountTypeMthod === "myAccount") {
+    
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    name: Yup.string().when("accountTypeMthod", (accountTypeMthod:string) => {
+      if (accountTypeMthod === "newAccount") {
+
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    accountType: Yup.string().when("accountTypeMthod", (accountTypeMthod:string) => {
+      if (accountTypeMthod === "newAccount") {
+
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    accountSubTypeId: Yup.string().when(
+      "accountTypeMthod",
+      (accountTypeMthod:string) => {
+        if (accountTypeMthod === "newAccount") {
+          return Yup.string().required(i18n.global.t("fieldRequired"));
+        } else {
+          return Yup.string();
+        }
+      }
+    ),
+    walletId: Yup.string().when("accountType", (accountType:string) => {
+      if (accountType === "2") {
+       
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    bankIBANNumber: Yup.string().when("accountType", (accountType:string) => {
+      if (accountType === "4") {
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    bankCardUserName: Yup.string().when("accountType", (accountType:string) => {
+
+      if (accountType === "3") {
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    bankCardNumber: Yup.string().when("accountType", (accountType:string) => {
+      if (accountType === "3") {
+        return Yup.string()
+          .min(13, i18n.global.t("cardNumNotValid"))
+          .max(19, i18n.global.t("cardNumNotValid"))
+          .required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    bankCardSecurityNumber: Yup.string().when("accountType", (accountType:string) => {
+      if (accountType === "3") {
+        return Yup.string()
+          .min(3, i18n.global.t("cardSecurtyNumNotValid"))
+          .max(3, i18n.global.t("cardSecurtyNumNotValid"))
+          .required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    bankCardExpiryMonth: Yup.string().when("accountType", (accountType:string) => {
+      if (accountType === "3") {
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+    bankCardExpiryYear: Yup.string().when("accountType", (accountType:string) => {
+      if (accountType === "3") {
+        return Yup.string().required(i18n.global.t("fieldRequired"));
+      } else {
+        return Yup.string();
+      }
+    }),
+  }),
+
+  Yup.object({
+    notes: Yup.string().required().label("notes"),
+  }),
+];
+
+// extracts the individual step schema
+const currentSchema = computed(() => {
+  return createAppSchema[currentStepIndex.value];
+});
+
+const totalSteps = computed(() => {
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  return _stepperObj.value.totatStepsNumber;
+});
+
+const { resetForm, handleSubmit } = useForm<Step1 | Step2 | Step3 | Step4>({
+  validationSchema: currentSchema,
+});
+
+const goto = () => {
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  _stepperObj.value.goFirst();
+  _stepperObj.value.destroy();
+};
+const previousStep = () => {
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  currentStepIndex.value--;
+
+  _stepperObj.value.goPrev();
+};
+const check = (v) => {
+  console.log(v);
+  state.value = v.target.value;
+  currentStepIndex.value++;
+
+  if (!_stepperObj.value) {
+    return;
+  }
+
+  _stepperObj.value.goNext();
+};
+const handleStep = handleSubmit((values) => {
+  if (saveAccount.value && currentStepIndex.value == 2) {
+    Object.keys(depositForm.value).forEach((key) => {
+      if (depositForm.value[key] === "") {
+        delete depositForm.value[key];
+      }
+    });
+    store.dispatch(Actions.ADD_ACCOUNT, depositForm.value).then(() => {
+      Swal.fire({
+        text: `Account  Added Successfully ! `,
+        icon: "success",
+        buttonsStyling: false,
+        confirmButtonText: "Ok, got it!",
+        customClass: {
+          confirmButton: "btn fw-bold btn-light-primary",
+        },
+      });
+    });
+  }
+
+  if (currentStepIndex.value < 4) {
+    currentStepIndex.value++;
+  }
+
+  if (!_stepperObj.value) {
+    return;
+  }
+  // console.log('_stepperObj.value',_stepperObj.value.destroy())
+
+  _stepperObj.value.goNext();
+});
+
+function removeForm() {
+  currentStepIndex.value = 0;
+  depositForm.value.accountSubTypeId = '';
+  depositForm.value.shopId = '';
+  depositForm.value.accountTypeMthod = '';
+
+  depositForm.value.accountType = '';
+  depositForm.value.accountId = '';
+  depositForm.value.amount = 1;
+  depositForm.value.notes = '';
+  depositForm.value.walletId = '';
+  depositForm.value.bankIBANNumber = '';
+  depositForm.value.bankCardUserName = '';
+  depositForm.value.bankCardNumber = '';
+  depositForm.value.bankCardSecurityNumber = '';
+  depositForm.value.bankCardExpiryMonth = '';
+  depositForm.value.bankCardExpiryYear = '';
+}
+const formSubmit = async () => {
+  isLoading.value = true;
+  depositForm.value.bankCardNumber = depositForm.value.bankCardNumber;
+  depositForm.value.shopId = WalletDetails.value.shopId;
+  Object.keys(depositForm.value).forEach((key) => {
+    if (depositForm.value[key] === "") {
+      delete depositForm.value[key];
+    }
+  });
+  store.dispatch(Actions.DEPOSITE_TO_WALLET, depositForm.value).then((res) => {
+    removeForm();
+    goto();
+    saveAccount.value = false;
+
+    hideModal(createAppModalRef.value);
+    isLoading.value = false;
+  });
+};
+
+const accountTypes = computed(() => store.getters.getAccountTypes);
+const accountSubTypesId = computed(() => store.getters.getAccountSubTypes);
+const accountSubtypes = (id) => {
+  store.dispatch(Actions.GET_ACCOUNT_SUBTYPES, {
+    accountTypeId: id,
+  });
+  depositForm.value.accountSubTypeId = '';
+  depositForm.value.bankCardExpiryMonth = '';
+  depositForm.value.bankCardExpiryYear = '';
+  depositForm.value.bankCardNumber = '';
+  depositForm.value.bankIBANNumber = '';
+  depositForm.value.bankCardSecurityNumber = '';
+  depositForm.value.bankCardUserName = '';
+  depositForm.value.walletId = '';
+};
+
+const formatCardNumber = (e) => {
+  depositForm.value.bankCardNumber = e.target.value
+    .replace(/[^\dA-Z]/g, "")
+    .replace(/(.{4})/g, "$1 ")
+    .trim();
+};
 </script>
 <style>
 .h-25px {

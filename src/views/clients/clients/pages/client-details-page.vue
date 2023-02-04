@@ -52,7 +52,6 @@
               >
                 <div class="fs-4 fw-bolder text-gray-700">
                   <span class="w-50px">{{ form.usedPoints }}</span>
-                  
                 </div>
                 <div class="fw-bold text-muted">Used Points</div>
               </div>
@@ -137,16 +136,20 @@
               <!--begin::Details item-->
               <div class="fw-bolder mt-5">ReferenceNumber</div>
               <div class="text-gray-600">
-              {{form.lastOrderReferenceNumber}}
+                {{ form.lastOrderReferenceNumber }}
+              </div>
+              <div class="fw-bolder mt-5">lastOrderDateTime</div>
+              <div class="text-gray-600">
+                {{ form.lastOrderDateTime }}
               </div>
               <!--begin::Details item-->
               <!--begin::Details item-->
               <div class="fw-bolder mt-5">Language</div>
-              <div class="text-gray-600">{{language}}</div>
+              <div class="text-gray-600">{{ language }}</div>
               <!--begin::Details item-->
               <!--begin::Details item-->
               <div class="fw-bolder mt-5">Currency</div>
-              <div class="text-gray-600">{{currency}}</div>
+              <div class="text-gray-600">{{ currency }}</div>
               <!--begin::Details item-->
               <!--begin::Details item-->
 
@@ -172,7 +175,7 @@
         class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-bold mb-8"
       >
         <!--begin:::Tab item-->
-       
+
         <!--end:::Tab item-->
 
         <!--begin:::Tab item-->
@@ -185,13 +188,12 @@
             Address</a
           >
         </li>
-         <li class="nav-item">
+        <li class="nav-item">
           <a
-            class="nav-link text-active-primary pb-4 "
+            class="nav-link text-active-primary pb-4"
             data-bs-toggle="tab"
             href="#kt_customer_view_overview_tab"
             @click="getOrder"
-           
             >Order</a
           >
         </li>
@@ -200,10 +202,10 @@
         <!--begin:::Tab item-->
         <li class="nav-item">
           <a
-          role="button"
+            role="button"
             class="nav-link text-active-primary pb-4"
             data-kt-countup-tabs="true"
-             @click="getWishlist"
+            @click="getWishlist"
             data-bs-toggle="tab"
             href="#kt_customer_view_overview_statements"
             >Whishlists</a
@@ -211,8 +213,8 @@
         </li>
         <li class="nav-item">
           <a
-           role="button"
-             @click="getAbandoned"
+            role="button"
+            @click="getAbandoned"
             class="nav-link text-active-primary pb-4"
             data-kt-countup-tabs="true"
             data-bs-toggle="tab"
@@ -223,7 +225,7 @@
         <!--end:::Tab item-->
         <li class="nav-item">
           <a
-          role="button"
+            role="button"
             class="nav-link text-active-primary pb-4"
             @click="getDevices"
             data-kt-countup-tabs="true"
@@ -242,7 +244,7 @@
       <div class="tab-content" id="myTabContent">
         <!--begin:::Tab pane-->
         <div
-          class="tab-pane fade show "
+          class="tab-pane fade show"
           id="kt_customer_view_overview_tab"
           role="tabpanel"
         >
@@ -370,7 +372,7 @@
           </div>
 
           <ClientOrder
-          ref="Order"
+            ref="Order"
             card-classes="mb-6 mb-xl-9"
             :PhoneNumber="form.phoneNumber"
             :id="form.id"
@@ -379,11 +381,7 @@
         <!--end:::Tab pane-->
 
         <!--begin:::Tab pane-->
-        <div
-            class="tab-pane fade show active"
-          id="address"
-          role="tabpanel"
-        >
+        <div class="tab-pane fade show active" id="address" role="tabpanel">
           <ClientAddress card-classes="mb-6 mb-xl-9" :id="id"></ClientAddress>
         </div>
         <!--end:::Tab pane-->
@@ -395,29 +393,21 @@
           role="tabpanel"
         >
           <ClientWhishlists
-          ref="whishlist"
+            ref="whishlist"
             card-classes="mb-6 mb-xl-9"
             :id="id"
           ></ClientWhishlists>
         </div>
-         <div
-          class="tab-pane fade"
-          id="Abandoned"
-          role="tabpanel"
-        >
+        <div class="tab-pane fade" id="Abandoned" role="tabpanel">
           <AbandonedCarts
-          ref="Abandoned"
+            ref="Abandoned"
             card-classes="mb-6 mb-xl-9"
             :id="id"
           ></AbandonedCarts>
         </div>
-        <div
-          class="tab-pane fade"
-          id="Devices"
-          role="tabpanel"
-        >
+        <div class="tab-pane fade" id="Devices" role="tabpanel">
           <ClientDevices
-          ref="Devices"
+            ref="Devices"
             card-classes="mb-6 mb-xl-9"
             :id="id"
           ></ClientDevices>
@@ -434,34 +424,48 @@
 </template>
 
 <script lang="ts" setup>
-import { defineComponent, onMounted } from "vue";
-import { setCurrentPageBreadcrumbs } from "@/core/helpers/breadcrumb";
-import Dropdown3 from "@/components/dropdown/Dropdown3.vue";
 import NewCardModal from "@/components/modals/forms/NewCardModal.vue";
 import ClientOrder from "../components/ClientOrder.vue";
 import ClientAddress from "../components/ClientAddress.vue";
 import ClientWhishlists from "../components/ClientWhishlists.vue";
-import AbandonedCarts from "../components/AbandonedCarts.vue"
-import ClientDevices from "../components/ClientDevices.vue"
-
-import Earnings from "@/components/customers/cards/statments/Earnings.vue";
-import Statement from "@/components/customers/cards/statments/Statement.vue";
+import AbandonedCarts from "../components/AbandonedCarts.vue";
+import ClientDevices from "../components/ClientDevices.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ref, defineProps, computed, reactive } from "vue";
 import { Actions } from "@/store/enums/StoreEnums";
 import { string } from "yup";
+interface Clientform {
+  name: string;
+  email: string;
+  id: string;
+  phoneNumber: string;
+  totalPoints: number;
+  usedPoints: number;
+  activePoints: number;
+  emailConfirmed: boolean;
+  phoneNumberConfirmed: boolean;
+  numberOfSucceededOrders: number;
+  numberOfActiveOrders: number;
+  totalAmountOfActiveOrders: number;
+  totalAmountOfFailedOrders: number;
+  totalAmountOfSucceededOrders: number;
+  numberOfFailedOrders: number;
+  lastSelectedLanguageId: number;
+  lastSelectedCurrencyId: number;
+  lastOrderReferenceNumber: string;
+  lastOrderDateTime: string;
+}
 const store = useStore();
 const route = useRoute();
-const whishlist=ref()
-const Devices=ref()
-const Order=ref()
-const Abandoned=ref()
-let form = ref({
+const whishlist = ref();
+const Devices = ref();
+const Order = ref();
+const Abandoned = ref();
+let form = ref<Clientform>({
   name: "",
   email: "",
   id: "",
-  name: "",
   phoneNumber: "",
   totalPoints: 0,
   usedPoints: 0,
@@ -474,60 +478,44 @@ let form = ref({
   totalAmountOfFailedOrders: 0,
   totalAmountOfSucceededOrders: 0,
   numberOfFailedOrders: 0,
-  lastSelectedLanguageId:0,
-  lastSelectedCurrencyId:0,
-  lastOrderReferenceNumber:0
+  lastSelectedLanguageId: 0,
+  lastSelectedCurrencyId: 0,
+  lastOrderReferenceNumber: "",
+  lastOrderDateTime: "",
 });
 const lookupQueries = store.state.LookupQueries;
-console.log("lookupQueries", lookupQueries);
 
 const language = ref("");
 const currency = ref("");
 
-
-const id = route.params.id;
-const getData = (id) => {
-  console.log("ud", id);
-
+const id = route.params.id ;
+const getData = (id: any) => {
   store.dispatch(Actions.GET_CLIENT_BY_ID, id).then((data) => {
-    console.log("data", data);
-
     form.value = data;
-    console.log("form.value.lastSelectedLanguageId",form.value.lastSelectedLanguageId)
-     console.log(" lookupQueries.countries?.data?", lookupQueries.languages.data)
     language.value = lookupQueries.languages?.data?.find(
-
-  (x) => parseInt(x.id) === form.value.lastSelectedLanguageId
-).label;
- currency.value = lookupQueries.currencies?.data?.find(
-
-  (x) => parseInt(x.id) === form.value.lastSelectedCurrencyId
-).label;
-console.log("country",currency.value)
+      (x) => parseInt(x.id) === form.value.lastSelectedLanguageId
+    ).label;
+    currency.value = lookupQueries.currencies?.data?.find(
+      (x) => parseInt(x.id) === form.value.lastSelectedCurrencyId
+    ).label;
 
     // selectedItem.value = form.value.resources[0];
   });
 };
 
+const getWishlist = () => {
+  whishlist.value.fetchData();
+};
+const getDevices = () => {
+  Devices.value.fetchData();
+};
 
-
-
- const getWishlist=()=>{
-  console.log("getWishlist")
-  whishlist.value.fetchData()
-}
- const getDevices=()=>{
-  console.log("Devices")
-  Devices.value.fetchData()
-}
-
- const getAbandoned=()=>{
-  console.log("Devices")
-  Abandoned.value.fetchData()
-}
-const getOrder=()=>{
-    Order.value.fetchData(1)
-}
+const getAbandoned = () => {
+  Abandoned.value.fetchData();
+};
+const getOrder = () => {
+  Order.value.fetchData(1);
+};
 getData(id);
 </script>
 <style>

@@ -5,7 +5,7 @@
     <div class="flex-lg-row-fluid me-lg-15 order-2 order-lg-1 mb-15 h-100">
       <!--begin::Form-->
       <form class="form" action="#" id="kt_subscriptions_create_new">
-        <WalletDetails :id="id"></WalletDetails>
+        <WalletDetails :id="id" :shopId="props.shopId"></WalletDetails>
       </form>
       <!--end::Form-->
     </div>
@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, onMounted, ref } from "vue";
+import { defineProps, computed, ref } from "vue";
 import DepositeWithdawForm from "../components/DepositeForm.vue";
 import WithdrawForm from "../components/WithdrawForm.vue";
 import DepositeAccount from "../components/DepositeAccount.vue";
@@ -126,15 +126,23 @@ import WithdrawAccounts from "../components/WithdrawAccounts.vue";
 import WalletDetails from "../components/WalletDetails.vue";
 
 import TransactionTable from "../components/TransactionTable.vue";
+import { useStore } from "vuex";
 
+import { Actions } from "@/store/enums/StoreEnums";
+const store = useStore();
 
-
+const filterDto = computed(() => store.state.AllAccounts.filterDto);
 
 const DepositeWithdrawForm = ref();
-
-const props = defineProps({
-  id: String,
+interface WalletProp {
+  id: string;
+  shopId: string;
+}
+const props = defineProps<WalletProp>();
+store.dispatch(Actions.GET_ACCOUNTS, {
+  ...filterDto.value,
 });
+
 </script>
 <style>
 .pt-3 {

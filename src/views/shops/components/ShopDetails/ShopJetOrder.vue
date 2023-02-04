@@ -1,8 +1,32 @@
 <template>
-  <div>
-    <div class="product-label d-flex flex-column flex-column-fluid">
+  <div >
+
+    <div
+    v-if="!shopJetOrder.isAvailableOnJetOrder "
+      
+    >
+    <div class="text-center">
+        <img
+        src="/media/svg/illustrations/easy/6.svg"
+          class="rounded-circle my-3 user-select-none"
+          style="
+            width: 210px;
+            height: 210px;
+            object-fit: cover;
+            pointer-events: none;
+          "
+        />
+        <h5 class="text-muted">
+          <i class="fa fa-info-circle"></i>
+          You shop is not on JetOrder application, if you would like to list your shop on JetOrder application, please contact support
+        </h5>
+       
+      </div>
+    </div>
+ 
+    <div class="product-label d-flex flex-column flex-column-fluid" v-else>
       <!--begin::Container-->
-     
+      
         <!--begin::Form-->
         <Form id="kt_account_profile_details_form"
           class="form" 
@@ -446,8 +470,9 @@
         <!--end::Form -->
  
     <!--end::Content-->
-    </div>
+   
   </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -481,6 +506,7 @@ interface taxFeesJetOrder {
 }
 interface shopJetOrder {
   id: string;
+  isAvailableOnJetOrder: boolean;
   allowTakeAwayServiceJetOrder: boolean;
   allowDeliveryServiceJetOrder: boolean;
   allowDriveThruServiceJetOrder: boolean;
@@ -520,6 +546,7 @@ const categories = ref<Categories[] | null>();
 const lookupQueries = store.state.LookupQueries;
 const shopJetOrder = ref<shopJetOrder>({
   id: "",
+  isAvailableOnJetOrder:true,
   allowTakeAwayServiceJetOrder: true,
   allowDeliveryServiceJetOrder: true,
   allowDriveThruServiceJetOrder: true,
@@ -560,17 +587,22 @@ let props = defineProps({
 const supportCurrencies = computed(() => store.getters.getSupportedCurrencies);
 // save changes and update shop JetOrder
 const saveChanges = async (values: any) => {
-  console.log('shopJetOrder', shopJetOrder.value)
   shopJetOrder.value.id = props.id;
   values = {
     ...values,
   };
-  console.log('    ...values,', ...values)
   if (submitButton.value) {
     try {
       // Activate indicator
       submitButton.value.setAttribute("data-kt-indicator", "on");
-      await store.dispatch(Actions.UPDATE_SHOPS_JETORDER_SETTINGS, shopJetOrder.value);
+      await store.dispatch(Actions.UPDATE_SHOPS_JETORDER_SETTINGS, 
+      {
+        id : shopJetOrder.value.id,
+        isBusyOnJetOrder: shopJetOrder.value.isBusyOnJetOrder,
+        isVisibleOnJetOrder: shopJetOrder.value.isVisibleOnJetOrder,
+        isClosedOnJetOrder: shopJetOrder.value.isClosedOnJetOrder,
+        addNewOrderAsFinancicalTransactionIncome: shopJetOrder.value.addNewOrderAsFinancicalTransactionIncome
+    });
       Swal.fire({
         text: i18n.global.t("shopJetOrderUpdated"),
         icon: "success",
@@ -614,7 +646,6 @@ function initResources() {
     });
 
   });
-  console.log("log order taxFeesJetOrder", shopJetOrder.value.taxFeesJetOrder);
 }
 
 
@@ -627,12 +658,15 @@ onMounted(() => {
   // get shops order settings from api
   store.dispatch(Actions.GET_SHOPS_JETORDER_SETTINGS, props.id).then((data) => {
     Object.assign(shopJetOrder.value, data)
+    if(shopJetOrder.value.minimumOrderValuesJetOrder){
+
+   
     if(shopJetOrder.value.minimumOrderValuesJetOrder.length==0 ||
      shopJetOrder.value.taxFeesJetOrder.length==0 || shopJetOrder.value.serviceFeesJetOrder.length==0){
         initResources();
     }
-    console.log("orderSetting.value2", selectedItem.value);
-    console.log("shopJetOrder.value", shopJetOrder.value);
+  }
+
     
   });
   
@@ -647,7 +681,7 @@ watch(supportCurrencies, (newVal) => {
 
 </script>
 
-<style>
+<style  lang="scss">
 .multiselect-lg {
   position: relative;
   margin: 0 auto;
@@ -662,5 +696,30 @@ watch(supportCurrencies, (newVal) => {
 .floating{
   position: fixed;
   bottom: 0px;
+}
+.hint {
+  display: flex;
+  //align-items: center;
+  gap: 10px;
+
+  .image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .context {
+    max-width: 70%;
+    small {
+      margin-top: -7px;
+    }
+  }
 }
 </style>

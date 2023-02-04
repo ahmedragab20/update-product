@@ -5,10 +5,8 @@ import VueAxios from "vue-axios";
 import * as enums from "@/store/enums/StoreEnums";
 
 const cookies = useCookies(["token"]);
-import router from "@/router";
 import store from "@/store";
 import { Mutations } from "@/store/enums/StoreEnums";
-import { swalAlert } from "@/utils/helpers";
 
 /**
  * @description service to call HTTP request via Axios
@@ -36,22 +34,23 @@ class ApiService {
    * @description set the default HTTP request headers
    */
   public static setHeader(): void {
+    const storedLang = JSON.parse(localStorage.getItem("website-lang"));
+
     ApiService.vueInstance.axios.defaults.headers.common["Accept"] =
       "application/json";
     /** JETORDER APP ID  */
     ApiService.vueInstance.axios.defaults.headers.common[
       "x-applicationid"
-      ] = `Jet Order App API N/A`;
-    /** APP LANGUAGE */
-    ApiService.vueInstance.axios.defaults.headers.common[
-      "x-language"
-      ] = `en-us`;
+    ] = `Jet Order App API N/A`;
 
     ApiService.vueInstance.axios.defaults.headers.common["x-countryid"] = 1;
-
+    ApiService.vueInstance.axios.defaults.headers.common["x-language"] =
+      storedLang && storedLang.id ? storedLang.id.toLowerCase() : "en-us";
     ApiService.vueInstance.axios.defaults.headers.common[
       "Authorization"
-      ] = `Bearer ${store.state.AuthModule.token || localStorage.getItem("token")}`;
+    ] = `Bearer ${
+      store.state.AuthModule.token || localStorage.getItem("token")
+    }`;
   }
 
   /**
@@ -129,7 +128,6 @@ class ApiService {
   public static delete(resource: string): Promise<AxiosResponse> {
     return ApiService.vueInstance.axios.delete(resource);
   }
-
 }
 
 const downApis = new Map();
@@ -137,11 +135,31 @@ const resolvedApis = new Map();
 let lastRefresh: number;
 let localToken: string;
 let is401 = false;
-
+// ApiService.vueInstance.axios.defaults.headers.common["x-language"] =
+//   storeLang.toLowerCase();
 axios.interceptors.request.use(async (config) => {
+  // if (!ApiService.vueInstance.axios.defaults.headers.common["x-language"]) {
+  //   const storedLang = JSON.parse(localStorage.getItem("website-lang"));
+  //
+  //   ApiService.vueInstance.axios.defaults.headers.common["x-language"] =
+  //     storedLang && storedLang.id ? storedLang.id.toLowerCase() : "en-us";
+  //
+  //   if (storedLang) {
+  //     store.commit("RERENDER_APP", { value: true, source: "auth-lng" });
+  //   } else {
+  //     console.log("elese");
+  //     return config;
+  //   }
+  //   // await store.dispatch("AUTH_REQUESTS");
+  // }
+
+  // Refresh token conditions
   if (config.url.includes("/Autentication/refresh-token") && !lastRefresh) {
     lastRefresh = new Date().getTime();
-  } else if (config.url.includes("/Autentication/refresh-token") && new Date().getTime() - lastRefresh < 50636) {
+  } else if (
+    config.url.includes("/Autentication/refresh-token") &&
+    new Date().getTime() - lastRefresh < 50636
+  ) {
     return;
   } else if (is401 && !localToken) {
     return;
@@ -151,7 +169,6 @@ axios.interceptors.request.use(async (config) => {
     return;
   }
 
-  store.commit("RERENDER_APP", false);
   return config;
 });
 axios.interceptors.response.use(
@@ -171,8 +188,14 @@ axios.interceptors.response.use(
             return value;
           }).forEach((api) => {
             if (!resolvedApis.has(api.url)) {
-              const ActionName = enumsActions.find((el, index, arr) => enums.Actions[el] === api.url);
-              api.headers.Authorization = `Bearer ${localToken || store.state.AuthModule.token || localStorage.getItem("token˝")}`;
+              const ActionName = enumsActions.find(
+                (el) => enums.Actions[el] === api.url
+              );
+              api.headers.Authorization = `Bearer ${
+                localToken ||
+                store.state.AuthModule.token ||
+                localStorage.getItem("token˝")
+              }`;
 
               if (ActionName && ActionName === "USER") {
                 store.dispatch("AUTH_REQUESTS");
@@ -187,30 +210,31 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-const refreshToken = async function() {
+const refreshToken = async function () {
   try {
     const info = {
       token: localStorage.getItem("refreshToken"),
-      deviceId: localStorage.getItem("deviceId")
+      deviceId: localStorage.getItem("deviceId"),
     };
 
-    return await axios.post("/Autentication/refresh-token", info).then((res) => {
-      const { data } = res;
-      if (!data.succeeded) {
-        store.commit(Mutations.PURGE_AUTH);
-        location.reload();
-        return false;
-      } else {
-        if (!localToken) localToken = data.data.token;
-        store.commit("SET_TOKEN", data.data.token);
-        localStorage.setItem("token", data.data.token);
-        localStorage.setItem("refreshToken", data.data.refreshToken);
-        store.commit("RERENDER_APP", true);
-        is401 = false;
-        return true;
-      }
-    });
-
+    return await axios
+      .post("/Autentication/refresh-token", info)
+      .then((res) => {
+        const { data } = res;
+        if (!data.succeeded) {
+          store.commit(Mutations.PURGE_AUTH);
+          location.reload();
+          return false;
+        } else {
+          if (!localToken) localToken = data.data.token;
+          store.commit("SET_TOKEN", data.data.token);
+          localStorage.setItem("token", data.data.token);
+          localStorage.setItem("refreshToken", data.data.refreshToken);
+          store.commit("RERENDER_APP", { value: true, source: "auth" });
+          is401 = false;
+          return true;
+        }
+      });
   } catch (error) {
     console.log(error);
     return false;

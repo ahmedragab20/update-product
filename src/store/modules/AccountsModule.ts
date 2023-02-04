@@ -65,6 +65,7 @@ export default class AllAccounts extends VuexModule {
   }
   @Mutation
   [Mutations.SET_ACCOUNTS](payload: Accounts[]) {
+    console.log('  this.InWi')
     this.accounts = payload;
     this.InDepositeToWallet=payload?.filter((el) => el.usedInDepositeToWallet)
     this.InWithdrawFromWallet=payload?.filter((el) => el.usedInWithdrawFromWallet)

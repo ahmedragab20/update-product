@@ -430,16 +430,7 @@ CATEGORIES.forEach(el=>{
     });
   }
 
-  @Action
-  [Actions.UPLOAD_FILE](data: any) {
-    const payload = {
-      method: "post",
-      url: Actions.UPLOAD_FILE,
-      payload: data,
-    };
-
-    return Api(payload);
-  }
+ 
 }
 function GenerateCategoriesTree(Array1: Array<any>, object: any) {
   let list: Array<ProductCategoriesType> = [];

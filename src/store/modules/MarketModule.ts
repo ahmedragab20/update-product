@@ -10,11 +10,13 @@ export default class MarketModule extends VuexModule {
   cities = [];
   currentSetupLangs = [];
   initSetupData = {};
+
   // Settings API Get Request
   @Mutation
   [Mutations.SET_MARKET](market) {
     this.market = market;
   }
+
   @Mutation
   [Mutations.UPDATE_MARKET](market) {
     this.market = market;
@@ -39,6 +41,7 @@ export default class MarketModule extends VuexModule {
   [Actions.SET_CURRENT_LANGS](langs) {
     this.context.commit(Mutations.SET_CURRENT_LANGS, langs);
   }
+
   @Action
   [Actions.MARKET]() {
     const payload = {
@@ -66,6 +69,7 @@ export default class MarketModule extends VuexModule {
       this.context.commit(Mutations.UPDATE_MARKET, res?.data.data);
     });
   }
+
   get getMarketData(): Market {
     return this.market;
   }

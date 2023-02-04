@@ -30,6 +30,7 @@ import type ProductCategoriesType from "@/api/data/productCategoriesType";
 import type IconType from "@/api/data/IconData";
 import type ProductBrands from "@/api/data/ProductBrands";
 import type ManageData from "@/api/data/ManageData";
+import type ClientGroupData  from "@/api/data/ClientGroupType";
 import type clientConditionTypeData from "@/api/data/clientConditionTypeData";
 import type conditionsOperatorTypeData from "@/api/data/conditionsOperatorTypeData";
 import type copmerisonTypeData from "@/api/data/copmerisonTypeData";
@@ -91,3 +92,4 @@ export type Wallet = WalletType;
 export type Point = PointSystems;
 export type Product = ProductData;
 export type Categories = LookupCategories;
+export type ClientGroupType=ClientGroupData

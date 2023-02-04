@@ -1,6 +1,6 @@
 <template>
   <!--begin::Card-->
-  <div>
+  <div v-if="tableData">
     <div class="card pt-4">
       <!--begin::Card header-->
       <div class="card-toolbar">
@@ -50,15 +50,27 @@
             {{ payment.amountAfterFees }}
           </template>
           <template v-slot:cell-actions="{ row: payment }">
-            <span class="svg-icon svg-icon-3">
-              <inline-svg src="/media/icons/duotune/art/art011.svg" />
-            </span>
+            <router-link
+              class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+              :to="`/orders/${payment.referenceNumber}`"
+            >
+              <span class="svg-icon svg-icon-3">
+                <inline-svg src="/media/icons/duotune/art/art011.svg" />
+              </span>
+            </router-link>
 
             <!--end::Menu-->
           </template>
         </Datatable>
       </div>
       <!--end::Card body-->
+    </div>
+  </div>
+  <div v-else>
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span>Loading...</span>
+      </div>
     </div>
   </div>
   <!--end::Card-->
@@ -68,12 +80,13 @@
 import { defineComponent, ref, computed, defineProps } from "vue";
 import Datatable from "@/components/kt-datatable/KTDatatable.vue";
 import { useStore } from "vuex";
-import { Actions, Mutations } from "@/store/enums/StoreEnums";
+import { Actions } from "@/store/enums/StoreEnums";
+import { string } from "yup";
 export default defineComponent({
   name: "client-order",
   props: {
-    PhoneNumber: Number,
-    id: Number,
+    PhoneNumber: String,
+    id: String,
   },
   components: {
     Datatable,
@@ -87,7 +100,6 @@ export default defineComponent({
     const DataFrom = ref(1);
     const fetchData = (id) => {
       if (id == 1) {
-        console.log("PhoneNumber", props);
         store
           .dispatch(Actions.GET_JETORDER_ORDERS, props.PhoneNumber)
           .then((res) => {
@@ -114,7 +126,7 @@ export default defineComponent({
         key: "referenceNumber",
         sortable: true,
       },
-     
+
       {
         name: "Status",
         key: "status",
@@ -127,7 +139,7 @@ export default defineComponent({
       //   key: "amountAfterFees",
       //   sortable: true,
       // },
-       {
+      {
         name: "client Address.",
         key: "clientAddress",
         sortable: true,

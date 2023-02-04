@@ -145,7 +145,7 @@ export default class Shops extends VuexModule {
         method: "get",
         url:
             Actions.GET_SHOPS +
-            `?name=${query}&pageSize=${pageSize}&pageNumber=${pageNumber}`,
+            `?Name=${query}&pageSize=${pageSize}&pageNumber=${pageNumber}`,
         };
 
         Api(payload).then((response) => {
@@ -179,7 +179,7 @@ export default class Shops extends VuexModule {
     @Action({ rawError: true })
     [Actions.UPDATE_SHOP_BASE_SETTINGS](shopsdata) {
      console.log('shopsdata',shopsdata)
-     delete shopsdata.logoPath;
+    
       const payload = {
         method: "post",
         url: Actions.UPDATE_SHOP_BASE_SETTINGS,
@@ -382,8 +382,8 @@ export default class Shops extends VuexModule {
         JSON.stringify({
          
           id: shopsdata.id,
-          itemCategories: shopsdata.productCategories,
-          
+          itemCategories: shopsdata.productCategories.map(el=> el.toString()),
+         
         })
       );
       const payload = {
@@ -574,12 +574,44 @@ export default class Shops extends VuexModule {
     }
     @Action
   [Actions.DELETE_SHOP](payload) {
-    Api({
-      method: "post",
-      url: Actions.DELETE_SHOP,
-      payload: { id: payload },
-    }).then((res) => {
-      this.context.commit(Mutations.DELETE_SHOP, payload);
+   
+
+
+    return new Promise((resolve, reject) => {
+      Api({
+        method: "post",
+        url: Actions.DELETE_SHOP,
+        payload: { id: payload },
+      })
+        .then((res) => {
+          if (res?.data.statusCode == 200) {
+            Swal.fire({
+              text: i18n.global.t("shopDeleted"),
+              icon: "success",
+              buttonsStyling: false,
+              confirmButtonText: i18n.global.t("ok"),
+              customClass: {
+                confirmButton: "btn fw-bold btn-light-primary",
+              },
+            }).then(() => {
+              resolve(res?.data);
+            })
+          } else {
+            resolve(res?.data);
+            Swal.fire({
+              text: res?.data.message,
+              icon: "error",
+              buttonsStyling: false,
+              confirmButtonText: "Ok, got it!",
+              customClass: {
+                confirmButton: "btn fw-bold btn-light-primary",
+              },
+            });
+          }
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 }

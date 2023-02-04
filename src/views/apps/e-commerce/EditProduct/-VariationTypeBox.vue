@@ -53,7 +53,10 @@
             </div>
           </div>
         </div>
-        <tabs-duplicator :items="langs.data" @selectedItem="setSelectedLang">
+        <tabs-duplicator
+          :items="languages.data"
+          @selectedItem="setSelectedLang"
+        >
           <template #label="{ item }">
             <span>
               {{ item.label }}
@@ -61,7 +64,7 @@
           </template>
         </tabs-duplicator>
         <keep-alive>
-          <div v-for="(lang, $index) in langs.data" :key="$index">
+          <div v-for="(lang, $index) in languages.data" :key="$index">
             <input-field
               v-if="lang.id === selectedLang.id"
               v-model="typeLabel[selectedLang.id]"
@@ -220,12 +223,10 @@
           <div v-if="recentOptions && recentOptions.length > 0">
             <VariationOptionsTable
               :editOption="editOption"
-              :isReadonly="isReadonly"
-              :mutateIsReadonly="mutateIsReadonly"
               :options="recentOptions"
               :removeOption="removeOption"
-              :typeId="id"
               :imageViewerModalHandler="imageViewerModalHandler"
+              :languages="languages.data"
             />
           </div>
           <div v-else>
@@ -240,7 +241,7 @@
             <OptionsDivs
               :activeValueType="activeValueType"
               :addOption="addOption"
-              :langs="langs.data"
+              :languages="languages.data"
               :selectedOptionLabelLang="selectedOptionLabelLang"
               :setSelectedOptionLabelLang="setSelectedOptionLabelLang"
               :imageViewerModalHandler="imageViewerModalHandler"
@@ -284,8 +285,10 @@ import {
   watchEffect,
 } from "vue";
 import Api from "@/utils/ApiHelper";
+import { useToast } from "maz-ui";
 
 const store = useStore();
+const { toast } = useToast();
 
 const emit = defineEmits(["options", "addNewVariation", "dataValidate"]);
 const props = defineProps([
@@ -305,7 +308,7 @@ const langsMounting = ref(false);
 const marketLanguages = computed(
   () => store.state.MarketModule.market?.languages
 );
-const langs = computed(() => {
+const languages = computed(() => {
   if (store.state.LookupQueries.languages && marketLanguages.value) {
     const data = store.state.LookupQueries.languages.data?.filter((lang) =>
       marketLanguages.value.includes(lang.id)
@@ -455,24 +458,30 @@ const addOption = (optionData: object): void => {
   });
 };
 const removeOption = (optionId: string): void => {
-  const index = recentOptions.value.findIndex(
-    (option) => option.connectionId === optionId
-  );
-  if (index > -1) {
-    if (recentOptions.value.length > 1) {
-      recentOptions.value.splice(index, 1);
-      emit("addNewVariation", {
-        id: variationsDataTypes.value[props.index]?.id || null,
-        resources: resources.value,
-        order: orderOption.value,
-        code: code.value,
-        selectionControlTypeId: selectedSelectionType.value?.id || null,
-        valueTypeId: selectedValueType.value?.id || null,
-        options: recentOptions.value,
-      });
-    } else {
-      props.removeTypeConfirmationHandler(props.index, true);
-    }
+  try {
+    const index = recentOptions.value.findIndex(
+      (option) => option.connectionId === optionId
+    );
+    recentOptions.value.splice(index, 1);
+    emit("addNewVariation", {
+      id: variationsDataTypes.value[props.index]?.id || null,
+      resources: resources.value,
+      order: orderOption.value,
+      code: code.value,
+      selectionControlTypeId: selectedSelectionType.value?.id || null,
+      valueTypeId: selectedValueType.value?.id || null,
+      options: recentOptions.value,
+    });
+    toast.success("Done, press save changes to submit this change", {
+      position: "bottom",
+      timeout: 5000,
+    });
+  } catch (error) {
+    toast.error("Something went wrong! please try again later", {
+      position: "bottom",
+      timeout: 5000,
+    });
+    console.error(error);
   }
 };
 
@@ -490,12 +499,8 @@ const saveChangesBtn = () => {
     saveChangesClicked.value = false;
   }, 1200);
 };
-
-const isReadonly = computed(() => store.state.UpdateProduct.isReadonly);
-const mutateIsReadonly = (payload: boolean) =>
-  store.commit("SET_IS_READONLY", payload);
-
 const editOption = (optionData: any): void => {
+  console.log(optionData);
   const index = recentOptions.value.findIndex(
     (option) => option.connectionId === optionData.connectionId
   );
@@ -548,13 +553,14 @@ const emitForm = () => {
 };
 
 onMounted(() => {
-  if (langs.value && Object.keys(langs.value).length > 0) {
+  if (languages.value && Object.keys(languages.value).length > 0) {
     langsMounting.value = false;
-    selectedLang.value = langs.value.data[0];
-    selectedOptionLabelLang.value = langs.value.data[0];
+    selectedLang.value = languages.value.data[0];
+    selectedOptionLabelLang.value = languages.value.data[0];
   }
   if (variationsDataTypes.value) {
     const type = variationsDataTypes.value[props.index];
+
     if (type) {
       if (
         Object.keys(typeLabel.value).length === 0 &&
@@ -570,6 +576,7 @@ onMounted(() => {
       const selectionControlType = selectionTypes.value?.find(
         (item) => item.id === type["selectionControlTypeId"]
       );
+
       setSelectionType(selectionControlType);
 
       // value Type
@@ -589,14 +596,14 @@ watchEffect(() => {
   emitForm();
 
   if (
-    langs.value &&
-    Object.keys(langs.value).length > 0 &&
+    languages.value &&
+    Object.keys(languages.value).length > 0 &&
     !selectedLang.value &&
     !selectedOptionLabelLang.value
   ) {
     langsMounting.value = false;
-    selectedLang.value = langs.value?.data[0];
-    selectedOptionLabelLang.value = langs.value?.data[0];
+    selectedLang.value = languages.value?.data[0];
+    selectedOptionLabelLang.value = languages.value?.data[0];
   }
 });
 

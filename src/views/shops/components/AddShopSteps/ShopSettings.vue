@@ -230,15 +230,15 @@
   <!--end::Wrapper-->
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { ErrorMessage, Field } from "vee-validate";
-import { computed, defineComponent,ref } from "vue";
+import { computed, watch,ref ,onMounted} from "vue";
 import store from "@/store";
 import Editor from "@/components/Reusable/Editor.vue";
 import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
 import { Actions,Mutations } from "@/store/enums/StoreEnums";
 import api from "@/utils/ApiHelper";
-
+import { upload } from "@/composables/uploader";
 interface Lang {
   id?: number;
   code?: string;
@@ -253,82 +253,57 @@ interface resource {
   address?: string;
  
 }
-export default defineComponent({
-  name: "shopSettings",
-  components: {
-    ErrorMessage,
-    Field,
-    Editor,
-    TabsDuplicator,
-  },
-  setup(props,{emit}) {
+
+
     let selectedItem = ref({});
     const product = ref([]);
     const logo = ref("/media/avatars/blank.png");
     const logoKey = ref<string>("");
-      const langs = computed(() => store.getters.getSupportedLanguages);
+      const langs = computed(() => store.state.LookupQueries.languages?.data);
     const currentLangs = computed(() => {
       let langs =store.getters.getSupportedLanguages;
 
-      if (langs.length > 0) {
-        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-        selectedItem.value = langs[0];
-      }
+     
 
       return langs;
-    });
+    } );
     const resources =ref<resource[]>([]);
-  langs.value.forEach((el) => {
+  
+const resetData = () => {
+  if(langs.value && langs.value.length > 0) {
+    selectedItem.value = langs.value[0];
+      langs.value.forEach((el :Lang) => {
     resources.value.push({ languageId: el.id, name: "", description: "", address: "" });
   });
+}
+}
 
+watch(langs, (newValue) => {
+  if (newValue) {
+    if (newValue && newValue.length > 0) {
+    resetData();
+    }}
+  }
+);
+onMounted(() => {
+  resetData();
+});
     const addResource = (): void => {store.commit(Mutations.SET_SHOPS_RESOURCES, resources.value);};
 
     const setSelectedItem = (payload: any) => {
       selectedItem.value = payload;
     };
 
-    const handleFileUpload = async (event: Event) => {
-      const target = event.target as HTMLInputElement;
-      const files = target?.files;
-      if (files && files?.length > 0) {
-        const subdomain = store.state.SetupModule.initSetupData.subdomain;
-        const file: File = files[0];
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-          const target: any = e.target;
-          const data = target.result;
-          logo.value = data;
-        };
-
-        reader.readAsDataURL(file);
-        let formData = new FormData();
-        formData.append("file", file);
-        formData.append("subdomain", subdomain);
-       
-  api({ url: Actions.UPLOAD_FILE, method: "post", payload: formData }).then((res): any => {
-   
-        store.commit(Mutations.SET_SHOPS_LOGO, res?.data.data);
+    const handleFileUpload = async (event) => {
+      logo.value = URL.createObjectURL(event.target.files[0]);
+  upload(event).then(res => {
+    store.commit(Mutations.SET_SHOPS_LOGO,res.data.data);
   })
-      }
     };
 
     const removeImage = () => {
       logo.value = "media/avatars/blank.png";
     };
-    return {
-      logo,
-      resources,
-      handleFileUpload,
-      removeImage,
-      currentLangs,
-      logoKey,
-      selectedItem,
-      setSelectedItem,
-      product,
-      addResource,
-    };
-  },
-});
+    
+
 </script>

@@ -49,10 +49,10 @@
                     class="badge badge-light-primary ms-5"
                     v-if="
                       parseInt(account.accountId) ==
-                      parseInt(Wallet.defaultDepositeAccountId)
+                      parseInt(Wallet?.defaultDepositeAccountId)
                     "
                   >
-                    {{ $t("default") }}
+                    {{ $t("isDefault") }}
                   </div>
                 </div>
                 <div class="text-muted">{{ account.accountSubType }}</div>
@@ -223,7 +223,7 @@ function getLastNums(info: string) {
 }
 
 const Wallet = computed(() => store.state.WalletModule.WalletDetails);
-const SetAsDefaultDeposite = (accountId) => {
+const SetAsDefaultDeposite = (accountId:string) => {
   let payload = {
     accountId,
     shopId: Wallet.value.shopId,

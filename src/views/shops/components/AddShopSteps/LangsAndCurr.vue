@@ -8,6 +8,7 @@
       <!--end::Title-->
     </div>
     <!--end::Heading-->
+    
 
     <!--begin::Input group-->
     <div class="fv-row mb-10">
@@ -46,6 +47,7 @@
       />
       <!--end::Input-->
     </div>
+    {{ lookupQueries.languages.data }}
     <!--end::Input group-->
 
     <!--begin::Input group-->
@@ -142,16 +144,20 @@ import { onMounted, ref,computed } from "vue";
 
 const lookupQueries = store.state.LookupQueries;
 
-const languages = ref<Language[] | null>();
-const currencies = ref<Currency[] | null>();
+// const languages = ref<Language[] | null>();
+// const currencies = ref<Currency[] | null>();
 const orderActionTemplate = computed(() => {
   return store.state.Order.OrderAction;
 });
-console.log("test orderActionTemplate",orderActionTemplate);
-
+const languages = computed(() => {
+  return store.state.LookupQueries.languages.data;
+});
+const currencies = computed(() => {
+  return store.state.LookupQueries.currencies.data;
+});
 onMounted(() => {
-  languages.value = store.state.LookupQueries.languages.data;
-  currencies.value = store.state.LookupQueries.currencies.data;
+  // languages.value = lookupQueries.languages.data;
+  // currencies.value = lookupQueries.currencies.data;
 
 
 });

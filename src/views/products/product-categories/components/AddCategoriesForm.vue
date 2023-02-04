@@ -381,6 +381,7 @@ import { ErrorMessage, Field, Form } from "vee-validate";
 import Multiselect from "@vueform/multiselect";
 import { Actions } from "@/store/enums/StoreEnums";
 import { useStore } from "vuex";
+import { upload } from "@/composables/uploader";
 
 import * as yup from "yup";
 import TabsDuplicator from "@/components/Reusable/TabsDuplicator.vue";
@@ -448,29 +449,13 @@ const removeImage = () => {
   imageUrl.value = "/media/avatars/blank.png";
 };
 
-const handleSubmit = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const files = target?.files;
-
-  if (files && files?.length > 0) {
-    const file: File = files[0];
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const target: any = e.target;
-      const data = target.result;
-      imageUrl.value = data;
-    };
-    reader.readAsDataURL(file);
-    let formData = new FormData();
-    formData.append("file", file);
-
-    store.dispatch(Actions.UPLOAD_FILE, formData).then((res) => {
-      console.log(res);
-      const url = res[1].data.data;
-      form.thumbnail = url;
-      // imageUrl.value = image(url);
-    });
-  }
+const handleSubmit = async (event: any) => {
+  
+  imageUrl.value = URL.createObjectURL(event.target.files[0]);
+  upload(event).then(res => {
+    form.thumbnail = res.data.data
+    
+  })
 };
 
 // initial Langs

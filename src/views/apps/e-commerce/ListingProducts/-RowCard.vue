@@ -257,14 +257,11 @@ const showPriceModal = async () => {
   -moz-appearance: none;
   appearance: none;
 }
+
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-}
-.img-loader {
-  backdrop-filter: blur(10px);
-  background-color: rgba(255, 245, 248, 0.47);
 }
 </style>

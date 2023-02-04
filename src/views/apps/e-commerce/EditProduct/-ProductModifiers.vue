@@ -244,7 +244,7 @@
                 <div class="col-12 col-sm-6 mb-1">
                   <div>
                     <label for="modifierMaxSelectionValue" class="form-label"
-                    >Maximum Selection Value</label
+                      >Maximum Selection Value</label
                     >
                     <input
                       type="number"
@@ -333,71 +333,71 @@
                   </div>
                   <table class="table gs-3 gy-3 gx-5">
                     <thead>
-                    <tr
-                      class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
-                    >
-                      <th class="text-truncate">#</th>
-                      <th class="text-truncate">name</th>
-                      <th class="text-truncate">price</th>
-                      <th class="text-truncate">Actions</th>
-                    </tr>
+                      <tr
+                        class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
+                      >
+                        <th class="text-truncate">#</th>
+                        <th class="text-truncate">name</th>
+                        <th class="text-truncate">price</th>
+                        <th class="text-truncate">Actions</th>
+                      </tr>
                     </thead>
                     <tbody>
-                    <tr
-                      v-for="(item, index) in modifierGroupItems"
-                      :key="item.id"
-                    >
-                      <td class="text-truncate">
-                        <div class="td-holder" v-text="index + 1" />
-                      </td>
-                      <td class="text-truncate">
-                        <div
-                          class="td-holder"
-                          v-text="item.resources[0].name"
-                          :title="item.resources[0].name"
-                        />
-                      </td>
-                      <td class="text-truncate">
-                        <div
-                          class="td-holder"
-                          v-text="item.prices[0].price"
-                        />
-                      </td>
-                      <td>
-                        <div class="td-holder gap-2" style="max-width: 60px">
-                          <button
-                            type="button"
-                            class="btn btn-sm btn-bg-light rounded-pill btn-text-info"
-                            title="edit"
-                            @click="
+                      <tr
+                        v-for="(item, index) in modifierGroupItems"
+                        :key="item.id"
+                      >
+                        <td class="text-truncate">
+                          <div class="td-holder" v-text="index + 1" />
+                        </td>
+                        <td class="text-truncate">
+                          <div
+                            class="td-holder"
+                            v-text="item.resources[0].name"
+                            :title="item.resources[0].name"
+                          />
+                        </td>
+                        <td class="text-truncate">
+                          <div
+                            class="td-holder"
+                            v-text="item.prices[0].price"
+                          />
+                        </td>
+                        <td>
+                          <div class="td-holder gap-2" style="max-width: 60px">
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-bg-light rounded-pill btn-text-info"
+                              title="edit"
+                              @click="
                                 setClickedModifier(item),
                                   toggleAddGroupItemDialog()
                               "
-                          >
-                            <i
-                              class="bi bi-pencil-square text-info"
-                              style="font-size: 1rem"
-                            ></i>
-                          </button>
-                          <button
-                            @click="
+                            >
+                              <i
+                                class="bi bi-pencil-square text-info"
+                                style="font-size: 1rem"
+                              ></i>
+                            </button>
+                            <button
+                              @click="
                                 toggleConfirmationDialog({
                                   id: item.id,
                                   array: 'modifierGroupItems',
                                 })
                               "
-                            type="button"
-                            class="btn btn-sm btn-bg-light rounded-pill btn-text-danger"
-                            title="remove"
-                          >
-                            <i
-                              class="bi bi-trash3 text-danger"
-                              style="font-size: 1rem"
-                            ></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                              type="button"
+                              class="btn btn-sm btn-bg-light rounded-pill btn-text-danger"
+                              title="remove"
+                            >
+                              <i
+                                class="bi bi-trash3 text-danger"
+                                style="font-size: 1rem"
+                              ></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </section>
@@ -590,7 +590,7 @@
         />
       </div>
       <div
-        v-else-if="modifierGroupItems && modifierGroupItems.length === 0"
+        v-else-if="modifiersTable && modifiersTable.length === 0"
         class="d-flex justify-content-center align-items-center flex-column gap-3"
       >
         <div class="text-center">
@@ -766,7 +766,7 @@
             <div class="col-12 col-sm-6 mb-1">
               <div>
                 <label for="modifierMaxSelectionValue" class="form-label"
-                >Maximum Selection Value</label
+                  >Maximum Selection Value</label
                 >
                 <input
                   type="number"
@@ -855,67 +855,67 @@
               </div>
               <table class="table gs-3 gy-3 gx-5">
                 <thead>
-                <tr
-                  class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
-                >
-                  <th class="text-truncate">#</th>
-                  <th class="text-truncate">name</th>
-                  <th class="text-truncate">price</th>
-                  <th class="text-truncate">Actions</th>
-                </tr>
+                  <tr
+                    class="fw-bold fs-5 text-gray-800 border-bottom border-gray-200 text-capitalize"
+                  >
+                    <th class="text-truncate">#</th>
+                    <th class="text-truncate">name</th>
+                    <th class="text-truncate">price</th>
+                    <th class="text-truncate">Actions</th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr
-                  v-for="(item, index) in modifierGroupItems"
-                  :key="item.id"
-                >
-                  <td class="text-truncate">
-                    <div class="td-holder" v-text="index + 1" />
-                  </td>
-                  <td class="text-truncate">
-                    <div
-                      class="td-holder"
-                      v-text="item.resources[0].name"
-                      :title="item.resources[0].name"
-                    />
-                  </td>
-                  <td class="text-truncate">
-                    <div class="td-holder" v-text="item.prices[0].price" />
-                  </td>
-                  <td>
-                    <div class="td-holder gap-2" style="max-width: 60px">
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-bg-light rounded-pill btn-text-info"
-                        title="edit"
-                        @click="
+                  <tr
+                    v-for="(item, index) in modifierGroupItems"
+                    :key="item.id"
+                  >
+                    <td class="text-truncate">
+                      <div class="td-holder" v-text="index + 1" />
+                    </td>
+                    <td class="text-truncate">
+                      <div
+                        class="td-holder"
+                        v-text="item.resources[0].name"
+                        :title="item.resources[0].name"
+                      />
+                    </td>
+                    <td class="text-truncate">
+                      <div class="td-holder" v-text="item.prices[0].price" />
+                    </td>
+                    <td>
+                      <div class="td-holder gap-2" style="max-width: 60px">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-bg-light rounded-pill btn-text-info"
+                          title="edit"
+                          @click="
                             setClickedModifier(item), toggleAddGroupItemDialog()
                           "
-                      >
-                        <i
-                          class="bi bi-pencil-square text-info"
-                          style="font-size: 1rem"
-                        ></i>
-                      </button>
-                      <button
-                        type="button"
-                        class="btn btn-sm btn-bg-light rounded-pill btn-text-danger"
-                        title="remove"
-                        @click="
+                        >
+                          <i
+                            class="bi bi-pencil-square text-info"
+                            style="font-size: 1rem"
+                          ></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-bg-light rounded-pill btn-text-danger"
+                          title="remove"
+                          @click="
                             toggleConfirmationDialog({
                               id: item.id,
                               array: 'modifierGroupItems',
                             })
                           "
-                      >
-                        <i
-                          class="bi bi-trash3 text-danger"
-                          style="font-size: 1rem"
-                        ></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                        >
+                          <i
+                            class="bi bi-trash3 text-danger"
+                            style="font-size: 1rem"
+                          ></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </section>
@@ -1058,7 +1058,7 @@ const selectedModifiersIds = ref<any[]>([]); //-> the selected items' IDs
 const selectedModifiers = ref<any[]>([]); //-> the final result of the selected items (what you're going to use in the template)
 const findSelectedModifiers = (ids: Array<any> = []) => {
   selectedModifiers.value = props.modifiers?.filter((item) =>
-    ids.includes(item.id)
+    ids?.includes(item.id)
   );
 };
 // where you receive the data from the dropdown component
@@ -1080,8 +1080,8 @@ const updateModifier = async () => {
       method: "post",
       payload: {
         id: props.product.id,
-        modifiers: selectedModifiersIds.value
-      }
+        modifiers: selectedModifiersIds.value,
+      },
     };
     const { data }: any = await Api(reqData);
     if (!data.succeeded) {
@@ -1122,7 +1122,7 @@ const itemInstance = ref({
   prices: {},
   order: null,
   selected: false,
-  image: ""
+  image: "",
 });
 
 const modifierForm = ref({
@@ -1134,11 +1134,13 @@ const modifierForm = ref({
   modifierMin: null,
   onJetOrder: true,
   onShopLink: true,
-  isMendatory: true
+  isMendatory: true,
 });
 
 const modifierGroupItems = ref<any[]>();
-
+watch(modifierGroupItems, (newV) => {
+  console.log({ newV });
+});
 const groupItemDialog = ref(false);
 
 const toggleAddGroupItemDialog = () => {
@@ -1169,29 +1171,34 @@ const isAddModifierGroupFormValid = computed(() => {
 
 const pushNewModifierGroupItems = () => {
   const item = unref(itemInstance.value);
+  console.log(item);
   let resources: any[] = [];
   let prices: any[] = [];
 
   Object.keys(item.resources).forEach((langId: any) => {
     resources.push({
       languageId: langId,
-      name: item.resources[langId]
+      name: item.resources[langId],
     });
   });
   Object.keys(item.prices).forEach((currencyId: any) => {
     prices.push({
       currencyId: currencyId,
-      price: item.prices[currencyId]
+      price: item.prices[currencyId],
     });
   });
+
+  if (!modifierGroupItems.value) modifierGroupItems.value = [];
 
   modifierGroupItems.value?.push({
     id: uuid.v4(),
     selected: item.selected,
     order: item.order,
     prices,
-    resources
+    resources,
   });
+
+  console.log(modifierGroupItems.value);
 
   toggleAddGroupItemDialog();
   itemInstance.value = {
@@ -1199,12 +1206,13 @@ const pushNewModifierGroupItems = () => {
     prices: {},
     order: null,
     selected: false,
-    image: ""
+    image: "",
   };
 };
 
 const clickedModifier = ref();
 const setClickedModifier = (item) => {
+  console.log(item);
   clickedModifier.value = item;
 
   itemInstance.value.order = item.order;
@@ -1231,13 +1239,13 @@ const editModifierGroupItem = () => {
     Object.keys(item.resources).forEach((langId: any) => {
       resources.push({
         languageId: langId,
-        name: item.resources[langId]
+        name: item.resources[langId],
       });
     });
     Object.keys(item.prices).forEach((currencyId: any) => {
       prices.push({
         currencyId: currencyId,
-        price: item.prices[currencyId]
+        price: item.prices[currencyId],
       });
     });
 
@@ -1286,13 +1294,13 @@ const submitAll = async () => {
       isGenericModifier: false,
       connectedShops: [...selectedShopsIds.value],
       resources: [],
-      modifierGroupItems: [...modifierGroupItems.value]
+      modifierGroupItems: [...modifierGroupItems.value],
     };
 
     Object.keys(modifierForm.value.modifierResources).forEach((langId: any) => {
       resources.push({
         languageId: langId,
-        name: modifierForm.value.modifierResources[langId]
+        name: modifierForm.value.modifierResources[langId],
       });
     });
 
@@ -1301,14 +1309,14 @@ const submitAll = async () => {
     const reqData = {
       url: "/ProductModifierCommands/create-modifier",
       method: "post",
-      payload
+      payload,
     };
 
     const { data }: any = await Api(reqData);
     if (data.succeeded) {
       modifiersTable.value.push({
         id: data.data.id,
-        ...payload
+        ...payload,
       });
       toggleAddModifierDialog();
       modifierForm.value = {
@@ -1320,7 +1328,7 @@ const submitAll = async () => {
         modifierMin: null,
         onJetOrder: true,
         onShopLink: true,
-        isMendatory: true
+        isMendatory: true,
       };
       selectShops([], true);
       modifierGroupItems.value = [];
@@ -1361,7 +1369,7 @@ const setEditTargetedModifier = () => {
       modifierMin: target.minimumSelectionValue,
       onJetOrder: target.isPublishedOnJetOrder,
       onShopLink: target.isPublishedOnShopLink,
-      isMendatory: target.isMendatory
+      isMendatory: target.isMendatory,
     };
     selectShops(target.connectedShops, true);
     modifierGroupItems.value = target.modifierGroupItems || [];
@@ -1386,13 +1394,13 @@ const editModifier = async () => {
       isGenericModifier: false,
       connectedShops: [...selectedShopsIds.value],
       resources: [],
-      modifierGroupItems: [...modifierGroupItems.value]
+      modifierGroupItems: [...modifierGroupItems.value],
     };
 
     Object.keys(modifierForm.value.modifierResources).forEach((langId: any) => {
       resources.push({
         languageId: langId,
-        name: modifierForm.value.modifierResources[langId]
+        name: modifierForm.value.modifierResources[langId],
       });
     });
 
@@ -1411,7 +1419,7 @@ const editModifier = async () => {
     const reqData = {
       url: "/ProductModifierCommands/update-modifier",
       method: "post",
-      payload
+      payload,
     };
 
     const { data }: any = await Api(reqData);
@@ -1428,7 +1436,7 @@ const editModifier = async () => {
         modifierMin: null,
         onJetOrder: true,
         onShopLink: true,
-        isMendatory: true
+        isMendatory: true,
       };
       selectShops([], true);
       modifierGroupItems.value = [];
@@ -1447,7 +1455,7 @@ const confirmationDialog = ref(false);
 
 const targetRemovedDetails = ref({
   id: null,
-  array: ""
+  array: "",
 });
 
 const toggleConfirmationDialog = (info) => {
@@ -1466,8 +1474,8 @@ const removeModifier = async () => {
         method: "post",
         url: "/ProductModifierCommands/remove-modifier",
         payload: {
-          id: targetInfo.id
-        }
+          id: targetInfo.id,
+        },
       };
 
       const { data }: any = await Api(reqData);
@@ -1515,7 +1523,7 @@ watch(editModifierDialog, (newV) => {
       modifierMin: null,
       onJetOrder: true,
       onShopLink: true,
-      isMendatory: true
+      isMendatory: true,
     };
     selectShops([], true);
     modifierGroupItems.value = [];
@@ -1531,7 +1539,7 @@ watch(groupItemDialog, (newV) => {
       prices: {},
       order: null,
       selected: false,
-      image: ""
+      image: "",
     };
   }
 });

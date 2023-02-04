@@ -30,26 +30,27 @@
 <script lang="ts" setup>
 interface Props {
   elChanged: boolean | string;
-  elLoading: boolean,
-  btnSubmit: Function,
-  btnReverseSubmit?: Function,
-  noCancel?: boolean,
-  payload?: any,
-  submitBtnClasses?: string,
-  reverseBtnClasses?: string,
-  buttonsHolderClasses?: string,
-  submitBtnText?: string,
-  reverseBtnText?: string,
-  completionMessage?: string
+  elLoading: boolean;
+  btnSubmit: Function;
+  btnReverseSubmit?: Function;
+  noCancel?: boolean;
+  payload?: any;
+  submitBtnClasses?: string;
+  reverseBtnClasses?: string;
+  buttonsHolderClasses?: string;
+  submitBtnText?: string;
+  reverseBtnText?: string;
+  completionMessage?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  submitBtnClasses: "btn btn-light-info btn-sm",
-  reverseBtnClasses: "btn btn-light-danger btn-sm",
+  submitBtnClasses: "btn btn-light-primary btn-sm",
+  reverseBtnClasses: "btn btn-light btn-sm",
   buttonsHolderClasses: "d-flex flex-wrap gap-2",
   submitBtnText: "Save Changes",
   reverseBtnText: "decline",
-  completionMessage: "Done"
+  completionMessage: "Done",
+  noCancel: false,
 });
 
 const submitFunction = () => {
@@ -59,12 +60,11 @@ const submitFunction = () => {
 
   props.payload ? props.btnSubmit(props.payload) : props.btnSubmit();
 };
-
 </script>
 
 <style scoped>
 .submit-button {
-  animation: activeButton .4s alternate infinite;
+  animation: activeButton 0.4s alternate infinite;
 }
 
 @keyframes activeButton {
@@ -72,7 +72,7 @@ const submitFunction = () => {
     transform: scale(0);
   }
   0% {
-    transform: scale(1.05)
+    transform: scale(1.05);
   }
 }
 </style>

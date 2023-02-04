@@ -143,7 +143,7 @@ const getCurrentDiscounts = (prices: any[]) => {
   const allCurrencies: any[] = store.state.LookupQueries.currencies?.data;
   const marketCurrencies: any[] = store.state.MarketModule.market?.currencies;
   const availableCurrencies: any[] = allCurrencies.filter((i) =>
-    marketCurrencies.includes(i.id)
+    marketCurrencies?.includes(i.id)
   );
   const finalCurrenciesArray: any[] = [];
 
